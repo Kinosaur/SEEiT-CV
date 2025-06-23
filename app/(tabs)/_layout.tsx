@@ -27,20 +27,6 @@ export default function TabLayout() {
                 }}
             />
             <Tabs.Screen
-                name="rgbPlayer"
-                options={{
-                    title: 'Test',
-                    headerShown: false, // Hide header for this tab
-                    tabBarIcon: ({ color, focused }) => (
-                        <IconSymbol
-                            name={focused ? 'wand.and.rays.inverse' : 'wand.and.rays'}
-                            size={30}
-                            color={color}
-                        />
-                    ),
-                }}
-            />
-            <Tabs.Screen
                 name="profile"
                 options={{
                     title: 'Profile',
