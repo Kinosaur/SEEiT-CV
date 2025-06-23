@@ -1,14 +1,47 @@
+import { Ionicons } from '@expo/vector-icons';
+import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
 import { Drawer } from 'expo-router/drawer';
 import { StatusBar } from 'expo-status-bar';
-import { SafeAreaView } from 'react-native';
+import React from 'react';
+import { SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { IconSymbol } from '../components/ui/IconSymbol';
 import { Colors } from '../constants/Colors';
+
+function CustomDrawerContent(props: DrawerContentComponentProps) {
+  // Use a fallback color for the close icon
+  const iconColor = Colors.dark.text;
+  return (
+    <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1, paddingTop: 30 }}>
+      <View style={drawerStyles.closeButtonContainer}>
+        <TouchableOpacity
+          onPress={() => props.navigation.closeDrawer()}
+          accessible={true}
+          accessibilityLabel="Close navigation drawer"
+          accessibilityRole="button"
+        >
+          <Ionicons name="close" size={32} color={iconColor} />
+        </TouchableOpacity>
+      </View>
+      <DrawerItemList {...props} />
+    </DrawerContentScrollView>
+  );
+}
+
+const drawerStyles = StyleSheet.create({
+  closeButtonContainer: {
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+    paddingLeft: 10,
+    paddingTop: 10,
+    marginBottom: 10,
+  },
+});
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -49,12 +82,13 @@ export default function RootLayout() {
                 fontSize: 18,
               },
             }}
+            drawerContent={props => <CustomDrawerContent {...props} />}
           >
             <Drawer.Screen
               name="index"
               options={{
                 title: 'SEEiT',
-                headerShown: true,
+                headerShown: false,
                 drawerIcon: ({ color, size, focused }) => (
                   <IconSymbol name={focused ? 'house.fill' : 'house'} color={color} size={size} />
                 ),
@@ -64,7 +98,7 @@ export default function RootLayout() {
               name="profile"
               options={{
                 title: 'Profile',
-                headerShown: true,
+                headerShown: false,
                 drawerIcon: ({ color, size, focused }) => (
                   <IconSymbol name={focused ? 'person.crop.circle.fill' : 'person.crop.circle'} color={color} size={size} />
                 ),
