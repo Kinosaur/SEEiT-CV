@@ -12,6 +12,8 @@ const MAPPING = {
   'person.crop.circle': 'person-circle-outline',
   'house': 'home-outline',
   'house.fill': 'home',
+  'wand.and.rays': 'color-filter-outline',
+  'wand.and.rays.inverse': 'color-filter',
 } as Record<SymbolViewProps['name'], ComponentProps<typeof Ionicons>['name']>;
 
 type IconSymbolName = keyof typeof MAPPING;
