@@ -10,7 +10,7 @@ const backgroundDark = '#181A1B';  // very dark gray
 
 // Primary text colors
 const textLight = '#212121'; // near-black
-const textDark = '#FFFFFF';  // white
+const textDark = '#F3F3F3';  // off-white, less bright than pure white
 
 // Accent and status colors (colorblind-safe)
 const accentLight = '#1F449C'; // blue (safe for all types)
