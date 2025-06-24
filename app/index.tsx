@@ -1,12 +1,14 @@
+import Buttons from '@/components/Buttons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
-import { Ionicons } from '@expo/vector-icons';
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
 import * as ExpoMediaLibrary from 'expo-media-library';
+import { useRouter } from 'expo-router';
 import React from 'react';
-import { AccessibilityInfo, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { AccessibilityInfo, Platform, StyleSheet, TouchableHighlight, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
 
@@ -39,11 +41,39 @@ const NoCameraDeviceError = () => {
 };
 
 export default function Index() {
-    const device = useCameraDevice('back');
+    // const devices = useCameraDevices();
+    const router = useRouter();
+    const [cameraPosition, setCameraPosition] = React.useState<"front" | "back">(
+        "back"
+    );
+    const device = useCameraDevice(cameraPosition);
+    const [torch, setTorch] = React.useState<'off' | 'on'>('off');
+    const [flash, setFlash] = React.useState<'off' | 'on'>('off');
+
+    const camera = React.useRef<Camera>(null);
     const { hasPermission, requestPermission } = useCameraPermission();
     const [mediaLibraryPermission, requestMediaLibraryPermission] = ExpoMediaLibrary.usePermissions();
     // Type navigation as DrawerNavigationProp for toggleDrawer
     const navigation = useNavigation<DrawerNavigationProp<any>>();
+
+    const takePicture = async () => {
+        try {
+            if (camera.current == null) throw new Error("Camera ref is null!");
+
+            console.log("Taking photo...");
+            const photo = await camera.current.takePhoto({
+                flash: flash,
+                enableShutterSound: false,
+            });
+            router.push({
+                pathname: "/media",
+                params: { media: photo.path, type: "photo" },
+            });
+            // onMediaCaptured(photo, 'photo')
+        } catch (e) {
+            console.error("Failed to take photo!", e);
+        }
+    };
 
     React.useEffect(() => {
         if (!hasPermission) requestPermission();
@@ -73,17 +103,56 @@ export default function Index() {
                 importantForAccessibility="yes"
             >
                 <Camera
+                    ref={camera}
                     style={{ flex: 1 }}
-                    device={device}
+                    device={device!}
                     isActive={true}
+                    resizeMode='cover'
+                    torch={torch}
+                    photo
                 />
             </View>
-            {/* Placeholder for future controls (accessible buttons, status, etc.) */}
-            <View
-                style={{ flex: 1 }}
+            <View style={{
+                flex: 0.5,
+                flexDirection: "row",
+                justifyContent: "space-evenly",
+            }}
                 accessible={true}
                 accessibilityLabel="Controls area"
-            />
+            >
+                <Buttons
+                    iconName={torch === "on" ? "flashlight" : "flashlight-outline"}
+                    onPress={() => setTorch((t) => (t === "off" ? "on" : "off"))}
+                    containerStyle={{ alignSelf: 'center' }}
+                />
+                <Buttons
+                    iconName={
+                        flash === "on" ? "flash-outline" : "flash-off-outline"
+                    }
+                    onPress={() => setFlash((f) => (f === "off" ? "on" : "off"))}
+                    containerStyle={{ alignSelf: "center" }}
+                />
+                <Buttons
+                    iconName="camera-reverse-outline"
+                    onPress={() =>
+                        setCameraPosition((p) => (p === "back" ? "front" : "back"))
+                    }
+                    containerStyle={{ alignSelf: "center" }}
+                />
+            </View>
+            {/* Botton section */}
+            <View
+                style={{
+                    flex: 0.5,
+                    flexDirection: "row",
+                    justifyContent: "space-evenly",
+                    alignItems: "center",
+                }}
+            >
+                <TouchableHighlight onPress={takePicture}>
+                    <FontAwesome5 name="dot-circle" size={55} color={"white"} />
+                </TouchableHighlight>
+            </View>
         </SafeAreaView>
     );
 }

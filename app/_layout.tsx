@@ -69,7 +69,6 @@ export default function RootLayout() {
               drawerInactiveTintColor: themeColors.text,
               drawerStyle: {
                 backgroundColor: themeColors.background,
-                width: 250, // reduced width
               },
               headerStyle: { backgroundColor: themeColors.background },
               headerTintColor: themeColors.secondaryAccent,
@@ -77,6 +76,7 @@ export default function RootLayout() {
                 fontFamily: 'AtkinsonBold',
                 fontSize: 24,
               },
+              drawerHideStatusBarOnOpen: true,
               drawerLabelStyle: {
                 fontFamily: 'AtkinsonBold',
                 fontSize: 18,
@@ -92,6 +92,14 @@ export default function RootLayout() {
                 drawerIcon: ({ color, size, focused }) => (
                   <IconSymbol name={focused ? 'house.fill' : 'house'} color={color} size={size} />
                 ),
+              }}
+            />
+            <Drawer.Screen
+              name='media'
+              options={{
+                title: 'Media',
+                headerShown: false,
+                drawerItemStyle: { display: 'none' }, // Hide this item from the drawer
               }}
             />
             <Drawer.Screen
