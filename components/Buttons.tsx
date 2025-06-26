@@ -23,6 +23,12 @@ export default function Buttons({
     containerStyle,
     iconSize,
 }: ButtonProps) {
+    // Determine accessibility label
+    let accessibilityLabel = title
+        ? title
+        : iconName
+            ? iconName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+            : "Button";
     return (
         <TouchableOpacity
             onPress={onPress}
@@ -35,6 +41,9 @@ export default function Buttons({
                 },
                 containerStyle,
             ]}
+            accessible={true}
+            accessibilityRole="button"
+            accessibilityLabel={accessibilityLabel}
         >
             {iconName && (
                 <Ionicons name={iconName} size={iconSize ?? 28} color={"white"} />

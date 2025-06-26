@@ -1,5 +1,5 @@
-import { Link, useLocalSearchParams, useRouter } from "expo-router";
-import { Alert, Image, StyleSheet } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Alert, Image, StyleSheet, TouchableOpacity } from "react-native";
 
 import Buttons from "@/components/Buttons";
 import { ThemedText } from "@/components/ThemedText";
@@ -32,9 +32,15 @@ export default function MediaScreen() {
                     router.back();
                 }}
             />
-            <Link href="/" style={styles.link}>
+            <TouchableOpacity
+                onPress={() => router.push("/")}
+                style={styles.link}
+                accessible={true}
+                accessibilityRole="button"
+                accessibilityLabel="Delete and go back"
+            >
                 <ThemedText type="link">Delete and go back</ThemedText>
-            </Link>
+            </TouchableOpacity>
         </ThemedView>
     );
 }

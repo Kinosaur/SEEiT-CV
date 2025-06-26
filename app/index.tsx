@@ -149,7 +149,12 @@ export default function Index() {
                     alignItems: "center",
                 }}
             >
-                <TouchableHighlight onPress={takePicture}>
+                <TouchableHighlight
+                    onPress={takePicture}
+                    accessible={true}
+                    accessibilityRole="button"
+                    accessibilityLabel="Take picture"
+                >
                     <FontAwesome5 name="dot-circle" size={55} color={"white"} />
                 </TouchableHighlight>
             </View>
