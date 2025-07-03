@@ -2,6 +2,7 @@ import Buttons from '@/components/Buttons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
@@ -49,12 +50,15 @@ export default function Index() {
     const device = useCameraDevice(cameraPosition);
     const [torch, setTorch] = React.useState<'off' | 'on'>('off');
     const [flash, setFlash] = React.useState<'off' | 'on'>('off');
+    const [speechOn, setSpeechOn] = React.useState(true);
 
     const camera = React.useRef<Camera>(null);
     const { hasPermission, requestPermission } = useCameraPermission();
     const [mediaLibraryPermission, requestMediaLibraryPermission] = ExpoMediaLibrary.usePermissions();
     // Type navigation as DrawerNavigationProp for toggleDrawer
     const navigation = useNavigation<DrawerNavigationProp<any>>();
+    const colorScheme = useColorScheme() ?? 'light';
+    const themeColors = Colors[colorScheme];
 
     const takePicture = async () => {
         try {
@@ -86,7 +90,7 @@ export default function Index() {
     if (device == null) return <NoCameraDeviceError />;
 
     return (
-        <SafeAreaView style={styles.container} accessible={true} accessibilityLabel="Camera view screen">
+        <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]} accessible={true} accessibilityLabel="Camera view screen">
             {/* Drawer Toggle Button */}
             <TouchableOpacity
                 style={styles.drawerToggle}
@@ -94,7 +98,7 @@ export default function Index() {
                 accessible={true}
                 accessibilityLabel="Open navigation drawer"
             >
-                <Ionicons name="menu" size={32} color={Colors.dark.text} />
+                <Ionicons name="menu" size={32} color={themeColors.text} />
             </TouchableOpacity>
             <View
                 style={{ flex: 2, borderRadius: 10, overflow: 'hidden' }}
@@ -149,14 +153,42 @@ export default function Index() {
                     alignItems: "center",
                 }}
             >
+                {/* Speech Button */}
+                <Buttons
+                    iconName={speechOn ? "volume-high-outline" : "volume-mute-outline"}
+                    onPress={() => {
+                        setSpeechOn((prev) => !prev);
+                        AccessibilityInfo.announceForAccessibility(
+                            speechOn ? "Speech off" : "Speech on"
+                        );
+                    }}
+                    containerStyle={{ alignSelf: "center" }}
+                    iconSize={40}
+                />
                 <TouchableHighlight
                     onPress={takePicture}
                     accessible={true}
                     accessibilityRole="button"
                     accessibilityLabel="Take picture"
+                    style={{
+                        borderRadius: 40,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                    }}
+                    underlayColor={themeColors.secondaryAccent}
                 >
-                    <FontAwesome5 name="dot-circle" size={55} color={"white"} />
+                    <FontAwesome5 name="dot-circle" size={55} color={themeColors.shutter} />
                 </TouchableHighlight>
+                {/* Language Selector Button (placeholder) */}
+                <Buttons
+                    iconName="language-outline"
+                    onPress={() => {
+                        AccessibilityInfo.announceForAccessibility("Language selection feature coming soon.");
+                        // Optionally, show a toast/snackbar here
+                    }}
+                    containerStyle={{ alignSelf: "center", opacity: 0.5 }}
+                    iconSize={40}
+                />
             </View>
         </SafeAreaView>
     );
@@ -166,7 +198,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingTop: Platform.OS === "android" ? 60 : 0,
-        backgroundColor: Colors.dark.background, // Use theme color
     },
     drawerToggle: {
         position: 'absolute',
@@ -180,10 +211,10 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 24,
         fontFamily: 'AtkinsonBold',
-        color: Colors.dark.text, // Use theme color
+        // color is set inline using themeColors
     },
     textHighlight: {
         fontSize: 30,
-        color: Colors.dark.secondaryAccent,
+        // color is set inline using themeColors
     },
 });

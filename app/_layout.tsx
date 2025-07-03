@@ -14,10 +14,12 @@ import { IconSymbol } from '../components/ui/IconSymbol';
 import { Colors } from '../constants/Colors';
 
 function CustomDrawerContent(props: DrawerContentComponentProps) {
-  // Use a fallback color for the close icon
-  const iconColor = Colors.dark.text;
+  const colorScheme = useColorScheme() ?? 'light';
+  const themeColors = Colors[colorScheme];
+  // Use theme-aware color for the close icon
+  const iconColor = themeColors.text;
   return (
-    <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1, paddingTop: 30 }}>
+    <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1, paddingTop: 30, backgroundColor: themeColors.background }}>
       <View style={drawerStyles.closeButtonContainer}>
         <TouchableOpacity
           onPress={() => props.navigation.closeDrawer()}
@@ -44,7 +46,7 @@ const drawerStyles = StyleSheet.create({
 });
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+  const colorScheme = useColorScheme() ?? 'light';
   const [loaded] = useFonts({
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     Atkinson: require('../assets/fonts/AtkinsonHyperlegible-Regular.ttf'),
@@ -59,8 +61,8 @@ export default function RootLayout() {
   const themeColors = isDark ? Colors.dark : Colors.light;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: themeColors.background }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background }}>
         <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
           <Drawer
             screenOptions={{
@@ -69,17 +71,21 @@ export default function RootLayout() {
               drawerInactiveTintColor: themeColors.text,
               drawerStyle: {
                 backgroundColor: themeColors.background,
+                borderRightColor: themeColors.divider,
+                borderRightWidth: 1,
               },
-              headerStyle: { backgroundColor: themeColors.background },
+              headerStyle: { backgroundColor: themeColors.background, borderBottomColor: themeColors.divider, borderBottomWidth: 1 },
               headerTintColor: themeColors.secondaryAccent,
               headerTitleStyle: {
                 fontFamily: 'AtkinsonBold',
                 fontSize: 24,
+                color: themeColors.text,
               },
               drawerHideStatusBarOnOpen: true,
               drawerLabelStyle: {
                 fontFamily: 'AtkinsonBold',
                 fontSize: 18,
+                color: themeColors.text,
               },
             }}
             drawerContent={props => <CustomDrawerContent {...props} />}

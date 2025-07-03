@@ -1,4 +1,5 @@
 import { Colors } from "@/constants/Colors";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
 import { ComponentProps } from "react";
 import {
@@ -29,14 +30,19 @@ export default function Buttons({
         : iconName
             ? iconName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
             : "Button";
+    // Use theme-aware background and icon/text color
+    const colorScheme = useColorScheme() ?? 'light';
+    const theme = Colors[colorScheme];
+    const buttonBackground = theme.surface;
+    const iconAndTextColor = theme.accent;
     return (
         <TouchableOpacity
             onPress={onPress}
             style={[
                 styles.container,
                 {
-                    backgroundColor: Colors.dark.background,
-                    borderRadius: title ? 6 : 40,
+                    backgroundColor: buttonBackground,
+                    borderRadius: 20,
                     alignSelf: "flex-start",
                 },
                 containerStyle,
@@ -46,14 +52,14 @@ export default function Buttons({
             accessibilityLabel={accessibilityLabel}
         >
             {iconName && (
-                <Ionicons name={iconName} size={iconSize ?? 28} color={"white"} />
+                <Ionicons name={iconName} size={iconSize ?? 28} color={iconAndTextColor} />
             )}
             {title ? (
                 <Text
                     style={{
                         fontSize: 14,
                         fontWeight: "600",
-                        color: "white",
+                        color: iconAndTextColor,
                     }}
                 >
                     {title}
@@ -66,9 +72,10 @@ export default function Buttons({
 const styles = StyleSheet.create({
     container: {
         padding: 7,
-        borderRadius: 40,
+        borderRadius: 20,
         flexDirection: "row",
         alignItems: "center",
         gap: 7,
+        overflow: "hidden",
     },
 });
