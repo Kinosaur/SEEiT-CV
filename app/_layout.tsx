@@ -1,3 +1,4 @@
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
@@ -8,26 +9,25 @@ import React from 'react';
 import { SafeAreaView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { IconSymbol } from '../components/ui/IconSymbol';
 import { Colors } from '../constants/Colors';
 
 function CustomDrawerContent(props: DrawerContentComponentProps) {
   const colorScheme = useColorScheme() ?? 'light';
   const themeColors = Colors[colorScheme];
-  // Use theme-aware color for the close icon
-  const iconColor = themeColors.text;
   return (
-    <DrawerContentScrollView {...props} contentContainerStyle={{ flex: 1, paddingTop: 30, backgroundColor: themeColors.background }}>
+    <DrawerContentScrollView
+      {...props}
+      contentContainerStyle={{ flex: 1, paddingTop: 30, backgroundColor: themeColors.background }}
+    >
       <View style={drawerStyles.closeButtonContainer}>
         <TouchableOpacity
           onPress={() => props.navigation.closeDrawer()}
-          accessible={true}
+          accessible
           accessibilityLabel="Close navigation drawer"
           accessibilityRole="button"
         >
-          <Ionicons name="close" size={32} color={iconColor} />
+          <Ionicons name="close" size={32} color={themeColors.text} />
         </TouchableOpacity>
       </View>
       <DrawerItemList {...props} />
@@ -74,7 +74,11 @@ export default function RootLayout() {
                 borderRightColor: themeColors.divider,
                 borderRightWidth: 1,
               },
-              headerStyle: { backgroundColor: themeColors.background, borderBottomColor: themeColors.divider, borderBottomWidth: 1 },
+              headerStyle: {
+                backgroundColor: themeColors.background,
+                borderBottomColor: themeColors.divider,
+                borderBottomWidth: 1
+              },
               headerTintColor: themeColors.secondaryAccent,
               headerTitleStyle: {
                 fontFamily: 'AtkinsonBold',
@@ -96,25 +100,26 @@ export default function RootLayout() {
                 title: 'SEEiT',
                 headerShown: false,
                 drawerIcon: ({ color, size, focused }) => (
-                  <IconSymbol name={focused ? 'house.fill' : 'house'} color={color} size={size} />
+                  <IconSymbol
+                    name={focused ? 'house.fill' : 'house'}
+                    color={color}
+                    size={size}
+                  />
                 ),
               }}
             />
-            <Drawer.Screen
-              name='media'
-              options={{
-                title: 'Media',
-                headerShown: false,
-                drawerItemStyle: { display: 'none' }, // Hide this item from the drawer
-              }}
-            />
+            {/* media screen removed */}
             <Drawer.Screen
               name="profile"
               options={{
                 title: 'Profile',
                 headerShown: false,
                 drawerIcon: ({ color, size, focused }) => (
-                  <IconSymbol name={focused ? 'person.crop.circle.fill' : 'person.crop.circle'} color={color} size={size} />
+                  <IconSymbol
+                    name={focused ? 'person.crop.circle.fill' : 'person.crop.circle'}
+                    color={color}
+                    size={size}
+                  />
                 ),
               }}
             />

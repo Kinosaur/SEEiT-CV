@@ -1,8 +1,9 @@
 import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Ionicons } from "@expo/vector-icons";
-import { ComponentProps } from "react";
+import { ComponentProps, ReactNode } from "react";
 import {
+    AccessibilityState,
     StyleProp,
     StyleSheet,
     Text,
@@ -16,43 +17,63 @@ interface ButtonProps {
     iconName?: ComponentProps<typeof Ionicons>["name"];
     containerStyle?: StyleProp<ViewStyle>;
     iconSize?: number;
+    accessibilityLabel?: string;
+    accessibilityState?: AccessibilityState;
+    accessibilityHint?: string;
+    disabled?: boolean;
+    children?: ReactNode;
 }
+
 export default function Buttons({
     onPress,
     iconName,
     title,
     containerStyle,
     iconSize,
+    accessibilityLabel,
+    accessibilityState,
+    accessibilityHint,
+    disabled,
+    children,
 }: ButtonProps) {
-    // Determine accessibility label
-    let accessibilityLabel = title
-        ? title
-        : iconName
-            ? iconName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
-            : "Button";
-    // Use theme-aware background and icon/text color
-    const colorScheme = useColorScheme() ?? 'light';
+    const colorScheme = useColorScheme() ?? "light";
     const theme = Colors[colorScheme];
     const buttonBackground = theme.surface;
     const iconAndTextColor = theme.accent;
+
+    const derivedLabel =
+        accessibilityLabel ||
+        title ||
+        (iconName
+            ? iconName.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
+            : "Button");
+
     return (
         <TouchableOpacity
-            onPress={onPress}
+            onPress={disabled ? undefined : onPress}
+            disabled={disabled}
             style={[
                 styles.container,
                 {
                     backgroundColor: buttonBackground,
                     borderRadius: 20,
                     alignSelf: "flex-start",
+                    opacity: disabled ? 0.4 : 1,
                 },
                 containerStyle,
             ]}
-            accessible={true}
+            accessible
             accessibilityRole="button"
-            accessibilityLabel={accessibilityLabel}
+            accessibilityLabel={derivedLabel}
+            accessibilityState={{ ...(accessibilityState || {}), disabled }}
+            accessibilityHint={accessibilityHint}
         >
             {iconName && (
-                <Ionicons name={iconName} size={iconSize ?? 28} color={iconAndTextColor} />
+                <Ionicons
+                    name={iconName}
+                    size={iconSize ?? 28}
+                    color={iconAndTextColor}
+                />
             )}
             {title ? (
                 <Text
@@ -65,6 +86,7 @@ export default function Buttons({
                     {title}
                 </Text>
             ) : null}
+            {children}
         </TouchableOpacity>
     );
 }

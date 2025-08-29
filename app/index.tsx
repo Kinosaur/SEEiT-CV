@@ -3,191 +3,260 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { useSimpleFormat } from '@/hooks/useSimpleFormat';
+import { Ionicons } from '@expo/vector-icons';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
-import * as ExpoMediaLibrary from 'expo-media-library';
-import { useRouter } from 'expo-router';
 import React from 'react';
-import { AccessibilityInfo, Platform, StyleSheet, TouchableHighlight, TouchableOpacity, View } from 'react-native';
+import {
+    AccessibilityInfo,
+    Alert,
+    Linking,
+    Platform,
+    TouchableOpacity as RNTouchableOpacity,
+    StyleSheet,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
+import {
+    Camera,
+    useCameraPermission,
+} from 'react-native-vision-camera';
 
-// Accessible permission error component
-const PermissionsPage = () => {
-    React.useEffect(() => {
-        AccessibilityInfo.announceForAccessibility('Camera and media permissions are required.');
-    }, []);
-    return (
-        <ThemedView style={styles.container} accessible={true} accessibilityLabel="Permissions required">
-            <ThemedText style={styles.text}>
-                Camera and media permissions are required.
-            </ThemedText>
-        </ThemedView>
-    );
-};
+// Permission fallback
+const PermissionsPage = () => (
+    <ThemedView
+        style={styles.center}
+        accessible
+        accessibilityRole="alert"
+        accessibilityLabel="Camera permission required"
+    >
+        <ThemedText style={styles.permissionText}>
+            Camera permission is required.
+        </ThemedText>
+        <Buttons
+            title="Open Settings"
+            onPress={() =>
+                Linking.openSettings().catch(() =>
+                    Alert.alert('Unable to open settings')
+                )
+            }
+            accessibilityLabel="Open system settings to grant camera permission"
+            containerStyle={{ marginTop: 24 }}
+        />
+    </ThemedView>
+);
 
-// Accessible camera error component
+// No device fallback
 const NoCameraDeviceError = () => {
     React.useEffect(() => {
         AccessibilityInfo.announceForAccessibility('No camera device found.');
     }, []);
     return (
-        <ThemedView style={styles.container} accessible={true} accessibilityLabel="No camera device found">
-            <ThemedText style={styles.text}>
-                No camera device found.
-            </ThemedText>
+        <ThemedView
+            style={styles.center}
+            accessible
+            accessibilityRole="alert"
+            accessibilityLabel="No camera device found"
+        >
+            <ThemedText style={styles.permissionText}>No camera device found.</ThemedText>
         </ThemedView>
     );
 };
 
 export default function Index() {
-    // const devices = useCameraDevices();
-    const router = useRouter();
-    const [cameraPosition, setCameraPosition] = React.useState<"front" | "back">(
-        "back"
-    );
-    const device = useCameraDevice(cameraPosition);
+    // State: start paused & speech off
+    const [cameraPosition, setCameraPosition] = React.useState<'front' | 'back'>('back');
     const [torch, setTorch] = React.useState<'off' | 'on'>('off');
-    const [flash, setFlash] = React.useState<'off' | 'on'>('off');
-    const [speechOn, setSpeechOn] = React.useState(true);
+    const [speechOn, setSpeechOn] = React.useState(false);
+    const [isActive, setIsActive] = React.useState(false);
 
-    const camera = React.useRef<Camera>(null);
     const { hasPermission, requestPermission } = useCameraPermission();
-    const [mediaLibraryPermission, requestMediaLibraryPermission] = ExpoMediaLibrary.usePermissions();
-    // Type navigation as DrawerNavigationProp for toggleDrawer
     const navigation = useNavigation<DrawerNavigationProp<any>>();
     const colorScheme = useColorScheme() ?? 'light';
     const themeColors = Colors[colorScheme];
 
-    const takePicture = async () => {
-        try {
-            if (camera.current == null) throw new Error("Camera ref is null!");
-
-            console.log("Taking photo...");
-            const photo = await camera.current.takePhoto({
-                flash: flash,
-                enableShutterSound: false,
-            });
-            router.push({
-                pathname: "/media",
-                params: { media: photo.path, type: "photo" },
-            });
-            // onMediaCaptured(photo, 'photo')
-        } catch (e) {
-            console.error("Failed to take photo!", e);
-        }
-    };
+    // Simplicity-first: attempt 1080p@30 else auto
+    const { device, format, fps, supportsTorch } = useSimpleFormat(cameraPosition);
 
     React.useEffect(() => {
-        if (!hasPermission) requestPermission();
-        if (!mediaLibraryPermission?.granted) requestMediaLibraryPermission();
-    }, [hasPermission, mediaLibraryPermission, requestPermission, requestMediaLibraryPermission]);
+        if (!hasPermission) {
+            requestPermission().catch(() => { });
+        }
+    }, [hasPermission, requestPermission]);
 
-    if (!hasPermission || !mediaLibraryPermission?.granted) {
-        return <PermissionsPage />;
-    }
-    if (device == null) return <NoCameraDeviceError />;
+    const announce = (msg: string) => {
+        if (speechOn) AccessibilityInfo.announceForAccessibility(msg);
+    };
+
+    if (!hasPermission) return <PermissionsPage />;
+    if (!device) return <NoCameraDeviceError />;
+
+    const toggleActive = () => {
+        setIsActive(prev => {
+            const next = !prev;
+            if (!next && torch === 'on') {
+                setTorch('off');
+                announce('Torch off');
+            }
+            announce(next ? 'Live view resumed' : 'Live view paused');
+            return next;
+        });
+    };
+
+    const toggleTorch = () => {
+        if (!supportsTorch) {
+            announce('Torch not available on this camera');
+            return;
+        }
+        if (!isActive) {
+            // Torch disabled in paused state (UI enforces, but guard anyway)
+            announce('Cannot toggle torch while live view is paused');
+            return;
+        }
+        setTorch(t => {
+            const next = t === 'off' ? 'on' : 'off';
+            announce(next === 'on' ? 'Torch on' : 'Torch off');
+            return next;
+        });
+    };
+
+    const toggleCameraPosition = () => {
+        setCameraPosition(p => {
+            const next = p === 'back' ? 'front' : 'back';
+            announce(next === 'front' ? 'Front camera active' : 'Rear camera active');
+            if (torch === 'on' && device?.hasTorch === false) {
+                setTorch('off');
+            }
+            return next;
+        });
+    };
+
+    const toggleSpeech = () => {
+        setSpeechOn(prev => {
+            const next = !prev;
+            AccessibilityInfo.announceForAccessibility(next ? 'Speech on' : 'Speech off');
+            return next;
+        });
+    };
+
+    const mainButtonLabel = isActive ? 'Pause live view' : 'Resume live view';
+
+    // Pattern A: disable only torch when paused; keep camera flip usable
+    const torchDisabled = !isActive || !supportsTorch;
+    const flipDisabled = false;
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]} accessible={true} accessibilityLabel="Camera view screen">
-            {/* Drawer Toggle Button */}
+        <SafeAreaView
+            style={[styles.container, { backgroundColor: themeColors.background }]}
+            accessible={false}
+        >
             <TouchableOpacity
                 style={styles.drawerToggle}
                 onPress={() => navigation.toggleDrawer()}
-                accessible={true}
+                accessible
+                accessibilityRole="button"
                 accessibilityLabel="Open navigation drawer"
             >
                 <Ionicons name="menu" size={32} color={themeColors.text} />
             </TouchableOpacity>
+
             <View
-                style={{ flex: 2, borderRadius: 10, overflow: 'hidden' }}
-                accessible={true}
-                accessibilityLabel="Live camera preview"
-                importantForAccessibility="yes"
+                style={styles.previewWrapper}
+                accessible
+                accessibilityLabel={`Live camera preview ${isActive ? 'running' : 'paused'}`}
+                accessibilityHint="Use the center button below to pause or resume."
             >
                 <Camera
-                    ref={camera}
                     style={{ flex: 1 }}
-                    device={device!}
-                    isActive={true}
-                    resizeMode='cover'
+                    device={device}
+                    isActive={isActive}
+                    resizeMode="cover"
                     torch={torch}
-                    photo
+                    {...(format ? { format } : {})}
+                    {...(format && fps ? { fps } : {})}
                 />
             </View>
-            <View style={{
-                flex: 0.5,
-                flexDirection: "row",
-                justifyContent: "space-evenly",
-            }}
-                accessible={true}
-                accessibilityLabel="Controls area"
+
+            <View
+                style={styles.upperRow}
+                accessible
+                accessibilityLabel="Camera controls row"
             >
                 <Buttons
-                    iconName={torch === "on" ? "flashlight" : "flashlight-outline"}
-                    onPress={() => setTorch((t) => (t === "off" ? "on" : "off"))}
+                    iconName={
+                        supportsTorch
+                            ? (torch === 'on' ? 'flashlight' : 'flashlight-outline')
+                            : 'flash-off-outline'
+                    }
+                    onPress={toggleTorch}
+                    accessibilityLabel={
+                        supportsTorch
+                            ? (torch === 'on' ? 'Turn torch off' : 'Turn torch on')
+                            : 'Torch unavailable'
+                    }
+                    accessibilityState={{
+                        disabled: torchDisabled,
+                        checked: supportsTorch ? torch === 'on' : undefined,
+                    }}
+                    disabled={torchDisabled}
                     containerStyle={{ alignSelf: 'center' }}
                 />
                 <Buttons
-                    iconName={
-                        flash === "on" ? "flash-outline" : "flash-off-outline"
-                    }
-                    onPress={() => setFlash((f) => (f === "off" ? "on" : "off"))}
-                    containerStyle={{ alignSelf: "center" }}
-                />
-                <Buttons
                     iconName="camera-reverse-outline"
-                    onPress={() =>
-                        setCameraPosition((p) => (p === "back" ? "front" : "back"))
-                    }
-                    containerStyle={{ alignSelf: "center" }}
+                    onPress={toggleCameraPosition}
+                    accessibilityLabel="Switch camera"
+                    accessibilityHint={`Currently ${cameraPosition === 'back' ? 'rear' : 'front'} camera active`}
+                    accessibilityState={{ disabled: flipDisabled }}
+                    disabled={flipDisabled}
+                    containerStyle={{ alignSelf: 'center' }}
                 />
             </View>
-            {/* Botton section */}
-            <View
-                style={{
-                    flex: 0.5,
-                    flexDirection: "row",
-                    justifyContent: "space-evenly",
-                    alignItems: "center",
-                }}
-            >
-                {/* Speech Button */}
+
+            <View style={styles.lowerRow}>
                 <Buttons
-                    iconName={speechOn ? "volume-high-outline" : "volume-mute-outline"}
-                    onPress={() => {
-                        setSpeechOn((prev) => !prev);
-                        AccessibilityInfo.announceForAccessibility(
-                            speechOn ? "Speech off" : "Speech on"
-                        );
-                    }}
-                    containerStyle={{ alignSelf: "center" }}
+                    iconName={speechOn ? 'volume-high-outline' : 'volume-mute-outline'}
+                    onPress={toggleSpeech}
+                    accessibilityLabel={speechOn ? 'Turn speech off' : 'Turn speech on'}
+                    accessibilityState={{ checked: speechOn }}
+                    containerStyle={{ alignSelf: 'center' }}
                     iconSize={40}
                 />
-                <TouchableHighlight
-                    onPress={takePicture}
-                    accessible={true}
+                <RNTouchableOpacity
+                    onPress={toggleActive}
+                    style={[
+                        styles.mainAction,
+                        {
+                            backgroundColor: isActive
+                                ? themeColors.shutter
+                                : themeColors.secondaryAccent,
+                        },
+                    ]}
+                    accessible
                     accessibilityRole="button"
-                    accessibilityLabel="Take picture"
-                    style={{
-                        borderRadius: 40,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}
-                    underlayColor={themeColors.secondaryAccent}
+                    accessibilityLabel={mainButtonLabel}
+                    accessibilityState={{ checked: isActive }}
+                    accessibilityHint="Toggles live camera feed."
                 >
-                    <FontAwesome5 name="dot-circle" size={55} color={themeColors.shutter} />
-                </TouchableHighlight>
-                {/* Language Selector Button (placeholder) */}
+                    <ThemedText
+                        style={{
+                            fontFamily: 'AtkinsonBold',
+                            fontSize: 18,
+                            color: themeColors.background,
+                        }}
+                    >
+                        {isActive ? 'Pause' : 'Resume'}
+                    </ThemedText>
+                </RNTouchableOpacity>
                 <Buttons
                     iconName="language-outline"
-                    onPress={() => {
-                        AccessibilityInfo.announceForAccessibility("Language selection feature coming soon.");
-                        // Optionally, show a toast/snackbar here
-                    }}
-                    containerStyle={{ alignSelf: "center", opacity: 0.5 }}
+                    onPress={() => announce('Language selection feature coming soon')}
+                    accessibilityLabel="Language selection (coming soon)"
+                    containerStyle={{ alignSelf: 'center', opacity: 0.5 }}
                     iconSize={40}
+                    accessibilityState={{ disabled: true }}
+                    disabled
                 />
             </View>
         </SafeAreaView>
@@ -197,24 +266,49 @@ export default function Index() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: Platform.OS === "android" ? 60 : 0,
+        paddingTop: Platform.OS === 'android' ? 60 : 0,
     },
     drawerToggle: {
         position: 'absolute',
         top: Platform.OS === 'android' ? 40 : 10,
-        right: 10, // moved from left to right
+        right: 10,
         zIndex: 10,
-        backgroundColor: 'transparent',
         padding: 8,
         borderRadius: 20,
     },
-    text: {
-        fontSize: 24,
-        fontFamily: 'AtkinsonBold',
-        // color is set inline using themeColors
+    previewWrapper: {
+        flex: 2,
+        borderRadius: 10,
+        overflow: 'hidden',
+        marginHorizontal: 12,
     },
-    textHighlight: {
-        fontSize: 30,
-        // color is set inline using themeColors
+    upperRow: {
+        flex: 0.4,
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+    },
+    lowerRow: {
+        flex: 0.5,
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+    },
+    mainAction: {
+        width: 110,
+        height: 110,
+        borderRadius: 55,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    center: {
+        flex: 1,
+        justifyContent: 'center',
+        padding: 32,
+    },
+    permissionText: {
+        fontSize: 20,
+        fontFamily: 'AtkinsonBold',
+        textAlign: 'center',
     },
 });
