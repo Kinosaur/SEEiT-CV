@@ -13,7 +13,6 @@ import {
     Alert,
     Linking,
     Platform,
-    TouchableOpacity as RNTouchableOpacity,
     StyleSheet,
     TouchableOpacity,
     View,
@@ -223,32 +222,17 @@ export default function Index() {
                     containerStyle={{ alignSelf: 'center' }}
                     iconSize={40}
                 />
-                <RNTouchableOpacity
+                <Buttons
+                    title={isActive ? 'Pause' : 'Resume'}
                     onPress={toggleActive}
-                    style={[
-                        styles.mainAction,
-                        {
-                            backgroundColor: isActive
-                                ? themeColors.shutter
-                                : themeColors.secondaryAccent,
-                        },
-                    ]}
-                    accessible
-                    accessibilityRole="button"
                     accessibilityLabel={mainButtonLabel}
                     accessibilityState={{ checked: isActive }}
                     accessibilityHint="Toggles live camera feed."
-                >
-                    <ThemedText
-                        style={{
-                            fontFamily: 'AtkinsonBold',
-                            fontSize: 18,
-                            color: themeColors.background,
-                        }}
-                    >
-                        {isActive ? 'Pause' : 'Resume'}
-                    </ThemedText>
-                </RNTouchableOpacity>
+                    circular
+                    size="xl"
+                    variant={isActive ? 'danger' : 'primary'}
+                    containerStyle={{ alignSelf: 'center' }}
+                />
                 <Buttons
                     iconName="language-outline"
                     onPress={() => announce('Language selection feature coming soon')}
