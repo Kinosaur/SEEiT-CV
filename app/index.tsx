@@ -1,8 +1,10 @@
 import Buttons from '@/components/Buttons';
+import { OverlayDetection } from '@/components/OverlayDetection';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { detectObjects } from '@/hooks/useDetector';
 import { useSimpleFormat } from '@/hooks/useSimpleFormat';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -14,6 +16,7 @@ import {
     Linking,
     Platform,
     StyleSheet,
+    Text,
     TouchableOpacity,
     View,
 } from 'react-native';
@@ -21,7 +24,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
     Camera,
     useCameraPermission,
+    useFrameProcessor,
 } from 'react-native-vision-camera';
+import * as Worklets from 'react-native-worklets-core';
 
 // Permission fallback
 const PermissionsPage = () => (
@@ -70,6 +75,8 @@ export default function Index() {
     const [torch, setTorch] = React.useState<'off' | 'on'>('off');
     const [speechOn, setSpeechOn] = React.useState(false);
     const [isActive, setIsActive] = React.useState(false);
+    const [objects, setObjects] = React.useState<any[]>([]);
+    const [previewSize, setPreviewSize] = React.useState<{ width: number; height: number }>({ width: 0, height: 0 });
 
     const { hasPermission, requestPermission } = useCameraPermission();
     const navigation = useNavigation<DrawerNavigationProp<any>>();
@@ -78,6 +85,43 @@ export default function Index() {
 
     // Simplicity-first: attempt 1080p@30 else auto
     const { device, format, fps, supportsTorch } = useSimpleFormat(cameraPosition);
+
+    // Log camera format and FPS when they change
+    React.useEffect(() => {
+        if (format) {
+            console.log('Camera format:', {
+                videoWidth: format.videoWidth,
+                videoHeight: format.videoHeight,
+                minFps: format.minFps,
+                maxFps: format.maxFps,
+            });
+        } else {
+            console.log('Camera format: (auto/undefined)');
+        }
+        console.log('Camera FPS:', fps);
+    }, [format, fps]);
+
+    // Memoize the JS setter to be called from worklet
+    const setObjectsOnJS = Worklets.useRunOnJS((arr: any[]) => {
+        setObjects(arr);
+    }, []);
+
+    // Frame Processor Worklet
+    const frameProcessor = useFrameProcessor((frame) => {
+        'worklet';
+        // Throttle: run roughly every 120ms (~8 fps)
+        // Use worklet-global storage to persist timestamp across frames
+        const g = globalThis as any;
+        const now = Date.now();
+        if (g.__lastDetectTs == null) g.__lastDetectTs = 0;
+        if (now - g.__lastDetectTs < 120) return;
+        g.__lastDetectTs = now;
+
+        // Call the native frame processor plugin
+        const results = (detectObjects(frame) as unknown as any[]) ?? [];
+        // Send results back to JS thread to update state
+        setObjectsOnJS(results);
+    }, [setObjectsOnJS]);
 
     React.useEffect(() => {
         if (!hasPermission) {
@@ -146,6 +190,11 @@ export default function Index() {
     const torchDisabled = !isActive || !supportsTorch;
     const flipDisabled = false;
 
+    // UI string for current format/FPS
+    const formatInfo = format
+        ? `${format.videoWidth}x${format.videoHeight} @ ${fps ?? 'auto'} FPS`
+        : 'auto format';
+
     return (
         <SafeAreaView
             style={[styles.container, { backgroundColor: themeColors.background }]}
@@ -166,7 +215,26 @@ export default function Index() {
                 accessible
                 accessibilityLabel={`Live camera preview ${isActive ? 'running' : 'paused'}`}
                 accessibilityHint="Use the center button below to pause or resume."
+                onLayout={(e) => {
+                    const { width, height } = e.nativeEvent.layout;
+                    setPreviewSize({ width, height });
+                }}
             >
+                {/* Display format info overlay in preview */}
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 4,
+                        left: 4,
+                        zIndex: 10,
+                        backgroundColor: 'rgba(0,0,0,0.4)',
+                        paddingHorizontal: 6,
+                        paddingVertical: 2,
+                        borderRadius: 4,
+                    }}
+                >
+                    <Text style={{ color: 'white', fontSize: 12 }}>{formatInfo}</Text>
+                </View>
                 <Camera
                     style={{ flex: 1 }}
                     device={device}
@@ -175,6 +243,12 @@ export default function Index() {
                     torch={torch}
                     {...(format ? { format } : {})}
                     {...(format && fps ? { fps } : {})}
+                    frameProcessor={frameProcessor}
+                />
+                <OverlayDetection
+                    objects={objects as any}
+                    previewWidth={previewSize.width}
+                    previewHeight={previewSize.height}
                 />
             </View>
 
