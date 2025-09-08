@@ -6,6 +6,7 @@ import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { detectObjects } from '@/hooks/useDetector';
 import { useSimpleFormat } from '@/hooks/useSimpleFormat';
+import { initTTS, ttsSpeak, ttsStop } from '@/services/tts'; // <-- updated import
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
@@ -70,6 +71,17 @@ const NoCameraDeviceError = () => {
 };
 
 export default function Index() {
+    // Initialize TTS once (Phase 1)
+    React.useEffect(() => {
+        let cleanup: undefined | (() => void)
+        initTTS()
+            .then((res) => { cleanup = res.cleanup })
+            .catch((e) => console.warn('[TTS] init failed:', e))
+        return () => {
+            try { cleanup?.() } catch { }
+        }
+    }, [])
+
     // State: start paused & speech off
     const [cameraPosition, setCameraPosition] = React.useState<'front' | 'back'>('back');
     const [torch, setTorch] = React.useState<'off' | 'on'>('off');
@@ -154,13 +166,29 @@ export default function Index() {
             return;
         }
         if (!isActive) {
-            // Torch disabled in paused state (UI enforces, but guard anyway)
             announce('Cannot toggle torch while live view is paused');
             return;
         }
         setTorch(t => {
             const next = t === 'off' ? 'on' : 'off';
             announce(next === 'on' ? 'Torch on' : 'Torch off');
+            return next;
+        });
+    };
+
+    // Phase 1 test: use the existing speech toggle to trigger TTS
+    const toggleSpeech = () => {
+        setSpeechOn(prev => {
+            const next = !prev;
+            if (next) {
+                // Simple English test line to validate TTS output
+                ttsSpeak('Speech on. This is a test of text to speech.')
+                    .catch(e => console.warn('[TTS] speak failed:', e))
+            } else {
+                ttsStop().catch(() => { })
+            }
+            // Keep Accessibility announcement for UI feedback (may double-speak if TalkBack is on)
+            AccessibilityInfo.announceForAccessibility(next ? 'Speech on' : 'Speech off');
             return next;
         });
     };
@@ -172,14 +200,6 @@ export default function Index() {
             if (torch === 'on' && device?.hasTorch === false) {
                 setTorch('off');
             }
-            return next;
-        });
-    };
-
-    const toggleSpeech = () => {
-        setSpeechOn(prev => {
-            const next = !prev;
-            AccessibilityInfo.announceForAccessibility(next ? 'Speech on' : 'Speech off');
             return next;
         });
     };
