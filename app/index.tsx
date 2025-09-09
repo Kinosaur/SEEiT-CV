@@ -4,9 +4,10 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useDetectionsNotifier } from '@/hooks/useDetectionsNotifier';
 import { detectObjects } from '@/hooks/useDetector';
 import { useSimpleFormat } from '@/hooks/useSimpleFormat';
-import { initTTS, ttsSpeak, ttsStop } from '@/services/tts'; // <-- updated import
+import { initTTS, ttsSpeak, ttsStop } from '@/services/tts';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
@@ -82,6 +83,22 @@ export default function Index() {
         }
     }, [])
 
+    // Screen reader gating
+    const [screenReaderOn, setScreenReaderOn] = React.useState(false)
+    React.useEffect(() => {
+        let mounted = true
+        AccessibilityInfo.isScreenReaderEnabled()
+            .then((enabled) => { if (mounted) setScreenReaderOn(Boolean(enabled)) })
+            .catch(() => { })
+        const sub = AccessibilityInfo.addEventListener('screenReaderChanged', (enabled: boolean) => {
+            setScreenReaderOn(Boolean(enabled))
+        })
+        return () => {
+            // @ts-ignore RN < 0.71 compatibility
+            sub?.remove?.()
+        }
+    }, [])
+
     // State: start paused & speech off
     const [cameraPosition, setCameraPosition] = React.useState<'front' | 'back'>('back');
     const [torch, setTorch] = React.useState<'off' | 'on'>('off');
@@ -122,16 +139,13 @@ export default function Index() {
     const frameProcessor = useFrameProcessor((frame) => {
         'worklet';
         // Throttle: run roughly every 120ms (~8 fps)
-        // Use worklet-global storage to persist timestamp across frames
         const g = globalThis as any;
         const now = Date.now();
         if (g.__lastDetectTs == null) g.__lastDetectTs = 0;
         if (now - g.__lastDetectTs < 120) return;
         g.__lastDetectTs = now;
 
-        // Call the native frame processor plugin
         const results = (detectObjects(frame) as unknown as any[]) ?? [];
-        // Send results back to JS thread to update state
         setObjectsOnJS(results);
     }, [setObjectsOnJS]);
 
@@ -144,6 +158,32 @@ export default function Index() {
     const announce = (msg: string) => {
         if (speechOn) AccessibilityInfo.announceForAccessibility(msg);
     };
+
+    // Stop any ongoing TTS when pausing or turning speech off
+    React.useEffect(() => {
+        if (!speechOn || !isActive) {
+            ttsStop().catch(() => { })
+        }
+    }, [speechOn, isActive])
+
+    // Notifier: speak detections with TTS when SR is off; else use Accessibility announcements
+    const notifyDetections = useDetectionsNotifier({
+        enabled: speechOn && isActive,
+        useTTS: !screenReaderOn,
+        stableFrames: 3,
+        minConfidence: 0.5,
+        perObjectCooldownMs: 5000,
+        globalCooldownMs: 1200,
+        includeConfidenceInMessage: false,
+        summarizeMultiple: false,
+        speakTTS: (text: string) => ttsSpeak(text),
+        announceA11y: (msg: string) => AccessibilityInfo.announceForAccessibility(msg),
+    })
+
+    // Feed detections into notifier when list changes
+    React.useEffect(() => {
+        notifyDetections(objects)
+    }, [objects, notifyDetections])
 
     if (!hasPermission) return <PermissionsPage />;
     if (!device) return <NoCameraDeviceError />;
@@ -176,18 +216,11 @@ export default function Index() {
         });
     };
 
-    // Phase 1 test: use the existing speech toggle to trigger TTS
+    // Phase 1 test speech removed to avoid conflicts with detection TTS.
     const toggleSpeech = () => {
         setSpeechOn(prev => {
             const next = !prev;
-            if (next) {
-                // Simple English test line to validate TTS output
-                ttsSpeak('Speech on. This is a test of text to speech.')
-                    .catch(e => console.warn('[TTS] speak failed:', e))
-            } else {
-                ttsStop().catch(() => { })
-            }
-            // Keep Accessibility announcement for UI feedback (may double-speak if TalkBack is on)
+            if (!next) ttsStop().catch(() => { })
             AccessibilityInfo.announceForAccessibility(next ? 'Speech on' : 'Speech off');
             return next;
         });
@@ -206,11 +239,9 @@ export default function Index() {
 
     const mainButtonLabel = isActive ? 'Pause live view' : 'Resume live view';
 
-    // Pattern A: disable only torch when paused; keep camera flip usable
     const torchDisabled = !isActive || !supportsTorch;
     const flipDisabled = false;
 
-    // UI string for current format/FPS
     const formatInfo = format
         ? `${format.videoWidth}x${format.videoHeight} @ ${fps ?? 'auto'} FPS`
         : 'auto format';
@@ -240,7 +271,6 @@ export default function Index() {
                     setPreviewSize({ width, height });
                 }}
             >
-                {/* Display format info overlay in preview */}
                 <View
                     style={{
                         position: 'absolute',
