@@ -1,9 +1,13 @@
 import Buttons from '@/components/Buttons';
+import { OverlayDetection } from '@/components/OverlayDetection';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useDetectionsNotifier } from '@/hooks/useDetectionsNotifier';
+import { detectObjects } from '@/hooks/useDetector';
 import { useSimpleFormat } from '@/hooks/useSimpleFormat';
+import { initTTS, ttsSpeak, ttsStop } from '@/services/tts';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
@@ -14,6 +18,7 @@ import {
     Linking,
     Platform,
     StyleSheet,
+    Text,
     TouchableOpacity,
     View,
 } from 'react-native';
@@ -21,9 +26,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {
     Camera,
     useCameraPermission,
+    useFrameProcessor,
 } from 'react-native-vision-camera';
+import * as Worklets from 'react-native-worklets-core';
 
-// Permission fallback
+const DEFAULT_SPEECH_ON = false
+
 const PermissionsPage = () => (
     <ThemedView
         style={styles.center}
@@ -47,7 +55,6 @@ const PermissionsPage = () => (
     </ThemedView>
 );
 
-// No device fallback
 const NoCameraDeviceError = () => {
     React.useEffect(() => {
         AccessibilityInfo.announceForAccessibility('No camera device found.');
@@ -65,19 +72,72 @@ const NoCameraDeviceError = () => {
 };
 
 export default function Index() {
-    // State: start paused & speech off
-    const [cameraPosition, setCameraPosition] = React.useState<'front' | 'back'>('back');
-    const [torch, setTorch] = React.useState<'off' | 'on'>('off');
-    const [speechOn, setSpeechOn] = React.useState(false);
-    const [isActive, setIsActive] = React.useState(false);
+    React.useEffect(() => {
+        let cleanup: undefined | (() => void)
+        initTTS()
+            .then((res) => { cleanup = res.cleanup })
+            .catch((e) => console.warn('[TTS] init failed:', e))
+        return () => { try { cleanup?.() } catch { } }
+    }, [])
+
+    const [screenReaderOn, setScreenReaderOn] = React.useState(false)
+    React.useEffect(() => {
+        AccessibilityInfo.isScreenReaderEnabled()
+            .then(enabled => setScreenReaderOn(Boolean(enabled)))
+            .catch(() => { })
+        const sub = AccessibilityInfo.addEventListener('screenReaderChanged', (enabled: boolean) => {
+            setScreenReaderOn(Boolean(enabled))
+        })
+        return () => {
+            // @ts-ignore compatibility
+            sub?.remove?.()
+        }
+    }, [])
+
+    const [cameraPosition, setCameraPosition] = React.useState<'front' | 'back'>('back')
+    const [torch, setTorch] = React.useState<'off' | 'on'>('off')
+    const [speechOn, setSpeechOn] = React.useState(DEFAULT_SPEECH_ON)
+    const [isActive, setIsActive] = React.useState(false)
+    const [objects, setObjects] = React.useState<any[]>([])
+    const [previewSize, setPreviewSize] = React.useState<{ width: number; height: number }>({ width: 0, height: 0 })
+
+    const firstSpeechActivationRef = React.useRef(true)
 
     const { hasPermission, requestPermission } = useCameraPermission();
     const navigation = useNavigation<DrawerNavigationProp<any>>();
     const colorScheme = useColorScheme() ?? 'light';
     const themeColors = Colors[colorScheme];
 
-    // Simplicity-first: attempt 1080p@30 else auto
     const { device, format, fps, supportsTorch } = useSimpleFormat(cameraPosition);
+
+    React.useEffect(() => {
+        if (format) {
+            console.log('Camera format:', {
+                videoWidth: format.videoWidth,
+                videoHeight: format.videoHeight,
+                minFps: format.minFps,
+                maxFps: format.maxFps,
+            });
+        } else {
+            console.log('Camera format: (auto/undefined)');
+        }
+        console.log('Camera FPS:', fps);
+    }, [format, fps]);
+
+    const setObjectsOnJS = Worklets.useRunOnJS((arr: any[]) => {
+        setObjects(arr);
+    }, []);
+
+    const frameProcessor = useFrameProcessor((frame) => {
+        'worklet';
+        const g = globalThis as any;
+        const now = Date.now();
+        if (g.__lastDetectTs == null) g.__lastDetectTs = 0;
+        if (now - g.__lastDetectTs < 120) return;
+        g.__lastDetectTs = now;
+        const results = (detectObjects(frame) as unknown as any[]) ?? [];
+        setObjectsOnJS(results);
+    }, [setObjectsOnJS]);
 
     React.useEffect(() => {
         if (!hasPermission) {
@@ -89,8 +149,42 @@ export default function Index() {
         if (speechOn) AccessibilityInfo.announceForAccessibility(msg);
     };
 
-    if (!hasPermission) return <PermissionsPage />;
-    if (!device) return <NoCameraDeviceError />;
+    React.useEffect(() => {
+        if (!speechOn || !isActive) {
+            ttsStop().catch(() => { })
+        }
+    }, [speechOn, isActive])
+
+    const notifyDetections = useDetectionsNotifier({
+        enabled: speechOn && isActive,
+        useTTS: !screenReaderOn,
+        stableFrames: 3,
+        minConfidence: 0.5,
+        perObjectCooldownMs: 5000,
+        globalCooldownMs: 1200,
+        includeConfidenceInMessage: false,
+        summarizeMultiple: false,
+        allowUnlabeled: false,
+        numbering: true,
+        numberFormat: 'words',
+        numberingResetMs: 6000,
+        labelHoldMs: 3000,            // hysteresis window
+        minScoreDeltaToSwitch: 0.12,  // margin required to switch labels early
+        iouThresholdForCluster: 0.2,  // overlap clustering
+        labelMap: {
+            'home good': 'household item',
+            'fashion good': 'clothing item',
+        },
+        speakTTS: (text: string) => ttsSpeak(text),
+        announceA11y: (msg: string) => AccessibilityInfo.announceForAccessibility(msg),
+    })
+
+    React.useEffect(() => {
+        notifyDetections(objects)
+    }, [objects, notifyDetections])
+
+    if (!hasPermission) return <PermissionsPage />
+    if (!device) return <NoCameraDeviceError />
 
     const toggleActive = () => {
         setIsActive(prev => {
@@ -110,7 +204,6 @@ export default function Index() {
             return;
         }
         if (!isActive) {
-            // Torch disabled in paused state (UI enforces, but guard anyway)
             announce('Cannot toggle torch while live view is paused');
             return;
         }
@@ -120,6 +213,30 @@ export default function Index() {
             return next;
         });
     };
+
+    const toggleSpeech = () => {
+        setSpeechOn(prev => {
+            const next = !prev
+            if (next) {
+                if (!screenReaderOn) {
+                    // TTS path
+                    if (firstSpeechActivationRef.current) {
+                        firstSpeechActivationRef.current = false
+                        ttsSpeak('Speech feature enabled.')
+                            .catch(() => { })
+                    } else {
+                        ttsSpeak('Speech on.').catch(() => { })
+                    }
+                } else {
+                    AccessibilityInfo.announceForAccessibility('Speech on')
+                }
+            } else {
+                ttsStop().catch(() => { })
+                AccessibilityInfo.announceForAccessibility('Speech off')
+            }
+            return next
+        })
+    }
 
     const toggleCameraPosition = () => {
         setCameraPosition(p => {
@@ -132,19 +249,13 @@ export default function Index() {
         });
     };
 
-    const toggleSpeech = () => {
-        setSpeechOn(prev => {
-            const next = !prev;
-            AccessibilityInfo.announceForAccessibility(next ? 'Speech on' : 'Speech off');
-            return next;
-        });
-    };
-
     const mainButtonLabel = isActive ? 'Pause live view' : 'Resume live view';
-
-    // Pattern A: disable only torch when paused; keep camera flip usable
     const torchDisabled = !isActive || !supportsTorch;
     const flipDisabled = false;
+
+    const formatInfo = format
+        ? `${format.videoWidth}x${format.videoHeight} @ ${fps ?? 'auto'} FPS`
+        : 'auto format';
 
     return (
         <SafeAreaView
@@ -166,7 +277,25 @@ export default function Index() {
                 accessible
                 accessibilityLabel={`Live camera preview ${isActive ? 'running' : 'paused'}`}
                 accessibilityHint="Use the center button below to pause or resume."
+                onLayout={(e) => {
+                    const { width, height } = e.nativeEvent.layout;
+                    setPreviewSize({ width, height });
+                }}
             >
+                <View
+                    style={{
+                        position: 'absolute',
+                        top: 4,
+                        left: 4,
+                        zIndex: 10,
+                        backgroundColor: 'rgba(0,0,0,0.4)',
+                        paddingHorizontal: 6,
+                        paddingVertical: 2,
+                        borderRadius: 4,
+                    }}
+                >
+                    <Text style={{ color: 'white', fontSize: 12 }}>{formatInfo}</Text>
+                </View>
                 <Camera
                     style={{ flex: 1 }}
                     device={device}
@@ -175,6 +304,12 @@ export default function Index() {
                     torch={torch}
                     {...(format ? { format } : {})}
                     {...(format && fps ? { fps } : {})}
+                    frameProcessor={frameProcessor}
+                />
+                <OverlayDetection
+                    objects={objects as any}
+                    previewWidth={previewSize.width}
+                    previewHeight={previewSize.height}
                 />
             </View>
 
