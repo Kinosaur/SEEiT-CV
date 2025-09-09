@@ -30,7 +30,8 @@ import {
 } from 'react-native-vision-camera';
 import * as Worklets from 'react-native-worklets-core';
 
-// Permission fallback
+const DEFAULT_SPEECH_ON = false
+
 const PermissionsPage = () => (
     <ThemedView
         style={styles.center}
@@ -54,7 +55,6 @@ const PermissionsPage = () => (
     </ThemedView>
 );
 
-// No device fallback
 const NoCameraDeviceError = () => {
     React.useEffect(() => {
         AccessibilityInfo.announceForAccessibility('No camera device found.');
@@ -72,50 +72,44 @@ const NoCameraDeviceError = () => {
 };
 
 export default function Index() {
-    // Initialize TTS once (Phase 1)
     React.useEffect(() => {
         let cleanup: undefined | (() => void)
         initTTS()
             .then((res) => { cleanup = res.cleanup })
             .catch((e) => console.warn('[TTS] init failed:', e))
-        return () => {
-            try { cleanup?.() } catch { }
-        }
+        return () => { try { cleanup?.() } catch { } }
     }, [])
 
-    // Screen reader gating
     const [screenReaderOn, setScreenReaderOn] = React.useState(false)
     React.useEffect(() => {
-        let mounted = true
         AccessibilityInfo.isScreenReaderEnabled()
-            .then((enabled) => { if (mounted) setScreenReaderOn(Boolean(enabled)) })
+            .then(enabled => setScreenReaderOn(Boolean(enabled)))
             .catch(() => { })
         const sub = AccessibilityInfo.addEventListener('screenReaderChanged', (enabled: boolean) => {
             setScreenReaderOn(Boolean(enabled))
         })
         return () => {
-            // @ts-ignore RN < 0.71 compatibility
+            // @ts-ignore compatibility
             sub?.remove?.()
         }
     }, [])
 
-    // State: start paused & speech off
-    const [cameraPosition, setCameraPosition] = React.useState<'front' | 'back'>('back');
-    const [torch, setTorch] = React.useState<'off' | 'on'>('off');
-    const [speechOn, setSpeechOn] = React.useState(false);
-    const [isActive, setIsActive] = React.useState(false);
-    const [objects, setObjects] = React.useState<any[]>([]);
-    const [previewSize, setPreviewSize] = React.useState<{ width: number; height: number }>({ width: 0, height: 0 });
+    const [cameraPosition, setCameraPosition] = React.useState<'front' | 'back'>('back')
+    const [torch, setTorch] = React.useState<'off' | 'on'>('off')
+    const [speechOn, setSpeechOn] = React.useState(DEFAULT_SPEECH_ON)
+    const [isActive, setIsActive] = React.useState(false)
+    const [objects, setObjects] = React.useState<any[]>([])
+    const [previewSize, setPreviewSize] = React.useState<{ width: number; height: number }>({ width: 0, height: 0 })
+
+    const firstSpeechActivationRef = React.useRef(true)
 
     const { hasPermission, requestPermission } = useCameraPermission();
     const navigation = useNavigation<DrawerNavigationProp<any>>();
     const colorScheme = useColorScheme() ?? 'light';
     const themeColors = Colors[colorScheme];
 
-    // Simplicity-first: attempt 1080p@30 else auto
     const { device, format, fps, supportsTorch } = useSimpleFormat(cameraPosition);
 
-    // Log camera format and FPS when they change
     React.useEffect(() => {
         if (format) {
             console.log('Camera format:', {
@@ -130,21 +124,17 @@ export default function Index() {
         console.log('Camera FPS:', fps);
     }, [format, fps]);
 
-    // Memoize the JS setter to be called from worklet
     const setObjectsOnJS = Worklets.useRunOnJS((arr: any[]) => {
         setObjects(arr);
     }, []);
 
-    // Frame Processor Worklet
     const frameProcessor = useFrameProcessor((frame) => {
         'worklet';
-        // Throttle: run roughly every 120ms (~8 fps)
         const g = globalThis as any;
         const now = Date.now();
         if (g.__lastDetectTs == null) g.__lastDetectTs = 0;
         if (now - g.__lastDetectTs < 120) return;
         g.__lastDetectTs = now;
-
         const results = (detectObjects(frame) as unknown as any[]) ?? [];
         setObjectsOnJS(results);
     }, [setObjectsOnJS]);
@@ -159,14 +149,12 @@ export default function Index() {
         if (speechOn) AccessibilityInfo.announceForAccessibility(msg);
     };
 
-    // Stop any ongoing TTS when pausing or turning speech off
     React.useEffect(() => {
         if (!speechOn || !isActive) {
             ttsStop().catch(() => { })
         }
     }, [speechOn, isActive])
 
-    // Notifier: speak detections with TTS when SR is off; else use Accessibility announcements
     const notifyDetections = useDetectionsNotifier({
         enabled: speechOn && isActive,
         useTTS: !screenReaderOn,
@@ -176,17 +164,27 @@ export default function Index() {
         globalCooldownMs: 1200,
         includeConfidenceInMessage: false,
         summarizeMultiple: false,
+        allowUnlabeled: false,
+        numbering: true,
+        numberFormat: 'words',
+        numberingResetMs: 6000,
+        labelHoldMs: 3000,            // hysteresis window
+        minScoreDeltaToSwitch: 0.12,  // margin required to switch labels early
+        iouThresholdForCluster: 0.2,  // overlap clustering
+        labelMap: {
+            'home good': 'household item',
+            'fashion good': 'clothing item',
+        },
         speakTTS: (text: string) => ttsSpeak(text),
         announceA11y: (msg: string) => AccessibilityInfo.announceForAccessibility(msg),
     })
 
-    // Feed detections into notifier when list changes
     React.useEffect(() => {
         notifyDetections(objects)
     }, [objects, notifyDetections])
 
-    if (!hasPermission) return <PermissionsPage />;
-    if (!device) return <NoCameraDeviceError />;
+    if (!hasPermission) return <PermissionsPage />
+    if (!device) return <NoCameraDeviceError />
 
     const toggleActive = () => {
         setIsActive(prev => {
@@ -216,15 +214,29 @@ export default function Index() {
         });
     };
 
-    // Phase 1 test speech removed to avoid conflicts with detection TTS.
     const toggleSpeech = () => {
         setSpeechOn(prev => {
-            const next = !prev;
-            if (!next) ttsStop().catch(() => { })
-            AccessibilityInfo.announceForAccessibility(next ? 'Speech on' : 'Speech off');
-            return next;
-        });
-    };
+            const next = !prev
+            if (next) {
+                if (!screenReaderOn) {
+                    // TTS path
+                    if (firstSpeechActivationRef.current) {
+                        firstSpeechActivationRef.current = false
+                        ttsSpeak('Speech feature enabled.')
+                            .catch(() => { })
+                    } else {
+                        ttsSpeak('Speech on.').catch(() => { })
+                    }
+                } else {
+                    AccessibilityInfo.announceForAccessibility('Speech on')
+                }
+            } else {
+                ttsStop().catch(() => { })
+                AccessibilityInfo.announceForAccessibility('Speech off')
+            }
+            return next
+        })
+    }
 
     const toggleCameraPosition = () => {
         setCameraPosition(p => {
@@ -238,7 +250,6 @@ export default function Index() {
     };
 
     const mainButtonLabel = isActive ? 'Pause live view' : 'Resume live view';
-
     const torchDisabled = !isActive || !supportsTorch;
     const flipDisabled = false;
 
