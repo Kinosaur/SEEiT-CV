@@ -9,10 +9,10 @@ export interface ColorBlindnessTypeDef {
 
 export const COLOR_BLINDNESS_TYPES: ColorBlindnessTypeDef[] = [
     { key: 'protanopia', name: 'Protanopia', description: 'Reduced sensitivity to reds' },
-    { key: 'deuteranopia', name: 'Deuteranopia', description: 'Reduced sensitivity to greens' },
-    { key: 'tritanopia', name: 'Tritanopia', description: 'Reduced sensitivity to blues' },
+    // { key: 'deuteranopia', name: 'Deuteranopia', description: 'Reduced sensitivity to greens' },
+    // { key: 'tritanopia', name: 'Tritanopia', description: 'Reduced sensitivity to blues' },
     // { key: 'monochromacy', name: 'Monochromacy', description: 'Primarily perceives lightness' },
-    { key: 'normal', name: 'Normal Vision', description: 'No diagnosed color blindness' },
+    // { key: 'normal', name: 'Normal Vision', description: 'No diagnosed color blindness' },
 ];
 
 // Convenience map for quick lookup (avoid rebuilding each time)
