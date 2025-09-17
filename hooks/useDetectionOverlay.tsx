@@ -1,0 +1,125 @@
+import React, { useMemo } from 'react'
+import { StyleSheet, Text, View } from 'react-native'
+
+type DetObj = {
+  id: number
+  b: [number, number, number, number]
+  labels?: { name: string; c: number }[]
+}
+
+export interface DetectionOverlayProps {
+  containerWidth: number
+  containerHeight: number
+  frameWidth: number
+  frameHeight: number
+  objects: DetObj[]
+  topLabel?: string
+  topConfidence?: number
+  strokeColor?: string
+  strokeWidth?: number
+  showLabel?: boolean
+}
+
+interface BoxStyle { left: number; top: number; width: number; height: number }
+
+function mapBoxCover(
+  b: [number, number, number, number],
+  frameW: number,
+  frameH: number,
+  viewW: number,
+  viewH: number
+): BoxStyle | null {
+  if (frameW <= 0 || frameH <= 0 || viewW <= 0 || viewH <= 0) return null
+  const scale = Math.max(viewW / frameW, viewH / frameH)
+  const dispW = frameW * scale
+  const dispH = frameH * scale
+  const offsetX = (viewW - dispW) / 2
+  const offsetY = (viewH - dispH) / 2
+  const [x, y, w, h] = b
+  const xC = Math.min(Math.max(x, 0), 1)
+  const yC = Math.min(Math.max(y, 0), 1)
+  const wC = Math.min(Math.max(w, 0), 1 - xC)
+  const hC = Math.min(Math.max(h, 0), 1 - yC)
+  return {
+    left: offsetX + xC * dispW,
+    top: offsetY + yC * dispH,
+    width: wC * dispW,
+    height: hC * dispH
+  }
+}
+
+export const DetectionOverlay: React.FC<DetectionOverlayProps> = ({
+  containerWidth,
+  containerHeight,
+  frameWidth,
+  frameHeight,
+  objects,
+  topLabel,
+  topConfidence,
+  strokeColor = '#00FF77',
+  strokeWidth = 3,
+  showLabel = true
+}) => {
+  const boxes = useMemo(() => {
+    if (!objects || objects.length === 0) return []
+    return objects
+      .map(o => {
+        const m = mapBoxCover(o.b, frameWidth, frameHeight, containerWidth, containerHeight)
+        if (!m) return null
+        return { id: o.id, style: m }
+      })
+      .filter(Boolean) as { id: number; style: BoxStyle }[]
+  }, [objects, frameWidth, frameHeight, containerWidth, containerHeight])
+
+  if (containerWidth === 0 || containerHeight === 0) return null
+
+  return (
+    <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+      {boxes.map(bx => (
+        <View key={bx.id} style={[
+          styles.box,
+          {
+            left: bx.style.left,
+            top: bx.style.top,
+            width: bx.style.width,
+            height: bx.style.height,
+            borderColor: strokeColor,
+            borderWidth: strokeWidth
+          }
+        ]}>
+          {showLabel && topLabel && bx.id === boxes[0].id && (
+            <View style={styles.labelContainer}>
+              <Text style={styles.labelText}>
+                {topLabel}{topConfidence !== undefined && topConfidence >= 0 && ` ${(topConfidence * 100).toFixed(0)}%`}
+              </Text>
+            </View>
+          )}
+        </View>
+      ))}
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  box: {
+    position: 'absolute',
+    borderRadius: 4,
+    borderStyle: 'solid',
+  },
+  labelContainer: {
+    position: 'absolute',
+    top: -22,
+    left: 0,
+    backgroundColor: 'rgba(0,0,0,0.65)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4
+  },
+  labelText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600'
+  }
+})
+
+export default DetectionOverlay

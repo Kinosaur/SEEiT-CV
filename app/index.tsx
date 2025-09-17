@@ -1,11 +1,11 @@
 import Buttons from '@/components/Buttons';
-import { OverlayDetection } from '@/components/OverlayDetection';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { DetectionOverlay } from '@/hooks/useDetectionOverlay';
 import { useDetectionsNotifier } from '@/hooks/useDetectionsNotifier';
-import { detectObjects } from '@/hooks/useDetector';
+import { mlkitObjectDetect } from '@/hooks/useMlkitObject';
 import { useSimpleFormat } from '@/hooks/useSimpleFormat';
 import { initTTS, ttsSpeak, ttsStop } from '@/services/tts';
 import { Ionicons } from '@expo/vector-icons';
@@ -98,7 +98,14 @@ export default function Index() {
     const [torch, setTorch] = React.useState<'off' | 'on'>('off')
     const [speechOn, setSpeechOn] = React.useState(DEFAULT_SPEECH_ON)
     const [isActive, setIsActive] = React.useState(false)
+    // Raw plugin objects (id, b: [x,y,w,h], labels[])
     const [objects, setObjects] = React.useState<any[]>([])
+    // Plugin (upright) frame dimensions for overlay scaling
+    const [frameDims, setFrameDims] = React.useState<{ width: number; height: number }>({ width: 0, height: 0 })
+    // Optional: top label/conf for overlay tag (not used by notifier)
+    const [topInfo, setTopInfo] = React.useState<{ label: string; confidence: number }>({ label: '', confidence: -1 })
+    // Frame processor error (surfaced to UI)
+    const [fpError, setFpError] = React.useState<string | null>(null)
     const [previewSize, setPreviewSize] = React.useState<{ width: number; height: number }>({ width: 0, height: 0 })
 
     const firstSpeechActivationRef = React.useRef(true)
@@ -124,20 +131,44 @@ export default function Index() {
         console.log('Camera FPS:', fps);
     }, [format, fps]);
 
-    const setObjectsOnJS = Worklets.useRunOnJS((arr: any[]) => {
-        setObjects(arr);
-    }, []);
+    // Receive plugin result map on JS and fan out to state
+    const setPluginResultOnJS = Worklets.useRunOnJS((raw: any) => {
+        if (!raw || typeof raw.detSeq !== 'number') return
+        if (raw.detSeq < 0) return
+        // Debug log to Metro
+        try {
+            console.log('[FP]', 'detSeq=', raw.detSeq, 'objs=', Array.isArray(raw.objs) ? raw.objs.length : -1, 'dims=', raw.width, 'x', raw.height)
+        } catch { }
+        setFpError(null)
+        const objs = Array.isArray(raw.objs) ? raw.objs : []
+        setObjects(objs)
+        setFrameDims({
+            width: typeof raw.width === 'number' ? raw.width : 0,
+            height: typeof raw.height === 'number' ? raw.height : 0,
+        })
+        setTopInfo({
+            label: typeof raw.topLabel === 'string' ? raw.topLabel : '',
+            confidence: typeof raw.topConfidence === 'number' ? raw.topConfidence : -1,
+        })
+    }, [])
+
+    const setPluginErrorOnJS = Worklets.useRunOnJS((msg: string) => {
+        setFpError(msg)
+    }, [])
 
     const frameProcessor = useFrameProcessor((frame) => {
         'worklet';
-        const g = globalThis as any;
-        const now = Date.now();
-        if (g.__lastDetectTs == null) g.__lastDetectTs = 0;
-        if (now - g.__lastDetectTs < 120) return;
-        g.__lastDetectTs = now;
-        const results = (detectObjects(frame) as unknown as any[]) ?? [];
-        setObjectsOnJS(results);
-    }, [setObjectsOnJS]);
+        try {
+            const result = mlkitObjectDetect(frame) as any
+            if (result && typeof result.detSeq === 'number') {
+                setPluginResultOnJS(result)
+            } else {
+                setPluginErrorOnJS('Plugin result missing detSeq')
+            }
+        } catch (e: any) {
+            setPluginErrorOnJS(String(e?.message ?? 'plugin call failed'))
+        }
+    }, [setPluginResultOnJS, setPluginErrorOnJS]);
 
     React.useEffect(() => {
         if (!hasPermission) {
@@ -179,8 +210,22 @@ export default function Index() {
         announceA11y: (msg: string) => AccessibilityInfo.announceForAccessibility(msg),
     })
 
+    // Adapt plugin objects -> DetectionObject[] shape for the notifier
     React.useEffect(() => {
-        notifyDetections(objects)
+        const dets = (objects ?? []).map((o: any) => {
+            const top = (Array.isArray(o.labels) && o.labels.length > 0) ? o.labels[0] : null
+            const b = Array.isArray(o.b) ? o.b : []
+            const norm = (b.length === 4)
+                ? { x: b[0] as number, y: b[1] as number, width: b[2] as number, height: b[3] as number }
+                : undefined
+            return {
+                id: o.id,
+                label: top?.name,
+                score: typeof top?.c === 'number' ? top.c : undefined,
+                norm,
+            }
+        })
+        notifyDetections(dets)
     }, [objects, notifyDetections])
 
     if (!hasPermission) return <PermissionsPage />
@@ -302,15 +347,25 @@ export default function Index() {
                     isActive={isActive}
                     resizeMode="cover"
                     torch={torch}
+                    pixelFormat="yuv"
                     {...(format ? { format } : {})}
                     {...(format && fps ? { fps } : {})}
                     frameProcessor={frameProcessor}
                 />
-                <OverlayDetection
+                <DetectionOverlay
+                    containerWidth={previewSize.width}
+                    containerHeight={previewSize.height}
+                    frameWidth={frameDims.width}
+                    frameHeight={frameDims.height}
                     objects={objects as any}
-                    previewWidth={previewSize.width}
-                    previewHeight={previewSize.height}
+                    topLabel={topInfo.label}
+                    topConfidence={topInfo.confidence}
                 />
+                {fpError ? (
+                    <View style={{ position: 'absolute', top: 8, left: 8, right: 8, backgroundColor: 'rgba(255,0,0,0.35)', padding: 6, borderRadius: 4 }}>
+                        <Text style={{ color: '#fff', fontSize: 12 }}>Detection error: {fpError}</Text>
+                    </View>
+                ) : null}
             </View>
 
             <View
