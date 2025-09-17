@@ -139,20 +139,6 @@ export default function RootLayout() {
                   ),
                 }}
               />
-              <Drawer.Screen
-                name="profile"
-                options={{
-                  title: 'Profile',
-                  headerShown: false,
-                  drawerIcon: ({ color, size, focused }) => (
-                    <IconSymbol
-                      name={focused ? 'person.crop.circle.fill' : 'person.crop.circle'}
-                      color={color}
-                      size={size}
-                    />
-                  ),
-                }}
-              />
             </Drawer>
             <StatusBar style="auto" />
           </ThemeProvider>
