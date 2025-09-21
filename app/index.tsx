@@ -97,7 +97,9 @@ export default function Index() {
     const [cameraPosition, setCameraPosition] = React.useState<'front' | 'back'>('back')
     const [torch, setTorch] = React.useState<'off' | 'on'>('off')
     const [speechOn, setSpeechOn] = React.useState(DEFAULT_SPEECH_ON)
-    const [isActive, setIsActive] = React.useState(false)
+    // UI improvement: start active so users see detections without having to guess to press Resume
+    const [isActive, setIsActive] = React.useState(true)
+
     // Raw plugin objects (id, b: [x,y,w,h], labels[])
     const [objects, setObjects] = React.useState<any[]>([])
     // Plugin (upright) frame dimensions for overlay scaling
@@ -107,6 +109,19 @@ export default function Index() {
     // Frame processor error (surfaced to UI)
     const [fpError, setFpError] = React.useState<string | null>(null)
     const [previewSize, setPreviewSize] = React.useState<{ width: number; height: number }>({ width: 0, height: 0 })
+
+    // Overlay toggle and health timestamp
+    const [showOverlay, setShowOverlay] = React.useState(true)
+    const [lastDetTs, setLastDetTs] = React.useState(0)
+
+    // Derived detection status for gating UX and speech
+    const detectionStatus: 'ok' | 'warm' | 'off' = React.useMemo(() => {
+        if (!isActive) return 'off'
+        if (fpError) return 'off'
+        const age = Date.now() - lastDetTs
+        if (age < 2000) return 'ok'
+        return 'warm'
+    }, [isActive, fpError, lastDetTs])
 
     const firstSpeechActivationRef = React.useRef(true)
 
@@ -135,11 +150,11 @@ export default function Index() {
     const setPluginResultOnJS = Worklets.useRunOnJS((raw: any) => {
         if (!raw || typeof raw.detSeq !== 'number') return
         if (raw.detSeq < 0) return
-        // Debug log to Metro
         try {
             console.log('[FP]', 'detSeq=', raw.detSeq, 'objs=', Array.isArray(raw.objs) ? raw.objs.length : -1, 'dims=', raw.width, 'x', raw.height)
         } catch { }
         setFpError(null)
+        setLastDetTs(Date.now())
         const objs = Array.isArray(raw.objs) ? raw.objs : []
         setObjects(objs)
         setFrameDims({
@@ -187,7 +202,7 @@ export default function Index() {
     }, [speechOn, isActive])
 
     const notifyDetections = useDetectionsNotifier({
-        enabled: speechOn && isActive,
+        enabled: speechOn && isActive && detectionStatus === 'ok',
         useTTS: !screenReaderOn,
         stableFrames: 3,
         minConfidence: 0.5,
@@ -199,9 +214,9 @@ export default function Index() {
         numbering: true,
         numberFormat: 'words',
         numberingResetMs: 6000,
-        labelHoldMs: 3000,            // hysteresis window
-        minScoreDeltaToSwitch: 0.12,  // margin required to switch labels early
-        iouThresholdForCluster: 0.2,  // overlap clustering
+        labelHoldMs: 3000,
+        minScoreDeltaToSwitch: 0.12,
+        iouThresholdForCluster: 0.2,
         labelMap: {
             'home good': 'household item',
             'fashion good': 'clothing item',
@@ -264,11 +279,9 @@ export default function Index() {
             const next = !prev
             if (next) {
                 if (!screenReaderOn) {
-                    // TTS path
                     if (firstSpeechActivationRef.current) {
                         firstSpeechActivationRef.current = false
-                        ttsSpeak('Speech feature enabled.')
-                            .catch(() => { })
+                        ttsSpeak('Speech feature enabled.').catch(() => { })
                     } else {
                         ttsSpeak('Speech on.').catch(() => { })
                     }
@@ -298,9 +311,14 @@ export default function Index() {
     const torchDisabled = !isActive || !supportsTorch;
     const flipDisabled = false;
 
-    const formatInfo = format
-        ? `${format.videoWidth}x${format.videoHeight} @ ${fps ?? 'auto'} FPS`
-        : 'auto format';
+    // const formatInfo = format
+    //     ? `${format.videoWidth}x${format.videoHeight} @ ${fps ?? 'auto'} FPS`
+    //     : 'auto format';
+
+    const statusColor = detectionStatus === 'ok' ? '#9cff9c' : detectionStatus === 'warm' ? '#ffd27a' : '#ff9c9c'
+    const statusText = detectionStatus === 'ok' ? 'Detection: OK' : detectionStatus === 'warm' ? 'Detection: Warming…' : 'Detection: Off'
+
+    const objCount = objects?.length ?? 0
 
     return (
         <SafeAreaView
@@ -327,7 +345,26 @@ export default function Index() {
                     setPreviewSize({ width, height });
                 }}
             >
-                <View
+                {/* HUD: overlay toggle + detection status + object count */}
+                <View style={{ position: 'absolute', top: 8, right: 8, zIndex: 12, flexDirection: 'row', gap: 8 }}>
+                    <TouchableOpacity
+                        onPress={() => setShowOverlay(v => !v)}
+                        style={{ backgroundColor: 'rgba(0,0,0,0.45)', paddingHorizontal: 8, paddingVertical: 6, borderRadius: 6 }}
+                        accessibilityRole="switch"
+                        accessibilityState={{ checked: showOverlay }}
+                        accessibilityLabel="Toggle detection overlay"
+                    >
+                        <Text style={{ color: '#fff', fontSize: 12 }}>{showOverlay ? 'Overlay: On' : 'Overlay: Off'}</Text>
+                    </TouchableOpacity>
+                    <View style={{ backgroundColor: 'rgba(0,0,0,0.45)', paddingHorizontal: 8, paddingVertical: 6, borderRadius: 6 }}>
+                        <Text style={{ color: statusColor, fontSize: 12 }}>{statusText}</Text>
+                    </View>
+                    <View style={{ backgroundColor: 'rgba(0,0,0,0.45)', paddingHorizontal: 8, paddingVertical: 6, borderRadius: 6 }}>
+                        <Text style={{ color: '#fff', fontSize: 12 }}>Objs: {objCount}</Text>
+                    </View>
+                </View>
+
+                {/* <View
                     style={{
                         position: 'absolute',
                         top: 4,
@@ -340,7 +377,7 @@ export default function Index() {
                     }}
                 >
                     <Text style={{ color: 'white', fontSize: 12 }}>{formatInfo}</Text>
-                </View>
+                </View> */}
                 <Camera
                     style={{ flex: 1 }}
                     device={device}
@@ -352,15 +389,17 @@ export default function Index() {
                     {...(format && fps ? { fps } : {})}
                     frameProcessor={frameProcessor}
                 />
-                <DetectionOverlay
-                    containerWidth={previewSize.width}
-                    containerHeight={previewSize.height}
-                    frameWidth={frameDims.width}
-                    frameHeight={frameDims.height}
-                    objects={objects as any}
-                    topLabel={topInfo.label}
-                    topConfidence={topInfo.confidence}
-                />
+                {showOverlay && detectionStatus === 'ok' && (
+                    <DetectionOverlay
+                        containerWidth={previewSize.width}
+                        containerHeight={previewSize.height}
+                        frameWidth={frameDims.width}
+                        frameHeight={frameDims.height}
+                        objects={objects as any}
+                        topLabel={topInfo.label}
+                        topConfidence={topInfo.confidence}
+                    />
+                )}
                 {fpError ? (
                     <View style={{ position: 'absolute', top: 8, left: 8, right: 8, backgroundColor: 'rgba(255,0,0,0.35)', padding: 6, borderRadius: 4 }}>
                         <Text style={{ color: '#fff', fontSize: 12 }}>Detection error: {fpError}</Text>

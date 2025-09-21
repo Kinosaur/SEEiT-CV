@@ -16,6 +16,7 @@ import {
     Image,
     Modal,
     Platform,
+    Share,
     StyleSheet,
     TouchableOpacity,
     View,
@@ -83,6 +84,11 @@ export default function ColorBlindCameraScreen() {
     const [previewUri, setPreviewUri] = React.useState<string | null>(null);
     const [processing, setProcessing] = React.useState(false);
 
+    // NEW: store original, toggle for before/after, and outcome line
+    const [origUri, setOrigUri] = React.useState<string | null>(null);
+    const [showOriginal, setShowOriginal] = React.useState(false);
+    const [outcome, setOutcome] = React.useState<string | null>(null);
+
     React.useEffect(() => {
         if (!hasPermission) requestPermission().catch(() => { });
     }, [hasPermission, requestPermission]);
@@ -136,6 +142,9 @@ export default function ColorBlindCameraScreen() {
             const t0 = Date.now();
             const photo = await cam.takePhoto({ flash: 'off', enableShutterSound: true });
             const inputPath = photo.path.startsWith('file://') ? photo.path : `file://${photo.path}`;
+            setOrigUri(inputPath);
+            setShowOriginal(false);
+            setOutcome(null);
 
             // Fixed protanopia path
             const K = 8;
@@ -181,6 +190,21 @@ export default function ColorBlindCameraScreen() {
                 afterMetrics: tA1 - tA0,
                 total: Date.now() - t0
             });
+
+            // NEW: Outcome line (simple, avoids hidden native thresholds)
+            const beforePct = (statsBefore?.ratio ?? 0) * 100;
+            const afterPct = (statsAfter?.ratio ?? 0) * 100;
+            const reduction = beforePct - afterPct;
+            let msg: string;
+            if (reduction > 0.2) {
+                msg = `Assist applied: confusing ${beforePct.toFixed(1)}% → ${afterPct.toFixed(1)}% (−${reduction.toFixed(1)}%)`;
+            } else if (beforePct < 1) {
+                msg = 'Scene low confusion; assist likely skipped.';
+            } else {
+                msg = 'Assist applied (no significant change).';
+            }
+            setOutcome(msg);
+            AccessibilityInfo.announceForAccessibility?.(msg);
 
             setPreviewUri(processedUri);
         } catch (e) {
@@ -230,7 +254,7 @@ export default function ColorBlindCameraScreen() {
                         <View
                             style={[
                                 intensityOpen ? styles.intensityPanel : styles.intensityPillCollapsed,
-                                { backgroundColor: themeColors.surface, borderColor: themeColors.divider },
+                            { backgroundColor: themeColors.surface, borderColor: themeColors.divider },
                             ]}
                         >
                             {intensityOpen ? (
@@ -330,13 +354,60 @@ export default function ColorBlindCameraScreen() {
                 </View>
             </View>
 
-            <Modal visible={!!previewUri} transparent={false} animationType="slide" onRequestClose={() => setPreviewUri(null)}>
+            <Modal
+                visible={!!previewUri}
+                transparent={false}
+                animationType="slide"
+                onRequestClose={() => setPreviewUri(null)}
+            >
                 <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 12 }}>
                         {previewUri ? (
-                            <Image source={{ uri: previewUri }} resizeMode="contain" style={{ width: '100%', height: '85%' }} accessible accessibilityLabel="Corrected image preview" />
+                            <Image
+                                source={{ uri: (showOriginal && origUri) ? origUri : previewUri }}
+                                resizeMode="contain"
+                                style={{ width: '100%', height: '78%' }}
+                                accessible
+                                accessibilityLabel={showOriginal ? 'Original image preview' : 'Corrected image preview'}
+                            />
                         ) : null}
-                        <Buttons title="Close" onPress={() => setPreviewUri(null)} accessibilityLabel="Close preview" />
+
+                        {/* Outcome line */}
+                        {outcome ? (
+                            <ThemedText style={{ marginTop: 8, marginBottom: 10, textAlign: 'center' }}>
+                                {outcome}
+                            </ThemedText>
+                        ) : null}
+
+                        {/* Controls */}
+                        <View style={{ flexDirection: 'row', gap: 12, marginBottom: 8 }}>
+                            {origUri && previewUri ? (
+                                <Buttons
+                                    title={showOriginal ? 'Show corrected' : 'Show original'}
+                                    onPress={() => setShowOriginal(v => !v)}
+                                    accessibilityLabel="Toggle original and corrected image"
+                                />
+                            ) : null}
+                            {previewUri ? (
+                                <Buttons
+                                    title="Share"
+                                    onPress={async () => {
+                                        try {
+                                            await Share.share({
+                                                message: 'SEEiT corrected image',
+                                                url: previewUri,
+                                            })
+                                        } catch { /* noop */ }
+                                    }}
+                                    accessibilityLabel="Share corrected image"
+                                />
+                            ) : null}
+                            <Buttons
+                                title="Close"
+                                onPress={() => setPreviewUri(null)}
+                                accessibilityLabel="Close preview"
+                            />
+                        </View>
                     </View>
                 </SafeAreaView>
             </Modal>

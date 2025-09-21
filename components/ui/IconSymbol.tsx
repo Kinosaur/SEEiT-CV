@@ -14,6 +14,7 @@ const MAPPING = {
   'house.fill': 'home',
   'eye': 'eye-outline',
   'eye.fill': 'eye',
+  'checkmark.circle': 'checkmark-circle-outline',
 } as Record<SymbolViewProps['name'], ComponentProps<typeof Ionicons>['name']>;
 
 type IconSymbolName = keyof typeof MAPPING;
