@@ -150,11 +150,17 @@ export default function Index() {
     const setPluginResultOnJS = Worklets.useRunOnJS((raw: any) => {
         if (!raw || typeof raw.detSeq !== 'number') return
         if (raw.detSeq < 0) return
+
+        // health should advance ONLY when we have run at least one detection
+        if (raw.detSeq > 0) {
+            setLastDetTs(Date.now())
+        }
+
         try {
             console.log('[FP]', 'detSeq=', raw.detSeq, 'objs=', Array.isArray(raw.objs) ? raw.objs.length : -1, 'dims=', raw.width, 'x', raw.height)
         } catch { }
         setFpError(null)
-        setLastDetTs(Date.now())
+
         const objs = Array.isArray(raw.objs) ? raw.objs : []
         setObjects(objs)
         setFrameDims({
