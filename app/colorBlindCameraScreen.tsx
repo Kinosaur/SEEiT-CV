@@ -12,6 +12,7 @@ import { nameColor } from '@/utils/protan';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
+import * as Sharing from 'expo-sharing';
 import React from 'react';
 import {
     AccessibilityInfo,
@@ -27,12 +28,13 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Camera, useCameraPermission } from 'react-native-vision-camera';
 
-type Pt = { x: number; y: number }
-type RGRegion = { label: 'red' | 'green'; x: number; y: number; w: number; h: number; areaFrac: number }
-
 // RG finder thresholds
 const RG_MIN_SAT = 0.35;
-const RG_MIN_AREA_FRAC = 0.008;
+const RG_MIN_AREA_FRAC = 0.004;
+const RG_MIN_VAL = 0.20;
+
+type Pt = { x: number; y: number }
+type RGRegion = { label: 'red' | 'green'; x: number; y: number; w: number; h: number; areaFrac: number }
 
 export default function ColorBlindCameraScreen() {
     const [cameraPosition] = React.useState<'back' | 'front'>('back');
@@ -67,6 +69,7 @@ export default function ColorBlindCameraScreen() {
     const [showRG, setShowRG] = React.useState(false);
     const [showMatch, setShowMatch] = React.useState(false);
     const [matchTol, setMatchTol] = React.useState(18);
+    const [debouncedTol, setDebouncedTol] = React.useState(matchTol);
 
     // Crosshairs
     const [A, setA] = React.useState<Pt | undefined>(undefined);
@@ -96,6 +99,12 @@ export default function ColorBlindCameraScreen() {
         setTorch(t => (t === 'off' ? 'on' : 'off'));
     };
 
+    // Debounce tolerance to avoid hammering native
+    React.useEffect(() => {
+        const id = setTimeout(() => setDebouncedTol(matchTol), 180);
+        return () => clearTimeout(id);
+    }, [matchTol]);
+
     const captureAndAnalyze = async () => {
         try {
             setProcessing(true);
@@ -108,15 +117,14 @@ export default function ColorBlindCameraScreen() {
             setA(undefined); setB(undefined); setAInfo(null); setBInfo(null);
             setRgRegions([]); setMatchUri(null);
 
-            // Heatmap first (sets analysis dimensions)
             const hm = await generateBoundaryLossHeatmap(uri, 360);
             setHeatUri(hm.overlayUri);
             setHeatW(hm.width); setHeatH(hm.height);
 
             if (showRG) {
                 try {
-                    const res = await detectRedGreenRegions(uri, 360, RG_MIN_SAT, RG_MIN_AREA_FRAC);
-                    const regs = (res.regions || []).map(r => ({ label: r.label, x: r.x, y: r.y, w: r.w, h: r.h, areaFrac: r.areaFrac }));
+                    const res = await detectRedGreenRegions(uri, 360, RG_MIN_SAT, RG_MIN_AREA_FRAC, RG_MIN_VAL);
+                    const regs = (res.regions || []) as RGRegion[];
                     setRgRegions(regs);
                 } catch { }
             }
@@ -127,7 +135,6 @@ export default function ColorBlindCameraScreen() {
         }
     };
 
-    // Tap to place A/B (map only if inside contained rect)
     const onImagePress = (evt: any) => {
         const { locationX, locationY } = evt.nativeEvent;
         const { left, top, width, height } = imageRect;
@@ -140,7 +147,6 @@ export default function ColorBlindCameraScreen() {
         else setA({ x: nx, y: ny });
     };
 
-    // Re-sample A/B
     const refreshSamples = React.useCallback(async () => {
         if (!photoUri) return;
         const pts: Pt[] = [];
@@ -158,27 +164,25 @@ export default function ColorBlindCameraScreen() {
     }, [photoUri, A, B]);
     React.useEffect(() => { refreshSamples() }, [A, B, refreshSamples]);
 
-    // Recompute match overlay whenever toggled, A exists, or tolerance changes
     React.useEffect(() => {
         (async () => {
             if (!photoUri || !showMatch || !AInfo) { setMatchUri(null); return; }
             try {
-                const mm = await generateMatchMask(photoUri, AInfo.L, AInfo.a, AInfo.bLab, matchTol, 360);
+                const mm = await generateMatchMask(photoUri, AInfo.L, AInfo.a, AInfo.bLab, debouncedTol, 360);
                 setMatchUri(mm.overlayUri);
             } catch (e) {
                 console.warn('[Match] failed:', e);
                 setMatchUri(null);
             }
         })();
-    }, [photoUri, showMatch, AInfo, matchTol]);
+    }, [photoUri, showMatch, AInfo, debouncedTol]);
 
-    // Re-run RG finder when toggled on in an open analysis
     React.useEffect(() => {
         (async () => {
             if (!photoUri || !showRG) { setRgRegions([]); return; }
             try {
-                const res = await detectRedGreenRegions(photoUri, 360, RG_MIN_SAT, RG_MIN_AREA_FRAC);
-                const regs = (res.regions || []).map(r => ({ label: r.label, x: r.x, y: r.y, w: r.w, h: r.h, areaFrac: r.areaFrac }));
+                const res = await detectRedGreenRegions(photoUri, 360, RG_MIN_SAT, RG_MIN_AREA_FRAC, RG_MIN_VAL);
+                const regs = (res.regions || []) as RGRegion[];
                 setRgRegions(regs);
             } catch (e) {
                 console.warn('[RG] failed:', e);
@@ -195,7 +199,6 @@ export default function ColorBlindCameraScreen() {
         return Math.sqrt(dL * dL + da * da + db * db);
     }, [AInfo, BInfo]);
 
-    // Helpers for overlay drawing
     const mapBox = (r: RGRegion) => {
         const { left, top, width, height } = imageRect;
         return {
@@ -208,6 +211,19 @@ export default function ColorBlindCameraScreen() {
 
     const redCount = rgRegions.filter(r => r.label === 'red').length;
     const greenCount = rgRegions.filter(r => r.label === 'green').length;
+
+    async function onShare(uri?: string | null) {
+        if (!uri) return;
+        try {
+            if (await Sharing.isAvailableAsync()) {
+                await Sharing.shareAsync(uri, { dialogTitle: 'Share SEEiT analysis', mimeType: 'image/*' });
+                return;
+            }
+        } catch { /* fall through */ }
+        try {
+            await Share.share({ message: `SEEiT analysis: ${uri}` });
+        } catch { /* no-op */ }
+    }
 
     if (!hasPermission) {
         return (
@@ -265,7 +281,7 @@ export default function ColorBlindCameraScreen() {
                     circular size="lg" variant={torch === 'on' ? 'primary' : 'surface'}
                 />
                 <Buttons
-                    title={processing ? 'Analyzing…' : 'Capture & Analyze'}
+                    title={processing ? 'Analyzing…' : 'Capture'}
                     onPress={captureAndAnalyze}
                     accessibilityLabel="Capture and analyze scene"
                     accessibilityState={{ disabled: processing || !valid, busy: processing || undefined }}
@@ -286,7 +302,6 @@ export default function ColorBlindCameraScreen() {
             >
                 <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
                     <View style={{ flex: 1 }}>
-                        {/* Image area */}
                         <View
                             style={{ width: '100%', height: '58%', justifyContent: 'center', alignItems: 'center' }}
                             onLayout={e => {
@@ -305,16 +320,23 @@ export default function ColorBlindCameraScreen() {
                                     <Image source={{ uri: photoUri }} resizeMode="contain" style={StyleSheet.absoluteFill} />
                                     {showHeat && heatUri ? (<Image source={{ uri: heatUri }} resizeMode="contain" style={StyleSheet.absoluteFill} />) : null}
                                     {matchUri ? (<Image source={{ uri: matchUri }} resizeMode="contain" style={StyleSheet.absoluteFill} />) : null}
-                                    {/* RG boxes */}
                                     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
                                         {rgRegions.map((r, idx) => {
                                             const box = mapBox(r);
-                                            const borderColor = r.label === 'red' ? '#ff5252' : '#00e676'
-                                            const bg = r.label === 'red' ? 'rgba(255,82,82,0.12)' : 'rgba(0,230,118,0.12)'
+                                            const isRed = r.label === 'red'
+                                            const borderColor = isRed ? '#ff5252' : '#00e676'
+                                            const bg = isRed ? 'rgba(255,82,82,0.12)' : 'rgba(0,230,118,0.12)'
+                                            const borderStyle = isRed ? 'solid' as const : 'dashed' as const
                                             return (
-                                                <View key={`${r.label}-${idx}`} style={[styles.rgBox, { left: box.left, top: box.top, width: box.width, height: box.height, borderColor, backgroundColor: bg }]}>
+                                                <View
+                                                    key={`${r.label}-${idx}`}
+                                                    style={[
+                                                        styles.rgBox,
+                                                        { left: box.left, top: box.top, width: box.width, height: box.height, borderColor, backgroundColor: bg, borderStyle }
+                                                    ]}
+                                                >
                                                     <View style={styles.badge}>
-                                                        <ThemedText style={styles.badgeText}>{r.label === 'red' ? 'R' : 'G'}</ThemedText>
+                                                        <ThemedText style={styles.badgeText}>{isRed ? 'R' : 'G'}</ThemedText>
                                                     </View>
                                                 </View>
                                             )
@@ -325,107 +347,57 @@ export default function ColorBlindCameraScreen() {
                             ) : null}
                         </View>
 
-                        {/* Scrollable info + chips */}
                         <ScrollView
                             style={{ flex: 1 }}
                             contentContainerStyle={{ paddingHorizontal: 10, paddingTop: 8, paddingBottom: 88 }}
                             showsVerticalScrollIndicator={false}
                         >
-                            <View style={{ flexDirection: 'row', flexWrap: 'nowrap' }}>
-                                <ScrollView
-                                    horizontal
-                                    showsHorizontalScrollIndicator={false}
-                                    contentContainerStyle={{ paddingBottom: 6, gap: 8, alignItems: 'center' }}
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 6, gap: 8, alignItems: 'center' }}>
+                                <TouchableOpacity onPress={() => setShowHeat(v => !v)} style={styles.pill} accessibilityRole="switch" accessibilityLabel="Toggle boundary-loss heatmap" accessibilityState={{ checked: showHeat }}>
+                                    <ThemedText>{showHeat ? 'Heatmap: On' : 'Heatmap: Off'}</ThemedText>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setShowRG(v => !v)} style={styles.pill} accessibilityRole="switch" accessibilityLabel="Toggle Red/Green Finder" accessibilityState={{ checked: showRG }}>
+                                    <ThemedText>{showRG ? `RG Finder: R${redCount} G${greenCount}` : 'RG Finder: Off'}</ThemedText>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => setShowMatch(v => !v)} style={styles.pill} accessibilityRole="switch" accessibilityLabel="Toggle highlight similar to A" accessibilityState={{ checked: showMatch, disabled: !AInfo }}>
+                                    <ThemedText>{showMatch ? 'Highlight A-like: On' : 'Highlight A-like: Off'}</ThemedText>
+                                </TouchableOpacity>
+                                {showMatch ? (
+                                    <View style={[styles.pill, { flexDirection: 'row', alignItems: 'center', gap: 8 }]} accessibilityLabel="Tolerance for A-like highlight">
+                                        <TouchableOpacity onPress={() => setMatchTol(t => Math.max(8, t - 2))}><ThemedText>-</ThemedText></TouchableOpacity>
+                                        <ThemedText>Tolerance {matchTol}</ThemedText>
+                                        <TouchableOpacity onPress={() => setMatchTol(t => Math.min(30, t + 2))}><ThemedText>+</ThemedText></TouchableOpacity>
+                                    </View>
+                                ) : null}
+                                <TouchableOpacity onPress={() => { setA(undefined); setB(undefined); setAInfo(null); setBInfo(null); }} style={styles.pill} accessibilityRole="button" accessibilityLabel="Clear points A and B">
+                                    <ThemedText>Clear points</ThemedText>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    onPress={async () => {
+                                        if (!photoUri) return;
+                                        try {
+                                            if (showHeat) {
+                                                const hm = await generateBoundaryLossHeatmap(photoUri, 360);
+                                                setHeatUri(hm.overlayUri); setHeatW(hm.width); setHeatH(hm.height);
+                                            }
+                                            if (showRG) {
+                                                const res = await detectRedGreenRegions(photoUri, 360, RG_MIN_SAT, RG_MIN_AREA_FRAC, RG_MIN_VAL);
+                                                const regs = (res.regions || []) as RGRegion[];
+                                                setRgRegions(regs);
+                                            }
+                                            if (showMatch && AInfo) {
+                                                const mm = await generateMatchMask(photoUri, AInfo.L, AInfo.a, AInfo.bLab, debouncedTol, 360);
+                                                setMatchUri(mm.overlayUri);
+                                            }
+                                        } catch { }
+                                    }}
+                                    style={styles.pill}
+                                    accessibilityRole="button"
+                                    accessibilityLabel="Recompute overlays"
                                 >
-                                    <TouchableOpacity
-                                        onPress={() => setShowHeat(v => !v)}
-                                        style={styles.pill}
-                                        accessibilityRole="switch"
-                                        accessibilityLabel="Toggle boundary-loss heatmap"
-                                        accessibilityState={{ checked: showHeat }}
-                                    >
-                                        <ThemedText>{showHeat ? 'Heatmap: On' : 'Heatmap: Off'}</ThemedText>
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity
-                                        onPress={() => setShowRG(v => !v)}
-                                        style={styles.pill}
-                                        accessibilityRole="switch"
-                                        accessibilityLabel="Toggle Red/Green Finder"
-                                        accessibilityState={{ checked: showRG }}
-                                    >
-                                        <ThemedText>
-                                            {showRG ? `RG Finder: R${redCount} G${greenCount}` : 'RG Finder: Off'}
-                                        </ThemedText>
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity
-                                        onPress={() => setShowMatch(v => !v)}
-                                        style={styles.pill}
-                                        accessibilityRole="switch"
-                                        accessibilityLabel="Toggle highlight similar to A"
-                                        accessibilityState={{ checked: showMatch, disabled: !AInfo }}
-                                    >
-                                        <ThemedText>{showMatch ? 'Highlight A-like: On' : 'Highlight A-like: Off'}</ThemedText>
-                                    </TouchableOpacity>
-
-                                    {showMatch ? (
-                                        <View
-                                            style={[styles.pill, { flexDirection: 'row', alignItems: 'center', gap: 8 }]}
-                                            accessibilityLabel="Tolerance for A-like highlight"
-                                        >
-                                            <TouchableOpacity onPress={() => setMatchTol(t => Math.max(8, t - 2))} accessibilityRole="button" accessibilityLabel="Decrease tolerance">
-                                                <ThemedText>-</ThemedText>
-                                            </TouchableOpacity>
-                                            <ThemedText>Tolerance {matchTol}</ThemedText>
-                                            <TouchableOpacity onPress={() => setMatchTol(t => Math.min(30, t + 2))} accessibilityRole="button" accessibilityLabel="Increase tolerance">
-                                                <ThemedText>+</ThemedText>
-                                            </TouchableOpacity>
-                                        </View>
-                                    ) : null}
-
-                                    <TouchableOpacity
-                                        onPress={() => { setA(undefined); setB(undefined); setAInfo(null); setBInfo(null); }}
-                                        style={styles.pill}
-                                        accessibilityRole="button"
-                                        accessibilityLabel="Clear points A and B"
-                                    >
-                                        <ThemedText>Clear points</ThemedText>
-                                    </TouchableOpacity>
-
-                                    <TouchableOpacity
-                                        onPress={async () => {
-                                            if (!photoUri) return;
-                                            try {
-                                                if (showHeat) {
-                                                    const hm = await generateBoundaryLossHeatmap(photoUri, 360);
-                                                    setHeatUri(hm.overlayUri); setHeatW(hm.width); setHeatH(hm.height);
-                                                }
-                                                if (showRG) {
-                                                    const res = await detectRedGreenRegions(photoUri, 360, RG_MIN_SAT, RG_MIN_AREA_FRAC);
-                                                    const regs = (res.regions || []).map(r => ({ label: r.label, x: r.x, y: r.y, w: r.w, h: r.h, areaFrac: r.areaFrac }));
-                                                    setRgRegions(regs);
-                                                }
-                                                if (showMatch && AInfo) {
-                                                    const mm = await generateMatchMask(photoUri, AInfo.L, AInfo.a, AInfo.bLab, matchTol, 360);
-                                                    setMatchUri(mm.overlayUri);
-                                                }
-                                            } catch { }
-                                        }}
-                                        style={styles.pill}
-                                        accessibilityRole="button"
-                                        accessibilityLabel="Recompute overlays"
-                                    >
-                                        <ThemedText>Recompute</ThemedText>
-                                    </TouchableOpacity>
-                                </ScrollView>
-                            </View>
-
-                            {showMatch && !AInfo ? (
-                                <ThemedText style={{ marginTop: 4, fontSize: 13 }}>
-                                    Tip: tap the image to place A, then we can highlight similar areas.
-                                </ThemedText>
-                            ) : null}
+                                    <ThemedText>Recompute</ThemedText>
+                                </TouchableOpacity>
+                            </ScrollView>
 
                             <View style={styles.infoRow}>
                                 <ThemedText style={styles.infoText}>
@@ -446,15 +418,11 @@ export default function ColorBlindCameraScreen() {
                             )}
                         </ScrollView>
 
-                        {/* Bottom action bar */}
                         <View style={[styles.actionBar, { backgroundColor: themeColors.background, borderTopColor: Colors[colorScheme].divider }]}>
                             <Buttons
                                 title="Share"
                                 iconName="share-social-outline"
-                                onPress={async () => {
-                                    if (!photoUri) return;
-                                    try { await Share.share({ message: 'SEEiT analysis', url: photoUri }) } catch { }
-                                }}
+                                onPress={() => onShare(photoUri)}
                                 variant="primary"
                                 containerStyle={{ flex: 1, alignSelf: 'auto' }}
                             />

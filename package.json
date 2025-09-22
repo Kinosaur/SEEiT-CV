@@ -42,7 +42,8 @@
     "react-native-vision-camera": "^4.7.2",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "react-native-worklets-core": "^1.6.2"
+    "react-native-worklets-core": "^1.6.2",
+    "expo-sharing": "~13.1.5"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
