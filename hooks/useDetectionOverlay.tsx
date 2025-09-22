@@ -8,8 +8,8 @@ type DetObj = {
   labels?: DetLabel[]
   distance_m?: number | null         // meters; null when unavailable
   distance_src?: 'arcore' | 'mono' | 'geom' | 'none'
-  // topLabel?: string                // kept for reference only
-  // topConfidence?: number
+  // topLabel?: string                // debug only (legacy)
+  // topConfidence?: number           // debug only (legacy)
 }
 
 export interface DetectionOverlayProps {
@@ -21,7 +21,7 @@ export interface DetectionOverlayProps {
   strokeColor?: string
   strokeWidth?: number
   showLabel?: boolean
-  // showDebugSrc?: boolean           // enable to append [src] to label
+  // showDebugSrc?: boolean           // dev-only: append [src]
 }
 
 interface BoxStyle { left: number; top: number; width: number; height: number }
@@ -68,13 +68,12 @@ export const DetectionOverlay: React.FC<DetectionOverlayProps> = ({
     return objects.map(o => {
       const m = mapBoxCover(o.b, frameWidth, frameHeight, containerWidth, containerHeight)
       if (!m) return null
-      // pick first surviving label ≥0.75 (producer already gated)
       const lbl = o.labels && o.labels.length > 0 ? o.labels[0] : undefined
       const dist = o.distance_m
       const distText = dist == null ? '—' : (dist < 10 ? dist.toFixed(1) : Math.round(dist).toString())
-      const text = lbl ? `${lbl.name} — ${distText} m` : `— — ${distText} m`
-      // const dbg = showDebugSrc ? ` [${o.distance_src ?? 'none'}]` : ''
-      return { id: o.id, style: m, text /*: text + dbg*/ }
+      let text = lbl ? `${lbl.name} — ${distText} m` : `— — ${distText} m`
+      // if (showDebugSrc) text += ` [${o.distance_src ?? 'none'}]`
+      return { id: o.id, style: m, text }
     }).filter(Boolean) as { id: number; style: BoxStyle; text: string }[]
   }, [objects, frameWidth, frameHeight, containerWidth, containerHeight /*, showDebugSrc*/])
 

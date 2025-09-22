@@ -402,8 +402,8 @@ export default function Index() {
                         frameWidth={frameDims.width}
                         frameHeight={frameDims.height}
                         objects={objects as any}
-                        topLabel={topInfo.label}
-                        topConfidence={topInfo.confidence}
+                        // topLabel={topInfo.label}
+                        // topConfidence={topInfo.confidence}
                     />
                 )}
                 {fpError ? (
