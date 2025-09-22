@@ -1,10 +1,15 @@
-import React, { useMemo } from 'react'
-import { StyleSheet, Text, View } from 'react-native'
+import React, { useMemo } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 
+type DetLabel = { name: string; c: number }
 type DetObj = {
   id: number
   b: [number, number, number, number]
-  labels?: { name: string; c: number }[]
+  labels?: DetLabel[]
+  distance_m?: number | null         // meters; null when unavailable
+  distance_src?: 'arcore' | 'mono' | 'geom' | 'none'
+  // topLabel?: string                // kept for reference only
+  // topConfidence?: number
 }
 
 export interface DetectionOverlayProps {
@@ -13,11 +18,10 @@ export interface DetectionOverlayProps {
   frameWidth: number
   frameHeight: number
   objects: DetObj[]
-  topLabel?: string
-  topConfidence?: number
   strokeColor?: string
   strokeWidth?: number
   showLabel?: boolean
+  // showDebugSrc?: boolean           // enable to append [src] to label
 }
 
 interface BoxStyle { left: number; top: number; width: number; height: number }
@@ -54,44 +58,48 @@ export const DetectionOverlay: React.FC<DetectionOverlayProps> = ({
   frameWidth,
   frameHeight,
   objects,
-  topLabel,
-  topConfidence,
   strokeColor = '#00FF77',
   strokeWidth = 3,
-  showLabel = true
+  showLabel = true,
+  // showDebugSrc = false
 }) => {
   const boxes = useMemo(() => {
     if (!objects || objects.length === 0) return []
-    return objects
-      .map(o => {
-        const m = mapBoxCover(o.b, frameWidth, frameHeight, containerWidth, containerHeight)
-        if (!m) return null
-        return { id: o.id, style: m }
-      })
-      .filter(Boolean) as { id: number; style: BoxStyle }[]
-  }, [objects, frameWidth, frameHeight, containerWidth, containerHeight])
+    return objects.map(o => {
+      const m = mapBoxCover(o.b, frameWidth, frameHeight, containerWidth, containerHeight)
+      if (!m) return null
+      // pick first surviving label ≥0.75 (producer already gated)
+      const lbl = o.labels && o.labels.length > 0 ? o.labels[0] : undefined
+      const dist = o.distance_m
+      const distText = dist == null ? '—' : (dist < 10 ? dist.toFixed(1) : Math.round(dist).toString())
+      const text = lbl ? `${lbl.name} — ${distText} m` : `— — ${distText} m`
+      // const dbg = showDebugSrc ? ` [${o.distance_src ?? 'none'}]` : ''
+      return { id: o.id, style: m, text /*: text + dbg*/ }
+    }).filter(Boolean) as { id: number; style: BoxStyle; text: string }[]
+  }, [objects, frameWidth, frameHeight, containerWidth, containerHeight /*, showDebugSrc*/])
 
   if (containerWidth === 0 || containerHeight === 0) return null
 
   return (
     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
       {boxes.map(bx => (
-        <View key={bx.id} style={[
-          styles.box,
-          {
-            left: bx.style.left,
-            top: bx.style.top,
-            width: bx.style.width,
-            height: bx.style.height,
-            borderColor: strokeColor,
-            borderWidth: strokeWidth
-          }
-        ]}>
-          {showLabel && topLabel && bx.id === boxes[0].id && (
+        <View
+          key={bx.id}
+          style={[
+            styles.box,
+            {
+              left: bx.style.left,
+              top: bx.style.top,
+              width: bx.style.width,
+              height: bx.style.height,
+              borderColor: strokeColor,
+              borderWidth: strokeWidth
+            }
+          ]}
+        >
+          {showLabel && (
             <View style={styles.labelContainer}>
-              <Text style={styles.labelText}>
-                {topLabel}{topConfidence !== undefined && topConfidence >= 0 && ` ${(topConfidence * 100).toFixed(0)}%`}
-              </Text>
+              <Text style={styles.labelText}>{bx.text}</Text>
             </View>
           )}
         </View>
