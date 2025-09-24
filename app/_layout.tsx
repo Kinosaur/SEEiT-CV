@@ -1,5 +1,3 @@
-// Updated to import provider from the correct path (context/)
-import { ColorBlindnessProvider } from '@/context/ColorBlindnessContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList } from '@react-navigation/drawer';
@@ -65,84 +63,82 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: themeColors.background }}>
       <SafeAreaView style={{ flex: 1, backgroundColor: themeColors.background }}>
-        <ColorBlindnessProvider>
-          <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
-            <Drawer
-              screenOptions={{
-                drawerPosition: 'right',
-                drawerActiveTintColor: themeColors.secondaryAccent,
-                drawerInactiveTintColor: themeColors.text,
-                drawerStyle: {
-                  backgroundColor: themeColors.background,
-                  borderRightColor: themeColors.divider,
-                  borderRightWidth: 1,
-                },
-                headerStyle: {
-                  backgroundColor: themeColors.background,
-                  borderBottomColor: themeColors.divider,
-                  borderBottomWidth: 1
-                },
-                headerTintColor: themeColors.secondaryAccent,
-                headerTitleStyle: {
-                  fontFamily: 'AtkinsonBold',
-                  fontSize: 24,
-                  color: themeColors.text,
-                },
-                drawerHideStatusBarOnOpen: true,
-                drawerLabelStyle: {
-                  fontFamily: 'AtkinsonBold',
-                  fontSize: 18,
-                  color: themeColors.text,
-                },
+        <ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+          <Drawer
+            screenOptions={{
+              drawerPosition: 'right',
+              drawerActiveTintColor: themeColors.secondaryAccent,
+              drawerInactiveTintColor: themeColors.text,
+              drawerStyle: {
+                backgroundColor: themeColors.background,
+                borderRightColor: themeColors.divider,
+                borderRightWidth: 1,
+              },
+              headerStyle: {
+                backgroundColor: themeColors.background,
+                borderBottomColor: themeColors.divider,
+                borderBottomWidth: 1
+              },
+              headerTintColor: themeColors.secondaryAccent,
+              headerTitleStyle: {
+                fontFamily: 'AtkinsonBold',
+                fontSize: 24,
+                color: themeColors.text,
+              },
+              drawerHideStatusBarOnOpen: true,
+              drawerLabelStyle: {
+                fontFamily: 'AtkinsonBold',
+                fontSize: 18,
+                color: themeColors.text,
+              },
+            }}
+            drawerContent={props => <CustomDrawerContent {...props} />}
+          >
+            <Drawer.Screen
+              name="index"
+              options={{
+                title: 'SEEiT',
+                headerShown: false,
+                drawerIcon: ({ color, size, focused }) => (
+                  <IconSymbol
+                    name={focused ? 'house.fill' : 'house'}
+                    color={color}
+                    size={size}
+                  />
+                ),
               }}
-              drawerContent={props => <CustomDrawerContent {...props} />}
-            >
-              <Drawer.Screen
-                name="index"
-                options={{
-                  title: 'SEEiT',
-                  headerShown: false,
-                  drawerIcon: ({ color, size, focused }) => (
-                    <IconSymbol
-                      name={focused ? 'house.fill' : 'house'}
-                      color={color}
-                      size={size}
-                    />
-                  ),
-                }}
-              />
-              <Drawer.Screen
-                name="colorBlindnessSelect"
-                options={{
-                  title: 'Select Color Type',
-                  headerShown: false,
-                  drawerIcon: ({ color, size, focused }) => (
-                    <IconSymbol
-                      name={focused ? 'checkmark.circle.fill' : 'checkmark.circle'}
-                      color={color}
-                      size={size}
-                    />
-                  ),
-                }}
-              />
-              <Drawer.Screen
-                name="colorBlindCameraScreen"
-                options={{
-                  title: 'Color Blindness',
-                  headerShown: false,
-                  drawerIcon: ({ color, size, focused }) => (
-                    <IconSymbol
-                      name={focused ? 'eye.fill' : 'eye'}
-                      color={color}
-                      size={size}
-                    />
-                  ),
-                }}
-              />
-            </Drawer>
-            <StatusBar style="auto" />
-          </ThemeProvider>
-        </ColorBlindnessProvider>
+            />
+            <Drawer.Screen
+              name="colorBlindnessSelect"
+              options={{
+                title: 'Select Color Type',
+                headerShown: false,
+                drawerIcon: ({ color, size, focused }) => (
+                  <IconSymbol
+                    name={focused ? 'checkmark.circle.fill' : 'checkmark.circle'}
+                    color={color}
+                    size={size}
+                  />
+                ),
+              }}
+            />
+            <Drawer.Screen
+              name="colorBlindCameraScreen"
+              options={{
+                title: 'Color Blindness',
+                headerShown: false,
+                drawerIcon: ({ color, size, focused }) => (
+                  <IconSymbol
+                    name={focused ? 'eye.fill' : 'eye'}
+                    color={color}
+                    size={size}
+                  />
+                ),
+              }}
+            />
+          </Drawer>
+          <StatusBar style="auto" />
+        </ThemeProvider>
       </SafeAreaView>
     </GestureHandlerRootView>
   );

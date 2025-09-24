@@ -1,13 +1,25 @@
 import Buttons from '@/components/Buttons';
 import { ThemedText } from '@/components/ThemedText';
-import { COLOR_BLINDNESS_MAP, COLOR_BLINDNESS_TYPES } from '@/constants/colorBlindness';
 import { Colors } from '@/constants/Colors';
-import { useColorBlindness } from '@/context/ColorBlindnessContext';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useNavigation } from '@react-navigation/native';
 import React, { useState } from 'react';
 import { ActivityIndicator, FlatList, Platform, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+type FeatureItem = {
+    key: string;
+    name: string;
+    description: string;
+};
+
+const FEATURES: FeatureItem[] = [
+    {
+        key: 'color_finder',
+        name: 'Color Finder',
+        description: 'Detect true colors (currently red and green).',
+    },
+];
 
 interface ItemProps {
     keyVal: string;
@@ -17,7 +29,7 @@ interface ItemProps {
     onPress: () => void;
     themeText: string;
     themeTextSecondary: string;
-    themeAccent: string; // secondary accent used intentionally for selection emphasis
+    themeAccent: string;
     themeSurface: string;
     themeDivider: string;
     isFirst: boolean;
@@ -33,7 +45,6 @@ function RadioRow({
             onPress={onPress}
             style={[
                 styles.row,
-                // Use secondary accent when selected for clear strong highlight; divider otherwise.
                 { backgroundColor: themeSurface, borderColor: selected ? themeAccent : themeDivider },
                 isFirst && { borderTopLeftRadius: 12, borderTopRightRadius: 12 },
                 isLast && { borderBottomLeftRadius: 12, borderBottomRightRadius: 12 },
@@ -58,21 +69,19 @@ function RadioRow({
     );
 }
 
-export default function ColorBlindnessSelectScreen() {
-    const { selectedType, setSelectedType, loading } = useColorBlindness();
+export default function FeatureSelectScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const theme = Colors[colorScheme];
     const navigation = useNavigation();
-    const [pending, setPending] = useState(selectedType || '');
+    const [pending, setPending] = useState(FEATURES[0]?.key ?? '');
     const [saving, setSaving] = useState(false);
+    const [loading] = useState(false); // no setter to avoid unused var warning
 
     const onConfirm = async () => {
-        if (!pending || !COLOR_BLINDNESS_MAP[pending]) return;
+        if (!pending) return;
         setSaving(true);
         try {
-            await setSelectedType(pending);
-            // Navigate to camera screen; name must match Drawer.Screen "colorBlindCameraScreen"
-            // @ts-ignore (navigation type broad)
+            // @ts-ignore
             navigation.navigate('colorBlindCameraScreen');
         } finally {
             setSaving(false);
@@ -83,7 +92,7 @@ export default function ColorBlindnessSelectScreen() {
         return (
             <SafeAreaView style={[styles.container, { backgroundColor: theme.background, justifyContent: 'center', alignItems: 'center' }]}>
                 <ActivityIndicator color={theme.accent} size="large" />
-                <ThemedText style={{ marginTop: 12 }}>Loading preference…</ThemedText>
+                <ThemedText style={{ marginTop: 12 }}>Loading features…</ThemedText>
             </SafeAreaView>
         );
     }
@@ -92,27 +101,26 @@ export default function ColorBlindnessSelectScreen() {
         <SafeAreaView
             style={[styles.container, { backgroundColor: theme.background }]}
             accessible
-            accessibilityLabel="Color blindness selection screen"
-            accessibilityHint="Select your color blindness type and continue"
+            accessibilityLabel="Feature selection screen"
+            accessibilityHint="Select your feature and continue"
         >
             <View style={styles.headerBlock}>
                 <ThemedText style={[styles.title, { color: theme.text }]}>
-                    Select your color blindness type
+                    Select your feature
                 </ThemedText>
                 <ThemedText style={styles.subtitle}>
-                    This helps us adapt colors for visibility. You can change anytime.
+                    These features are currently available. You can change anytime.
                 </ThemedText>
             </View>
 
             <View
                 accessible
                 accessibilityRole="radiogroup"
-                accessibilityLabel="Color blindness types list"
+                accessibilityLabel="Features list"
                 style={{ flex: 1 }}
             >
                 <FlatList
-                    data={COLOR_BLINDNESS_TYPES}
-                    // Using keyExtractor based on index for consistent ordering (keys already unique)
+                    data={FEATURES}
                     keyExtractor={(item) => item.key}
                     contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
                     renderItem={({ item, index }) => (
@@ -128,7 +136,7 @@ export default function ColorBlindnessSelectScreen() {
                             themeSurface={theme.surface}
                             themeDivider={theme.divider}
                             isFirst={index === 0}
-                            isLast={index === COLOR_BLINDNESS_TYPES.length - 1}
+                            isLast={index === FEATURES.length - 1}
                         />
                     )}
                 />
@@ -142,29 +150,10 @@ export default function ColorBlindnessSelectScreen() {
                     accessibilityLabel="Confirm selection"
                     accessibilityState={{ disabled: !pending || saving, busy: saving || undefined }}
                     containerStyle={{ alignSelf: 'stretch', justifyContent: 'center' }}
-                    variant="primary" // Primary to signal main call to action
+                    variant="primary"
                     size="lg"
                     loading={saving}
                 />
-                <TouchableOpacity
-                    onPress={() => {
-                        // "Not sure?" branch: currently just navigates forward with no change.
-                        // Alternative: navigate to an info modal. For now just skip if already has a type.
-                        if (!pending) {
-                            // If user really wants to skip without choosing, you could:
-                            // navigation.navigate('colorBlindCameraScreen');
-                            // But that leaves no stored type; decide policy later.
-                        }
-                    }}
-                    style={{ paddingVertical: 14 }}
-                    accessibilityRole="button"
-                    accessibilityLabel="Not sure about your type"
-                    accessibilityHint="Opens information (future)"
-                >
-                    <ThemedText style={{ textAlign: 'center', color: theme.accent, fontSize: 15 }}>
-                        Not sure? Learn more (coming soon)
-                    </ThemedText>
-                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
@@ -182,19 +171,18 @@ const styles = StyleSheet.create({
     },
     title: {
         fontFamily: 'AtkinsonBold',
-        fontSize: 22, // Increased for better hierarchy & readability
+        fontSize: 22,
     },
     subtitle: {
         fontFamily: 'Atkinson',
-        fontSize: 16, // Slightly larger for accessibility
+        fontSize: 16,
         marginTop: 6,
-        // Color now applied dynamically via theme (kept here as fallback no hardcoded gray)
         color: '#555',
     },
     row: {
         flexDirection: 'row',
         paddingHorizontal: 16,
-        paddingVertical: 14, // Increased touch target height
+        paddingVertical: 14,
         borderWidth: 2,
         marginBottom: 10,
         alignItems: 'center',
@@ -215,12 +203,12 @@ const styles = StyleSheet.create({
     },
     optionTitle: {
         fontFamily: 'AtkinsonBold',
-        fontSize: 18, // Slight increase for clarity
+        fontSize: 18,
     },
     optionDesc: {
         fontFamily: 'Atkinson',
-        fontSize: 14, // Larger for readability
-        color: '#666', // Overridden dynamically
+        fontSize: 14,
+        color: '#666',
         marginTop: 2,
     },
     footer: {

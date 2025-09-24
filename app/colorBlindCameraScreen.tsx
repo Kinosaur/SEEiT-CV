@@ -1,229 +1,208 @@
+// imports unchanged
 import Buttons from '@/components/Buttons';
-import { CrosshairOverlay } from '@/components/CrosshairOverlay';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
-import { useColorBlindness } from '@/context/ColorBlindnessContext';
-import { detectRedGreenRegions, generateBoundaryLossHeatmap, generateMatchMask, samplePixels } from '@/hooks/ProtanTools';
+import { detectConfusableColors } from '@/hooks/ProtanTools';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useSimpleFormat } from '@/hooks/useSimpleFormat';
 import { computeContainedRect } from '@/utils/containedRect';
-import { nameColor } from '@/utils/protan';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
-import * as Sharing from 'expo-sharing';
+import * as FileSystem from 'expo-file-system';
+import * as ImagePicker from 'expo-image-picker';
 import React from 'react';
-import {
-    AccessibilityInfo,
-    Image,
-    Modal,
-    Platform,
-    ScrollView,
-    Share,
-    StyleSheet,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { AccessibilityInfo, Image, Modal, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Camera, useCameraPermission } from 'react-native-vision-camera';
 
-// RG finder thresholds
-const RG_MIN_SAT = 0.35;
-const RG_MIN_AREA_FRAC = 0.004;
-const RG_MIN_VAL = 0.20;
+type ConfLevel = 'low' | 'med' | 'high';
 
-type Pt = { x: number; y: number }
-type RGRegion = { label: 'red' | 'green'; x: number; y: number; w: number; h: number; areaFrac: number }
+type ConfRegion = {
+    type: string;
+    mode: 'protan' | 'deutan' | 'general';
+    riskFor: 'protan' | 'deutan' | 'both';
+    trueFamily: string;
+    dominantFamily?: string;
+    meanR: number; meanG: number; meanB: number;
+    meanProtanR?: number; meanProtanG?: number; meanProtanB?: number;
+    meanDeutanR?: number; meanDeutanG?: number; meanDeutanB?: number;
+    simFamilyProtan?: string;
+    simFamilyDeutan?: string;
+    avgDeltaEProtan?: number;
+    avgDeltaEDeutan?: number;
+    confProtan?: ConfLevel;
+    confDeutan?: ConfLevel;
+    x: number; y: number; w: number; h: number; areaFrac: number;
+}
+
+const CF_MIN_AREA_FRAC = 0.0035;
+const CF_MIN_SAT = 0.25;
+const CF_MIN_VAL = 0.15;
+const MIN_LABEL_AREA_FRAC = 0.006;
+const HIDE_LOW_CONF = true;
 
 export default function ColorBlindCameraScreen() {
     const [cameraPosition] = React.useState<'back' | 'front'>('back');
-    const [torch, setTorch] = React.useState<'off' | 'on'>('off');
-    const [isActive] = React.useState(true);
+    const { device, format, fps } = useSimpleFormat(cameraPosition);
     const cameraRef = React.useRef<Camera>(null);
-
     const { hasPermission, requestPermission } = useCameraPermission();
+    const [isActive, setIsActive] = React.useState(true);
+
     const colorScheme = useColorScheme() ?? 'light';
-    const themeColors = Colors[colorScheme];
+    const theme = Colors[colorScheme];
     const navigation = useNavigation<DrawerNavigationProp<any>>();
+    const insets = useSafeAreaInsets();
 
-    const { loading: cbLoading, valid } = useColorBlindness();
-    const hasRedirectedRef = React.useRef(false);
-
-    const { device, format, fps, supportsTorch } = useSimpleFormat(cameraPosition);
-
-    // Analysis state
     const [photoUri, setPhotoUri] = React.useState<string | null>(null);
+    const [imgW, setImgW] = React.useState(0);
+    const [imgH, setImgH] = React.useState(0);
     const [processing, setProcessing] = React.useState(false);
+    const [confMode, setConfMode] = React.useState<'protan' | 'deutan' | 'both'>('both');
+    const [confRegions, setConfRegions] = React.useState<ConfRegion[]>([]);
 
-    // Overlays + geometry
-    const [heatUri, setHeatUri] = React.useState<string | null>(null);
-    const [heatW, setHeatW] = React.useState<number>(0);
-    const [heatH, setHeatH] = React.useState<number>(0);
     const [containerW, setContainerW] = React.useState(0);
     const [containerH, setContainerH] = React.useState(0);
-    const imageRect = React.useMemo(() => computeContainedRect(containerW, containerH, heatW, heatH), [containerW, containerH, heatW, heatH]);
+    const [footerH, setFooterH] = React.useState(0); // measure footer to pad scroll content
 
-    // Feature toggles
-    const [showHeat, setShowHeat] = React.useState(true);
-    const [showRG, setShowRG] = React.useState(false);
-    const [showMatch, setShowMatch] = React.useState(false);
-    const [matchTol, setMatchTol] = React.useState(18);
-    const [debouncedTol, setDebouncedTol] = React.useState(matchTol);
-
-    // Crosshairs
-    const [A, setA] = React.useState<Pt | undefined>(undefined);
-    const [B, setB] = React.useState<Pt | undefined>(undefined);
-    const [AInfo, setAInfo] = React.useState<any | null>(null);
-    const [BInfo, setBInfo] = React.useState<any | null>(null);
-
-    // RG regions and match overlay
-    const [rgRegions, setRgRegions] = React.useState<RGRegion[]>([]);
-    const [matchUri, setMatchUri] = React.useState<string | null>(null);
-
-    React.useEffect(() => { if (!hasPermission) requestPermission().catch(() => { }); }, [hasPermission, requestPermission]);
+    const imageRect = React.useMemo(
+        () => computeContainedRect(containerW, containerH, imgW, imgH),
+        [containerW, containerH, imgW, imgH]
+    );
 
     React.useEffect(() => {
-        if (cbLoading) return;
-        if (!valid && !hasRedirectedRef.current) {
-            hasRedirectedRef.current = true;
-            // @ts-ignore
-            navigation.navigate('colorBlindnessSelect');
-            AccessibilityInfo.announceForAccessibility?.('Please select your color blindness type first.');
-        }
-    }, [valid, cbLoading, navigation]);
+        if (!hasPermission) requestPermission().catch(() => { });
+    }, [hasPermission, requestPermission]);
 
-    const torchDisabled = !isActive || !supportsTorch;
-    const toggleTorch = () => {
-        if (torchDisabled) return;
-        setTorch(t => (t === 'off' ? 'on' : 'off'));
+    const toggleActive = () => {
+        setIsActive(prev => {
+            const next = !prev;
+            AccessibilityInfo.announceForAccessibility?.(next ? 'Live view resumed' : 'Live view paused');
+            return next;
+        });
     };
 
-    // Debounce tolerance to avoid hammering native
-    React.useEffect(() => {
-        const id = setTimeout(() => setDebouncedTol(matchTol), 180);
-        return () => clearTimeout(id);
-    }, [matchTol]);
+    const ensureFileUri = React.useCallback(async (uri: string): Promise<string> => {
+        if (uri.startsWith('file://')) return uri;
+        try {
+            const extGuess = uri.includes('.') ? uri.substring(uri.lastIndexOf('.')) : '.jpg';
+            const dest = `${FileSystem.cacheDirectory}import_${Date.now()}${extGuess}`;
+            await FileSystem.copyAsync({ from: uri, to: dest });
+            return dest;
+        } catch {
+            try {
+                const base64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+                const dest = `${FileSystem.cacheDirectory}import_${Date.now()}.jpg`;
+                await FileSystem.writeAsStringAsync(dest, base64, { encoding: FileSystem.EncodingType.Base64 });
+                return dest;
+            } catch {
+                return uri;
+            }
+        }
+    }, []);
 
-    const captureAndAnalyze = async () => {
+    const requestMediaPermission = React.useCallback(async (): Promise<boolean> => {
+        const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        return status === 'granted';
+    }, []);
+
+    const pickOneImage = React.useCallback(async (): Promise<string | null> => {
+        if (Platform.OS === 'android') {
+            try {
+                const pending = await ImagePicker.getPendingResultAsync();
+                if (pending && 'canceled' in pending && pending.canceled === false && Array.isArray(pending.assets) && pending.assets.length > 0) {
+                    return pending.assets[0].uri;
+                }
+            } catch { }
+        }
+        const runPicker = async (legacy: boolean) => {
+            const res = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: 'images',
+                allowsMultipleSelection: false,
+                quality: 1,
+                exif: false,
+                ...(Platform.OS === 'android' ? { legacy } as const : {}),
+            });
+            if (res.canceled || !res.assets?.length) return null;
+            return res.assets[0].uri;
+        };
+        try {
+            return await runPicker(false);
+        } catch (e: any) {
+            const msg = String(e?.message ?? e);
+            const needsLegacy = /imageLibraryLauncher has not been initialized/i.test(msg);
+            if (Platform.OS === 'android' && needsLegacy) return await runPicker(true);
+            throw e;
+        }
+    }, []);
+
+    // Fetch + filter + sort confusable regions
+    const runConfusions = React.useCallback(async (uri: string, mode: 'protan' | 'deutan' | 'both') => {
+        const res = await detectConfusableColors(uri, 360, mode, CF_MIN_AREA_FRAC, CF_MIN_SAT, CF_MIN_VAL);
+        let filtered = (res.regions ?? []) as ConfRegion[];
+
+        // Hide low-confidence by default per selected mode
+        if (HIDE_LOW_CONF) {
+            filtered = filtered.filter(r => {
+                if (mode === 'protan') return (r.confProtan ?? 'med') !== 'low';
+                if (mode === 'deutan') return (r.confDeutan ?? 'med') !== 'low';
+                // both: keep if either is not low
+                const p = r.confProtan ?? 'med';
+                const d = r.confDeutan ?? 'med';
+                return p !== 'low' || d !== 'low';
+            });
+        }
+
+        // Enforce riskFor filter
+        filtered = filtered.filter(r => mode === 'both'
+            ? (r.riskFor === 'both' || r.riskFor === 'protan' || r.riskFor === 'deutan')
+            : r.riskFor === mode || r.riskFor === 'both'
+        );
+
+        // Sort by y then x so legend reads like the image
+        filtered.sort((a, b) => (a.y === b.y ? a.x - b.x : a.y - b.y));
+
+        setConfRegions(filtered);
+        setImgW(res.width || 0);
+        setImgH(res.height || 0);
+        return res;
+    }, []);
+
+    React.useEffect(() => {
+        (async () => {
+            if (!photoUri) return;
+            try {
+                await runConfusions(photoUri, confMode);
+            } catch {
+                setConfRegions([]);
+            }
+        })();
+    }, [photoUri, confMode, runConfusions]);
+
+    const importAndAnalyze = React.useCallback(async () => {
         try {
             setProcessing(true);
-            const cam = cameraRef.current;
-            if (!cam) throw new Error('Camera ref unavailable');
-            const photo = await cam.takePhoto({ flash: 'off', enableShutterSound: true });
-            const uri = photo.path.startsWith('file://') ? photo.path : `file://${photo.path}`;
-            setPhotoUri(uri);
-
-            setA(undefined); setB(undefined); setAInfo(null); setBInfo(null);
-            setRgRegions([]); setMatchUri(null);
-
-            const hm = await generateBoundaryLossHeatmap(uri, 360);
-            setHeatUri(hm.overlayUri);
-            setHeatW(hm.width); setHeatH(hm.height);
-
-            if (showRG) {
-                try {
-                    const res = await detectRedGreenRegions(uri, 360, RG_MIN_SAT, RG_MIN_AREA_FRAC, RG_MIN_VAL);
-                    const regs = (res.regions || []) as RGRegion[];
-                    setRgRegions(regs);
-                } catch { }
+            const ok = await requestMediaPermission();
+            if (!ok) {
+                AccessibilityInfo.announceForAccessibility?.('Media library permission is required to import an image.');
+                setProcessing(false);
+                return;
             }
+            const pickedUri = await pickOneImage();
+            if (!pickedUri) { setProcessing(false); return; }
+            const fileUri = await ensureFileUri(pickedUri);
+            setPhotoUri(fileUri);
+            setConfRegions([]);
+            const res = await runConfusions(fileUri, confMode);
+            setImgW(res.width || 0);
+            setImgH(res.height || 0);
         } catch (e) {
-            console.warn('[Analyze] failed:', e);
+            console.warn('[Import] failed:', e);
         } finally {
             setProcessing(false);
         }
-    };
-
-    const onImagePress = (evt: any) => {
-        const { locationX, locationY } = evt.nativeEvent;
-        const { left, top, width, height } = imageRect;
-        if (width <= 0 || height <= 0) return;
-        if (locationX < left || locationX > left + width || locationY < top || locationY > top + height) return;
-        const nx = (locationX - left) / width;
-        const ny = (locationY - top) / height;
-        if (!A) setA({ x: nx, y: ny });
-        else if (!B) setB({ x: nx, y: ny });
-        else setA({ x: nx, y: ny });
-    };
-
-    const refreshSamples = React.useCallback(async () => {
-        if (!photoUri) return;
-        const pts: Pt[] = [];
-        if (A) pts.push(A);
-        if (B) pts.push(B);
-        if (pts.length === 0) return;
-        try {
-            const res = await samplePixels(photoUri, pts, 1024);
-            const s = res.samples;
-            if (A) setAInfo(s[0]);
-            if (B && s.length > 1) setBInfo(s[1]);
-        } catch (e) {
-            console.warn('[Sample] failed:', e);
-        }
-    }, [photoUri, A, B]);
-    React.useEffect(() => { refreshSamples() }, [A, B, refreshSamples]);
-
-    React.useEffect(() => {
-        (async () => {
-            if (!photoUri || !showMatch || !AInfo) { setMatchUri(null); return; }
-            try {
-                const mm = await generateMatchMask(photoUri, AInfo.L, AInfo.a, AInfo.bLab, debouncedTol, 360);
-                setMatchUri(mm.overlayUri);
-            } catch (e) {
-                console.warn('[Match] failed:', e);
-                setMatchUri(null);
-            }
-        })();
-    }, [photoUri, showMatch, AInfo, debouncedTol]);
-
-    React.useEffect(() => {
-        (async () => {
-            if (!photoUri || !showRG) { setRgRegions([]); return; }
-            try {
-                const res = await detectRedGreenRegions(photoUri, 360, RG_MIN_SAT, RG_MIN_AREA_FRAC, RG_MIN_VAL);
-                const regs = (res.regions || []) as RGRegion[];
-                setRgRegions(regs);
-            } catch (e) {
-                console.warn('[RG] failed:', e);
-                setRgRegions([]);
-            }
-        })();
-    }, [photoUri, showRG]);
-
-    const simPairDeltaE = React.useMemo(() => {
-        if (!AInfo || !BInfo) return null;
-        const dL = (AInfo.LSim - BInfo.LSim);
-        const da = (AInfo.aSim - BInfo.aSim);
-        const db = (AInfo.bLabSim - BInfo.bLabSim);
-        return Math.sqrt(dL * dL + da * da + db * db);
-    }, [AInfo, BInfo]);
-
-    const mapBox = (r: RGRegion) => {
-        const { left, top, width, height } = imageRect;
-        return {
-            left: left + r.x * width,
-            top: top + r.y * height,
-            width: r.w * width,
-            height: r.h * height,
-        };
-    };
-
-    const redCount = rgRegions.filter(r => r.label === 'red').length;
-    const greenCount = rgRegions.filter(r => r.label === 'green').length;
-
-    async function onShare(uri?: string | null) {
-        if (!uri) return;
-        try {
-            if (await Sharing.isAvailableAsync()) {
-                await Sharing.shareAsync(uri, { dialogTitle: 'Share SEEiT analysis', mimeType: 'image/*' });
-                return;
-            }
-        } catch { /* fall through */ }
-        try {
-            await Share.share({ message: `SEEiT analysis: ${uri}` });
-        } catch { /* no-op */ }
-    }
+    }, [requestMediaPermission, pickOneImage, ensureFileUri, runConfusions, confMode]);
 
     if (!hasPermission) {
         return (
@@ -240,8 +219,33 @@ export default function ColorBlindCameraScreen() {
         );
     }
 
+    const mapBox = (r: { x: number; y: number; w: number; h: number }) => {
+        const { left, top, width, height } = imageRect;
+        return {
+            left: left + r.x * width,
+            top: top + r.y * height,
+            width: r.w * width,
+            height: r.h * height,
+        };
+    };
+
+    const overlayStyle = { borderColor: 'rgba(255,255,255,0.95)', backgroundColor: 'rgba(0,0,0,0.10)', borderStyle: 'solid' as const };
+    const mainButtonLabel = isActive ? 'Pause' : 'Resume';
+
+    // Small helper to render a swatch + label line
+    const Line = ({ label, swatch, text }: { label: string; swatch: string; text: string }) => (
+        <View style={styles.lineRow}>
+            <ThemedText style={styles.lineLabel}>{label}</ThemedText>
+            <View style={[styles.swatch, { backgroundColor: swatch }]} />
+            <ThemedText style={styles.lineText} numberOfLines={1}>{text}</ThemedText>
+        </View>
+    );
+
+    // Confidence tag helper
+    const confTag = (level?: ConfLevel) => (level ? ` (${level})` : '');
+
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]} accessible={false}>
+        <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} accessible={false}>
             <TouchableOpacity
                 style={styles.drawerToggle}
                 onPress={() => navigation.toggleDrawer()}
@@ -249,11 +253,11 @@ export default function ColorBlindCameraScreen() {
                 accessibilityRole="button"
                 accessibilityLabel="Open navigation drawer"
             >
-                <Ionicons name="menu" size={32} color={themeColors.text} />
+                <Ionicons name="menu" size={32} color={theme.text} />
             </TouchableOpacity>
 
-            <View style={styles.headerRow} accessible accessibilityLabel="Camera header">
-                <ThemedText style={styles.title}>Protan Assist</ThemedText>
+            <View style={styles.headerRow} accessible accessibilityLabel="Color Finder header">
+                <ThemedText style={styles.title}>Color Finder</ThemedText>
             </View>
 
             <View style={styles.previewWrapper} accessible accessibilityLabel={`Live camera preview (${isActive ? 'running' : 'paused'})`}>
@@ -263,8 +267,7 @@ export default function ColorBlindCameraScreen() {
                     device={device}
                     isActive={isActive}
                     resizeMode="cover"
-                    torch={torch}
-                    photo={true}
+                    photo={false}
                     androidPreviewViewType="texture-view"
                     {...(format ? { format } : {})}
                     {...(format && fps ? { fps } : {})}
@@ -272,23 +275,35 @@ export default function ColorBlindCameraScreen() {
             </View>
 
             <View style={styles.controlsRow}>
+                <TouchableOpacity
+                    onPress={() => setConfMode(m => (m === 'both' ? 'protan' : m === 'protan' ? 'deutan' : 'both'))}
+                    style={styles.pill}
+                    accessibilityRole="button"
+                    accessibilityLabel="Switch colorblind mode"
+                    accessibilityHint="Cycles between Both, Protan, and Deutan"
+                >
+                    <ThemedText>Mode: {confMode === 'both' ? 'Both' : confMode === 'protan' ? 'Protan' : 'Deutan'}</ThemedText>
+                </TouchableOpacity>
+
                 <Buttons
-                    iconName={supportsTorch ? (torch === 'on' ? 'flashlight' : 'flashlight-outline') : 'flash-off-outline'}
-                    onPress={toggleTorch}
-                    accessibilityLabel={supportsTorch ? (torch === 'on' ? 'Turn torch off' : 'Turn torch on') : 'Torch unavailable'}
-                    accessibilityState={{ disabled: !isActive || !supportsTorch, checked: supportsTorch ? torch === 'on' : undefined }}
-                    disabled={!isActive || !supportsTorch}
-                    circular size="lg" variant={torch === 'on' ? 'primary' : 'surface'}
+                    title={processing ? 'Importing…' : 'Import'}
+                    onPress={importAndAnalyze}
+                    accessibilityLabel="Import an image for analysis"
+                    accessibilityState={{ busy: processing || undefined }}
+                    disabled={processing}
+                    circular
+                    size="xl"
+                    variant="primary"
                 />
+
                 <Buttons
-                    title={processing ? 'Analyzing…' : 'Capture'}
-                    onPress={captureAndAnalyze}
-                    accessibilityLabel="Capture and analyze scene"
-                    accessibilityState={{ disabled: processing || !valid, busy: processing || undefined }}
-                    disabled={processing || !valid}
-                    circular size="xl" variant="primary"
+                    title={mainButtonLabel}
+                    onPress={toggleActive}
+                    accessibilityLabel={mainButtonLabel}
+                    circular
+                    size="lg"
+                    variant={isActive ? 'danger' : 'primary'}
                 />
-                <View style={{ width: 56 }} />
             </View>
 
             <Modal
@@ -296,140 +311,94 @@ export default function ColorBlindCameraScreen() {
                 transparent={false}
                 animationType="slide"
                 onRequestClose={() => {
-                    setPhotoUri(null); setHeatUri(null); setMatchUri(null); setRgRegions([]);
-                    setA(undefined); setB(undefined); setAInfo(null); setBInfo(null);
+                    setPhotoUri(null);
+                    setConfRegions([]);
+                    setImgW(0); setImgH(0);
                 }}
             >
-                <SafeAreaView style={[styles.container, { backgroundColor: themeColors.background }]}>
+                <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
                     <View style={{ flex: 1 }}>
                         <View
-                            style={{ width: '100%', height: '58%', justifyContent: 'center', alignItems: 'center' }}
+                            style={{ width: '100%', height: '62%', justifyContent: 'center', alignItems: 'center' }}
                             onLayout={e => {
                                 const { width, height } = e.nativeEvent.layout;
                                 setContainerW(width); setContainerH(height);
                             }}
                         >
                             {photoUri ? (
-                                <TouchableOpacity
-                                    activeOpacity={1}
-                                    onPress={onImagePress}
-                                    style={{ width: '100%', height: '100%' }}
-                                    accessible
-                                    accessibilityLabel="Analyzed image"
-                                >
+                                <View style={{ width: '100%', height: '100%' }} accessible accessibilityLabel="Analyzed image">
                                     <Image source={{ uri: photoUri }} resizeMode="contain" style={StyleSheet.absoluteFill} />
-                                    {showHeat && heatUri ? (<Image source={{ uri: heatUri }} resizeMode="contain" style={StyleSheet.absoluteFill} />) : null}
-                                    {matchUri ? (<Image source={{ uri: matchUri }} resizeMode="contain" style={StyleSheet.absoluteFill} />) : null}
                                     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
-                                        {rgRegions.map((r, idx) => {
-                                            const box = mapBox(r);
-                                            const isRed = r.label === 'red'
-                                            const borderColor = isRed ? '#ff5252' : '#00e676'
-                                            const bg = isRed ? 'rgba(255,82,82,0.12)' : 'rgba(0,230,118,0.12)'
-                                            const borderStyle = isRed ? 'solid' as const : 'dashed' as const
+                                        {confRegions.map((cr, idx) => {
+                                            const box = mapBox(cr);
+                                            const label = cr.dominantFamily || cr.trueFamily || '';
+                                            const showLabel = cr.areaFrac >= MIN_LABEL_AREA_FRAC; // hide tiny labels
                                             return (
                                                 <View
-                                                    key={`${r.label}-${idx}`}
-                                                    style={[
-                                                        styles.rgBox,
-                                                        { left: box.left, top: box.top, width: box.width, height: box.height, borderColor, backgroundColor: bg, borderStyle }
-                                                    ]}
+                                                    key={`cf-${idx}`}
+                                                    style={[styles.confBox, overlayStyle, { left: box.left, top: box.top, width: box.width, height: box.height }]}
                                                 >
-                                                    <View style={styles.badge}>
-                                                        <ThemedText style={styles.badgeText}>{isRed ? 'R' : 'G'}</ThemedText>
-                                                    </View>
+                                                    {showLabel && (
+                                                        <View style={styles.labelPill}>
+                                                            <ThemedText style={styles.labelText} numberOfLines={1}>{label}</ThemedText>
+                                                        </View>
+                                                    )}
                                                 </View>
-                                            )
+                                            );
                                         })}
                                     </View>
-                                    <CrosshairOverlay A={A} B={B} imageRect={imageRect} />
-                                </TouchableOpacity>
+                                </View>
                             ) : null}
                         </View>
 
                         <ScrollView
                             style={{ flex: 1 }}
-                            contentContainerStyle={{ paddingHorizontal: 10, paddingTop: 8, paddingBottom: 88 }}
-                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={{ paddingHorizontal: 12, paddingTop: 8, paddingBottom: footerH + insets.bottom + 24 }}
+                            showsVerticalScrollIndicator
                         >
-                            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 6, gap: 8, alignItems: 'center' }}>
-                                <TouchableOpacity onPress={() => setShowHeat(v => !v)} style={styles.pill} accessibilityRole="switch" accessibilityLabel="Toggle boundary-loss heatmap" accessibilityState={{ checked: showHeat }}>
-                                    <ThemedText>{showHeat ? 'Heatmap: On' : 'Heatmap: Off'}</ThemedText>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => setShowRG(v => !v)} style={styles.pill} accessibilityRole="switch" accessibilityLabel="Toggle Red/Green Finder" accessibilityState={{ checked: showRG }}>
-                                    <ThemedText>{showRG ? `RG Finder: R${redCount} G${greenCount}` : 'RG Finder: Off'}</ThemedText>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => setShowMatch(v => !v)} style={styles.pill} accessibilityRole="switch" accessibilityLabel="Toggle highlight similar to A" accessibilityState={{ checked: showMatch, disabled: !AInfo }}>
-                                    <ThemedText>{showMatch ? 'Highlight A-like: On' : 'Highlight A-like: Off'}</ThemedText>
-                                </TouchableOpacity>
-                                {showMatch ? (
-                                    <View style={[styles.pill, { flexDirection: 'row', alignItems: 'center', gap: 8 }]} accessibilityLabel="Tolerance for A-like highlight">
-                                        <TouchableOpacity onPress={() => setMatchTol(t => Math.max(8, t - 2))}><ThemedText>-</ThemedText></TouchableOpacity>
-                                        <ThemedText>Tolerance {matchTol}</ThemedText>
-                                        <TouchableOpacity onPress={() => setMatchTol(t => Math.min(30, t + 2))}><ThemedText>+</ThemedText></TouchableOpacity>
-                                    </View>
-                                ) : null}
-                                <TouchableOpacity onPress={() => { setA(undefined); setB(undefined); setAInfo(null); setBInfo(null); }} style={styles.pill} accessibilityRole="button" accessibilityLabel="Clear points A and B">
-                                    <ThemedText>Clear points</ThemedText>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={async () => {
-                                        if (!photoUri) return;
-                                        try {
-                                            if (showHeat) {
-                                                const hm = await generateBoundaryLossHeatmap(photoUri, 360);
-                                                setHeatUri(hm.overlayUri); setHeatW(hm.width); setHeatH(hm.height);
-                                            }
-                                            if (showRG) {
-                                                const res = await detectRedGreenRegions(photoUri, 360, RG_MIN_SAT, RG_MIN_AREA_FRAC, RG_MIN_VAL);
-                                                const regs = (res.regions || []) as RGRegion[];
-                                                setRgRegions(regs);
-                                            }
-                                            if (showMatch && AInfo) {
-                                                const mm = await generateMatchMask(photoUri, AInfo.L, AInfo.a, AInfo.bLab, debouncedTol, 360);
-                                                setMatchUri(mm.overlayUri);
-                                            }
-                                        } catch { }
-                                    }}
-                                    style={styles.pill}
-                                    accessibilityRole="button"
-                                    accessibilityLabel="Recompute overlays"
-                                >
-                                    <ThemedText>Recompute</ThemedText>
-                                </TouchableOpacity>
-                            </ScrollView>
+                            <ThemedText style={[styles.legendHeader, { color: theme.text }]}>
+                                Regions: {confRegions.length} • Mode: {confMode === 'both' ? 'Both' : confMode === 'protan' ? 'Protan' : 'Deutan'}
+                            </ThemedText>
 
-                            <View style={styles.infoRow}>
-                                <ThemedText style={styles.infoText}>
-                                    {AInfo ? `A: ${nameColor({ r: AInfo.r, g: AInfo.g, b: AInfo.b })} → ${nameColor({ r: AInfo.rSim, g: AInfo.gSim, b: AInfo.bSim })}  (Shift ${AInfo.deltaE.toFixed(1)})` : 'Tap to place A'}
-                                </ThemedText>
-                            </View>
-                            <View style={styles.infoRow}>
-                                <ThemedText style={styles.infoText}>
-                                    {BInfo ? `B: ${nameColor({ r: BInfo.r, g: BInfo.g, b: BInfo.b })} → ${nameColor({ r: BInfo.rSim, g: BInfo.gSim, b: BInfo.bSim })}  (Shift ${BInfo.deltaE.toFixed(1)})` : (A ? 'Tap again to place B (optional)' : ' ')}
-                                </ThemedText>
-                            </View>
-                            {simPairDeltaE != null && (
-                                <View style={styles.infoRow}>
-                                    <ThemedText style={styles.infoText}>
-                                        A vs B for protan: {simPairDeltaE.toFixed(1)} {simPairDeltaE < 10 ? '— Confusable' : simPairDeltaE < 12 ? '— Borderline' : '— Distinct'}
-                                    </ThemedText>
-                                </View>
+                            {confRegions.map((cr, idx) => {
+                                const trueSw = `rgb(${cr.meanR},${cr.meanG},${cr.meanB})`;
+                                const showProtan = confMode !== 'deutan';
+                                const showDeutan = confMode !== 'protan';
+                                const protSw = cr.meanProtanR != null ? `rgb(${cr.meanProtanR},${cr.meanProtanG},${cr.meanProtanB})` : 'transparent';
+                                const deutSw = cr.meanDeutanR != null ? `rgb(${cr.meanDeutanR},${cr.meanDeutanG},${cr.meanDeutanB})` : 'transparent';
+
+                                return (
+                                    <View key={`legend-${idx}`} style={[styles.legendCard, { borderColor: theme.divider }]}>
+                                        <View style={styles.cardHeader}>
+                                            <View style={styles.indexBadge}><ThemedText style={styles.indexBadgeText}>{idx + 1}</ThemedText></View>
+                                            <ThemedText style={styles.cardTitle}>Region {idx + 1}</ThemedText>
+                                        </View>
+
+                                        <Line label="True" swatch={trueSw} text={(cr.dominantFamily || cr.trueFamily || '—')} />
+
+                                        {showProtan && (
+                                            <Line label="Protan" swatch={protSw} text={`${cr.simFamilyProtan || '—'}${confTag(cr.confProtan)}`} />
+                                        )}
+                                        {showDeutan && (
+                                            <Line label="Deutan" swatch={deutSw} text={`${cr.simFamilyDeutan || '—'}${confTag(cr.confDeutan)}`} />
+                                        )}
+                                    </View>
+                                );
+                            })}
+
+                            {confRegions.length === 0 && (
+                                <ThemedText style={{ opacity: 0.7, marginTop: 8 }}>No regions detected for this mode.</ThemedText>
                             )}
                         </ScrollView>
 
-                        <View style={[styles.actionBar, { backgroundColor: themeColors.background, borderTopColor: Colors[colorScheme].divider }]}>
-                            <Buttons
-                                title="Share"
-                                iconName="share-social-outline"
-                                onPress={() => onShare(photoUri)}
-                                variant="primary"
-                                containerStyle={{ flex: 1, alignSelf: 'auto' }}
-                            />
+                        <View
+                            style={[styles.footerBar, { backgroundColor: theme.background, borderTopColor: theme.divider }]}
+                            onLayout={e => setFooterH(e.nativeEvent.layout.height)}
+                        >
                             <Buttons
                                 title="Close"
                                 iconName="close"
-                                onPress={() => { setPhotoUri(null); setHeatUri(null); setMatchUri(null); setRgRegions([]); setA(undefined); setB(undefined); setAInfo(null); setBInfo(null); }}
+                                onPress={() => { setPhotoUri(null); setConfRegions([]); setImgW(0); setImgH(0); }}
                                 variant="outline"
                                 containerStyle={{ flex: 1, alignSelf: 'auto' }}
                             />
@@ -447,16 +416,29 @@ const styles = StyleSheet.create({
     headerRow: { flexDirection: 'row', justifyContent: 'center', paddingVertical: 2, marginBottom: 10 },
     title: { fontFamily: 'AtkinsonBold', fontSize: 22, textAlign: 'center' },
     previewWrapper: { flex: 1, borderRadius: 10, overflow: 'hidden', marginHorizontal: 12, marginBottom: 12 },
-    controlsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', paddingVertical: 10 },
+    controlsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 8, gap: 8 },
+    pill: { backgroundColor: 'rgba(0,0,0,0.1)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 },
     center: { flex: 1, justifyContent: 'center', padding: 32 },
     permissionText: { fontSize: 20, fontFamily: 'AtkinsonBold', textAlign: 'center' },
-    pill: { backgroundColor: 'rgba(0,0,0,0.1)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6, marginRight: 8 },
-    infoRow: { marginVertical: 4, paddingHorizontal: 2 },
-    infoText: { fontSize: 14 },
-    rgBox: { position: 'absolute', borderWidth: 2, borderRadius: 4 },
-    badge: { position: 'absolute', top: -18, left: -2, backgroundColor: 'rgba(0,0,0,0.65)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4 },
-    badgeText: { color: '#fff', fontSize: 12, fontWeight: '600' },
-    actionBar: {
+    confBox: { position: 'absolute', borderWidth: 2, borderRadius: 4 },
+    labelPill: { position: 'absolute', top: -22, left: -2, backgroundColor: 'rgba(0,0,0,0.75)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, maxWidth: 160 },
+    labelText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+
+    legendHeader: { fontFamily: 'AtkinsonBold', fontSize: 14, marginBottom: 8 },
+    legendCard: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, padding: 10, marginBottom: 10 },
+    cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
+    cardTitle: { fontSize: 14, fontFamily: 'AtkinsonBold' },
+
+    lineRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 2 },
+    lineLabel: { width: 58, fontFamily: 'AtkinsonBold' },
+    lineText: { fontSize: 14, flexShrink: 1 },
+
+    indexBadge: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#111', alignItems: 'center', justifyContent: 'center' },
+    indexBadgeText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+
+    swatch: { width: 18, height: 12, borderRadius: 2, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(0,0,0,0.3)' },
+
+    footerBar: {
         position: 'absolute',
         left: 0, right: 0, bottom: 0,
         flexDirection: 'row',
