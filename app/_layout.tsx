@@ -111,7 +111,7 @@ export default function RootLayout() {
             <Drawer.Screen
               name="colorBlindnessSelect"
               options={{
-                title: 'Select Color Type',
+                title: 'Select Feature',
                 headerShown: false,
                 drawerIcon: ({ color, size, focused }) => (
                   <IconSymbol
@@ -125,7 +125,7 @@ export default function RootLayout() {
             <Drawer.Screen
               name="colorBlindCameraScreen"
               options={{
-                title: 'Color Blindness',
+                title: 'Simulate Vision',
                 headerShown: false,
                 drawerIcon: ({ color, size, focused }) => (
                   <IconSymbol

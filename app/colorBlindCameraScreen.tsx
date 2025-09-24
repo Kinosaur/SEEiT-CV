@@ -1,4 +1,3 @@
-// imports unchanged
 import Buttons from '@/components/Buttons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -40,8 +39,13 @@ type ConfRegion = {
 const CF_MIN_AREA_FRAC = 0.0035;
 const CF_MIN_SAT = 0.25;
 const CF_MIN_VAL = 0.15;
+
+// Label sizing guards
 const MIN_LABEL_AREA_FRAC = 0.006;
-const HIDE_LOW_CONF = true;
+const MIN_LABEL_PX_W = 56;
+const MIN_LABEL_PX_H = 24;
+
+type LabelMode = 'numbers' | 'names' | 'off';
 
 export default function ColorBlindCameraScreen() {
     const [cameraPosition] = React.useState<'back' | 'front'>('back');
@@ -61,10 +65,12 @@ export default function ColorBlindCameraScreen() {
     const [processing, setProcessing] = React.useState(false);
     const [confMode, setConfMode] = React.useState<'protan' | 'deutan' | 'both'>('both');
     const [confRegions, setConfRegions] = React.useState<ConfRegion[]>([]);
+    const [showLowConf, setShowLowConf] = React.useState(false);
+    const [labelMode, setLabelMode] = React.useState<LabelMode>('numbers');
 
     const [containerW, setContainerW] = React.useState(0);
     const [containerH, setContainerH] = React.useState(0);
-    const [footerH, setFooterH] = React.useState(0); // measure footer to pad scroll content
+    const [footerH, setFooterH] = React.useState(0);
 
     const imageRect = React.useMemo(
         () => computeContainedRect(containerW, containerH, imgW, imgH),
@@ -82,6 +88,12 @@ export default function ColorBlindCameraScreen() {
             return next;
         });
     };
+
+    React.useEffect(() => {
+        AccessibilityInfo.announceForAccessibility?.(
+            `Mode set to ${confMode === 'both' ? 'Both' : confMode === 'protan' ? 'Protan' : 'Deutan'}.`
+        );
+    }, [confMode]);
 
     const ensureFileUri = React.useCallback(async (uri: string): Promise<string> => {
         if (uri.startsWith('file://')) return uri;
@@ -137,36 +149,48 @@ export default function ColorBlindCameraScreen() {
         }
     }, []);
 
-    // Fetch + filter + sort confusable regions
+    const rerunIfPossible = React.useCallback(async () => {
+        if (photoUri) {
+            try { await runConfusions(photoUri, confMode); } catch { }
+        }
+    }, [photoUri, confMode]);
+
     const runConfusions = React.useCallback(async (uri: string, mode: 'protan' | 'deutan' | 'both') => {
         const res = await detectConfusableColors(uri, 360, mode, CF_MIN_AREA_FRAC, CF_MIN_SAT, CF_MIN_VAL);
         let filtered = (res.regions ?? []) as ConfRegion[];
 
-        // Hide low-confidence by default per selected mode
-        if (HIDE_LOW_CONF) {
+        if (!showLowConf) {
             filtered = filtered.filter(r => {
                 if (mode === 'protan') return (r.confProtan ?? 'med') !== 'low';
                 if (mode === 'deutan') return (r.confDeutan ?? 'med') !== 'low';
-                // both: keep if either is not low
-                const p = r.confProtan ?? 'med';
-                const d = r.confDeutan ?? 'med';
+                const p = r.confProtan ?? 'med'; const d = r.confDeutan ?? 'med';
                 return p !== 'low' || d !== 'low';
             });
         }
 
-        // Enforce riskFor filter
         filtered = filtered.filter(r => mode === 'both'
             ? (r.riskFor === 'both' || r.riskFor === 'protan' || r.riskFor === 'deutan')
             : r.riskFor === mode || r.riskFor === 'both'
         );
 
-        // Sort by y then x so legend reads like the image
         filtered.sort((a, b) => (a.y === b.y ? a.x - b.x : a.y - b.y));
 
         setConfRegions(filtered);
         setImgW(res.width || 0);
         setImgH(res.height || 0);
+
+        AccessibilityInfo.announceForAccessibility?.(
+            `Detected ${filtered.length} region${filtered.length === 1 ? '' : 's'} for ${mode === 'both' ? 'both types' : mode}.`
+        );
+
         return res;
+    }, [showLowConf]);
+
+    React.useEffect(() => { void rerunIfPossible(); }, [showLowConf, labelMode]); // labelMode toggle doesn't change data but keeps UX synced
+
+    const toggleShowLowConf = React.useCallback(() => {
+        setShowLowConf(prev => !prev);
+        AccessibilityInfo.announceForAccessibility?.('Toggled low confidence regions');
     }, []);
 
     React.useEffect(() => {
@@ -232,7 +256,6 @@ export default function ColorBlindCameraScreen() {
     const overlayStyle = { borderColor: 'rgba(255,255,255,0.95)', backgroundColor: 'rgba(0,0,0,0.10)', borderStyle: 'solid' as const };
     const mainButtonLabel = isActive ? 'Pause' : 'Resume';
 
-    // Small helper to render a swatch + label line
     const Line = ({ label, swatch, text }: { label: string; swatch: string; text: string }) => (
         <View style={styles.lineRow}>
             <ThemedText style={styles.lineLabel}>{label}</ThemedText>
@@ -241,8 +264,17 @@ export default function ColorBlindCameraScreen() {
         </View>
     );
 
-    // Confidence tag helper
     const confTag = (level?: ConfLevel) => (level ? ` (${level})` : '');
+
+    const buildPillLabel = (cr: ConfRegion): string => {
+        const dom = cr.dominantFamily || cr.trueFamily || '';
+        if (confMode === 'both') return dom;
+        const sim = confMode === 'protan' ? (cr.simFamilyProtan || '') : (cr.simFamilyDeutan || '');
+        const conf = confMode === 'protan' ? cr.confProtan : cr.confDeutan;
+        if (!sim || conf === 'low') return dom;
+        const mark = conf === 'high' ? ' ↑' : '';
+        return `${dom} → ${sim}${mark}`;
+    };
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} accessible={false}>
@@ -331,16 +363,24 @@ export default function ColorBlindCameraScreen() {
                                     <View pointerEvents="none" style={StyleSheet.absoluteFill}>
                                         {confRegions.map((cr, idx) => {
                                             const box = mapBox(cr);
-                                            const label = cr.dominantFamily || cr.trueFamily || '';
-                                            const showLabel = cr.areaFrac >= MIN_LABEL_AREA_FRAC; // hide tiny labels
+                                            const pillText = buildPillLabel(cr);
+                                            const tooSmallByArea = cr.areaFrac < MIN_LABEL_AREA_FRAC;
+                                            const tooSmallByPx = box.width < MIN_LABEL_PX_W || box.height < MIN_LABEL_PX_H;
+                                            const canShowNamePill = !(tooSmallByArea || tooSmallByPx);
+
                                             return (
                                                 <View
                                                     key={`cf-${idx}`}
                                                     style={[styles.confBox, overlayStyle, { left: box.left, top: box.top, width: box.width, height: box.height }]}
                                                 >
-                                                    {showLabel && (
+                                                    {labelMode === 'names' && canShowNamePill && (
                                                         <View style={styles.labelPill}>
-                                                            <ThemedText style={styles.labelText} numberOfLines={1}>{label}</ThemedText>
+                                                            <ThemedText style={styles.labelText} numberOfLines={1}>{pillText}</ThemedText>
+                                                        </View>
+                                                    )}
+                                                    {labelMode === 'numbers' && (
+                                                        <View style={styles.smallBadge}>
+                                                            <ThemedText style={styles.indexBadgeText}>{idx + 1}</ThemedText>
                                                         </View>
                                                     )}
                                                 </View>
@@ -349,6 +389,27 @@ export default function ColorBlindCameraScreen() {
                                     </View>
                                 </View>
                             ) : null}
+                        </View>
+
+                        <View style={styles.modalControlsRow} accessible accessibilityRole="toolbar">
+                            <TouchableOpacity
+                                onPress={toggleShowLowConf}
+                                style={[styles.pill, showLowConf && styles.pillActive]}
+                                accessibilityRole="button"
+                                accessibilityLabel={showLowConf ? 'Hide low confidence regions' : 'Show low confidence regions'}
+                            >
+                                <ThemedText>{showLowConf ? 'Hide low-conf' : 'Show low-conf'}</ThemedText>
+                            </TouchableOpacity>
+
+                            <TouchableOpacity
+                                onPress={() => setLabelMode(m => m === 'numbers' ? 'names' : m === 'names' ? 'off' : 'numbers')}
+                                style={[styles.pill, labelMode !== 'off' && styles.pillActive]}
+                                accessibilityRole="button"
+                                accessibilityLabel="Toggle label mode"
+                                accessibilityHint="Cycles Numbers, Names, Off"
+                            >
+                                <ThemedText>Labels: {labelMode === 'numbers' ? 'Numbers' : labelMode === 'names' ? 'Names' : 'Off'}</ThemedText>
+                            </TouchableOpacity>
                         </View>
 
                         <ScrollView
@@ -418,11 +479,28 @@ const styles = StyleSheet.create({
     previewWrapper: { flex: 1, borderRadius: 10, overflow: 'hidden', marginHorizontal: 12, marginBottom: 12 },
     controlsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 8, gap: 8 },
     pill: { backgroundColor: 'rgba(0,0,0,0.1)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 },
+    pillActive: { backgroundColor: 'rgba(0,0,0,0.2)' },
     center: { flex: 1, justifyContent: 'center', padding: 32 },
     permissionText: { fontSize: 20, fontFamily: 'AtkinsonBold', textAlign: 'center' },
     confBox: { position: 'absolute', borderWidth: 2, borderRadius: 4 },
-    labelPill: { position: 'absolute', top: -22, left: -2, backgroundColor: 'rgba(0,0,0,0.75)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, maxWidth: 160 },
+
+    labelPill: { position: 'absolute', top: -22, left: -2, backgroundColor: 'rgba(0,0,0,0.75)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, maxWidth: 200 },
     labelText: { color: '#fff', fontSize: 12, fontWeight: '700' },
+
+    // Small on-image badge for tiny regions or number mode
+    smallBadge: {
+        position: 'absolute',
+        top: -10,
+        left: -10,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: '#111',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+
+    modalControlsRow: { paddingHorizontal: 12, paddingTop: 6, paddingBottom: 0, flexDirection: 'row', gap: 10, alignItems: 'center' },
 
     legendHeader: { fontFamily: 'AtkinsonBold', fontSize: 14, marginBottom: 8 },
     legendCard: { borderWidth: StyleSheet.hairlineWidth, borderRadius: 8, padding: 10, marginBottom: 10 },

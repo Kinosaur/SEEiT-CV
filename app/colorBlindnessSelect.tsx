@@ -17,7 +17,7 @@ const FEATURES: FeatureItem[] = [
     {
         key: 'color_finder',
         name: 'Color Finder',
-        description: 'Detect true colors (currently red and green).',
+        description: 'Detect true colors for confusable colors.',
     },
 ];
 

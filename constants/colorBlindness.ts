@@ -8,8 +8,8 @@ export interface ColorBlindnessTypeDef {
 }
 
 export const COLOR_BLINDNESS_TYPES: ColorBlindnessTypeDef[] = [
-    { key: 'color finder', name: 'Color Finder', description: 'Help you find colors' },
-     // { key: 'protanopia', name: 'Protanopia', description: 'Reduced sensitivity to reds' },
+    { key: 'color_finder', name: 'Color Finder', description: 'Help you find colors' },
+    // { key: 'protanopia', name: 'Protanopia', description: 'Reduced sensitivity to reds' },
     // { key: 'deuteranopia', name: 'Deuteranopia', description: 'Reduced sensitivity to greens' },
     // { key: 'tritanopia', name: 'Tritanopia', description: 'Reduced sensitivity to blues' },
     // { key: 'monochromacy', name: 'Monochromacy', description: 'Primarily perceives lightness' },
