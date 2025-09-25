@@ -1,4 +1,4 @@
-/* --- imports unchanged except new SpeechSupervisor --- */
+/* NOTE: Only showing updated version with refinements and logging as requested. */
 import Buttons from '@/components/Buttons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -8,7 +8,7 @@ import { DetectionOverlay } from '@/hooks/useDetectionOverlay';
 import { useDetectionsNotifier } from '@/hooks/useDetectionsNotifier';
 import { mlkitObjectDetect } from '@/hooks/useMlkitObject';
 import { useSimpleFormat } from '@/hooks/useSimpleFormat';
-import { SpeechSupervisor } from '@/services/speechSupervisor'; // NEW
+import { SpeechPriority, SpeechSupervisor } from '@/services/speechSupervisor';
 import { initTTS, ttsSpeak, ttsStop } from '@/services/tts';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
@@ -32,7 +32,12 @@ import {
 } from 'react-native-vision-camera';
 import * as Worklets from 'react-native-worklets-core';
 
-/* Existing constants (kept) ... only minor additions at bottom for critical labels */
+/* ================= Config Flags ================= */
+const SPEAK_AGGREGATE_VIA_NOTIFIER = false;
+const COMPRESS_TRAFFIC_LIGHT = true;
+const DUP_A11Y_SUPPRESS_MS = 900;
+
+/* ================= Constants & Mappings ================= */
 
 const DEFAULT_SPEECH_ON = false;
 
@@ -50,9 +55,12 @@ const NATURAL_LABEL_MAP: Record<string, string> = {
     car: 'car',
     van: 'van',
     truck: 'truck',
+    motorcycle: 'motorcycle',
     'traffic red': 'red traffic light',
     'traffic yellow': 'yellow traffic light',
     'traffic green': 'green traffic light',
+    emergency_exit: 'emergency exit',
+    'emergency exit': 'emergency exit',
 };
 
 const DIST_PRIORITY: Record<string, number> = { near: 0, mid: 1, far: 2, unknown: 3 };
@@ -74,12 +82,10 @@ const SMALL_GROUP_MAX = 4;
 const INCLUDE_DIRECTION_FOR_UNIFORM_LIMIT = 3;
 const MAX_GROUPS_SPOKEN = 3;
 
-/* New gating constants replacing earlier attempt */
-const SPEECH_INTERRUPT_GRACE_MS = 1600;     // Critical interrupt grace
+const SPEECH_INTERRUPT_GRACE_MS = 1600;
 const MIN_MAJOR_INTERVAL_MS = 2800;
 const MIN_MINOR_INTERVAL_MS = 4200;
 
-/* Critical labels drive interrupts/priorities */
 const CRITICAL_LABELS = new Set([
     'stop sign',
     'hazard sign',
@@ -88,26 +94,34 @@ const CRITICAL_LABELS = new Set([
     'red traffic light',
 ]);
 
-/* Minor: count bucketing to suppress small +/- flicker */
-function bucketCount(n: number): number {
-    if (n <= 2) return n;      // 1,2 explicit
-    if (n <= 4) return 3;      // 3-4 bucket
-    return 5;                  // 5+ bucket (your cap is 5 anyway)
-}
+const MULTI_COUNT_LABELS = new Set([
+    'car', 'truck', 'van', 'bicycle', 'motorcycle'
+]);
 
+const ID_ABSENCE_MS = 900;
+const MIN_BUCKET_SPEAK_INTERVAL_MS = 2500;
+const NEAR_DEESC_DELAY_MS = 1500;
+const MAX_DIRECTION_MENTIONS = 2;
+
+/* Helpers */
+
+function bucketCount(n: number): number {
+    if (n <= 2) return n;
+    if (n <= 4) return 3;
+    return 5;
+}
 function naturalLabel(base?: string) {
     if (!base) return 'object';
-    return NATURAL_LABEL_MAP[base] || base;
+    return NATURAL_LABEL_MAP[base] || base.replace(/_/g, ' ');
+}
+function humanizeLabel(label: string) {
+    return NATURAL_LABEL_MAP[label] || label.replace(/_/g, ' ');
 }
 function pluralize(label: string, n: number) {
     if (n === 1) return label;
     if (label.endsWith('y') && !label.endsWith('ay') && !label.endsWith('ey')) return label.slice(0, -1) + 'ies';
     if (label.endsWith('s')) return label;
     return label + 's';
-}
-function article(label: string) {
-    const first = label.trim()[0]?.toLowerCase();
-    return 'aeiou'.includes(first) ? 'an' : 'a';
 }
 function joinHuman(list: string[]): string {
     if (list.length <= 1) return list[0] ?? '';
@@ -133,22 +147,105 @@ function directionDescriptor(xc: number, yc: number): string | null {
     }
     return null;
 }
-
-/* Duration estimation slightly higher to reduce premature “available” */
 function estimateSpeechDurationMs(phrase: string) {
     const words = phrase.trim().split(/\s+/).filter(Boolean).length;
-    const basePerWord = 350; // slower, safer
-    return 500 + words * basePerWord;
+    return 500 + words * 350;
+}
+function mapCountToSemanticBucket(n: number): 'none' | 'one' | 'few' | 'several' {
+    if (n <= 0) return 'none';
+    if (n === 1) return 'one';
+    if (n <= 3) return 'few';
+    return 'several';
+}
+function bucketToPhrase(bucket: string, baseLabelPlural: string) {
+    switch (bucket) {
+        case 'none': return '';
+        case 'one': return `one ${baseLabelPlural.replace(/s$/, '')}`;
+        case 'few': return `a few ${baseLabelPlural}`;
+        case 'several': return `several ${baseLabelPlural}`;
+        default: return baseLabelPlural;
+    }
+}
+function postPhraseSanitize(p: string) {
+    return p
+        .replace(/\b(ahead)\s+\1\b/gi, '$1')
+        .replace(/\b(directly ahead)\s+ahead\b/gi, 'directly ahead')
+        .replace(/\b(close ahead)\b/gi, 'close')
+        .replace(/\bnear distance\b/gi, 'near')
+        .replace(/\s+/g, ' ')
+        .trim();
 }
 
-/* PERMISSIONS & components unchanged (omitted for brevity; keep yours) */
+/* Signatures */
+
+type CatSeg = { cat: string; count: number };
+type GroupSig = {
+    nat: string;
+    priority: number;
+    totalBucket: number;
+    cats: CatSeg[];
+    hasNear: boolean;
+    critical: boolean;
+};
+type Signature = {
+    groups: GroupSig[];
+    hasNear: boolean;
+    hasCritical: boolean;
+    sumBucket: number;
+};
+
+function classifyChange(prev: Signature | null, curr: Signature): 'critical' | 'major' | 'minor' | 'none' {
+    if (!prev) return 'critical';
+    const criticalFlip = prev.hasCritical !== curr.hasCritical;
+    if (criticalFlip) return 'critical';
+    const nearGain = !prev.hasNear && curr.hasNear;
+    if (nearGain) return 'critical';
+    const totalJump = Math.abs(curr.sumBucket - prev.sumBucket) >= 2;
+    if (totalJump && curr.hasNear) return 'critical';
+    const prevMap = new Map(prev.groups.map(g => [g.nat, g]));
+    const currMap = new Map(curr.groups.map(g => [g.nat, g]));
+    for (const g of curr.groups) {
+        if (g.critical && !prevMap.has(g.nat)) return 'critical';
+    }
+    let major = false;
+    for (const g of curr.groups) {
+        const pg = prevMap.get(g.nat);
+        if (!pg) {
+            major = major || g.hasNear;
+            continue;
+        }
+        if (pg.priority !== g.priority) {
+            if (g.priority < pg.priority) return 'critical';
+            major = true;
+        }
+        if (pg.hasNear !== g.hasNear) major = true;
+        if (pg.totalBucket !== g.totalBucket) major = major || g.hasNear;
+        const prevCatsKey = pg.cats.map(c => `${c.cat}:${c.count}`).join('|');
+        const currCatsKey = g.cats.map(c => `${c.cat}:${c.count}`).join('|');
+        if (prevCatsKey !== currCatsKey) major = true;
+    }
+    for (const pg of prev.groups) {
+        if (!currMap.has(pg.nat)) {
+            major = major || pg.hasNear || pg.critical;
+        }
+    }
+    if (major) return 'major';
+    if (JSON.stringify(prev) === JSON.stringify(curr)) return 'none';
+    return 'minor';
+}
+
+/* ================= Components ================= */
 
 const PermissionsPage = () => (
     <ThemedView style={styles.center} accessible accessibilityRole="alert" accessibilityLabel="Camera permission required">
         <ThemedText style={styles.permissionText}>Camera permission is required.</ThemedText>
         <Buttons
             title="Open Settings"
-            onPress={() => Linking.openSettings().catch(() => Alert.alert('Unable to open settings'))}
+            onPress={() =>
+                Linking.openSettings().catch(() =>
+                    Alert.alert('Unable to open settings')
+                )
+            }
             accessibilityLabel="Open system settings to grant camera permission"
             containerStyle={{ marginTop: 24 }}
         />
@@ -156,7 +253,9 @@ const PermissionsPage = () => (
 );
 
 const NoCameraDeviceError = () => {
-    React.useEffect(() => { AccessibilityInfo.announceForAccessibility('No camera device found.'); }, []);
+    React.useEffect(() => {
+        AccessibilityInfo.announceForAccessibility('No camera device found.');
+    }, []);
     return (
         <ThemedView style={styles.center} accessible accessibilityRole="alert" accessibilityLabel="No camera device found">
             <ThemedText style={styles.permissionText}>No camera device found.</ThemedText>
@@ -164,14 +263,14 @@ const NoCameraDeviceError = () => {
     );
 };
 
-export default function Index() {
-    /* (All your existing React state & effects retained, only modifications inside speech section) */
+/* ================= Main Screen ================= */
 
+export default function Index() {
     React.useEffect(() => {
         let cleanup: undefined | (() => void);
         initTTS()
-            .then((res) => { cleanup = res.cleanup; })
-            .catch((e) => console.warn('[TTS] init failed:', e));
+            .then(res => { cleanup = res.cleanup; })
+            .catch(e => console.warn('[TTS] init failed:', e));
         return () => { try { cleanup?.(); } catch { } };
     }, []);
 
@@ -183,7 +282,8 @@ export default function Index() {
         const sub = AccessibilityInfo.addEventListener('screenReaderChanged', (enabled: boolean) => {
             setScreenReaderOn(!!enabled);
         });
-        return () => { // @ts-ignore
+        return () => {
+            // @ts-ignore
             sub?.remove?.();
         };
     }, []);
@@ -192,9 +292,9 @@ export default function Index() {
     const [torch, setTorch] = React.useState<'off' | 'on'>('off');
     const [speechOn, setSpeechOn] = React.useState(DEFAULT_SPEECH_ON);
     const [isActive, setIsActive] = React.useState(true);
+
     const [objects, setObjects] = React.useState<any[]>([]);
     const [frameDims, setFrameDims] = React.useState<{ width: number; height: number }>({ width: 0, height: 0 });
-    const [topInfo, setTopInfo] = React.useState<{ label: string; confidence: number }>({ label: '', confidence: -1 });
     const [fpError, setFpError] = React.useState<string | null>(null);
     const [previewSize, setPreviewSize] = React.useState<{ width: number; height: number }>({ width: 0, height: 0 });
 
@@ -218,13 +318,16 @@ export default function Index() {
     React.useEffect(() => {
         if (format) {
             console.log('Camera format:', {
-                videoWidth: format.videoWidth, videoHeight: format.videoHeight,
-                minFps: format.minFps, maxFps: format.maxFps,
+                videoWidth: format.videoWidth,
+                videoHeight: format.videoHeight,
+                minFps: format.minFps,
+                maxFps: format.maxFps,
             });
         }
         console.log('Camera FPS:', fps);
     }, [format, fps]);
 
+    // Plugin bridging
     const setPluginResultOnJS = Worklets.useRunOnJS((raw: any) => {
         if (!raw || typeof raw.detSeq !== 'number') return;
         if (raw.detSeq > 0) setLastDetTs(Date.now());
@@ -235,13 +338,10 @@ export default function Index() {
             width: typeof raw.width === 'number' ? raw.width : 0,
             height: typeof raw.height === 'number' ? raw.height : 0,
         });
-        setTopInfo({
-            label: typeof raw.topLabel === 'string' ? raw.topLabel : '',
-            confidence: typeof raw.topConfidence === 'number' ? raw.topConfidence : -1,
-        });
     }, []);
-
-    const setPluginErrorOnJS = Worklets.useRunOnJS((msg: string) => setFpError(msg), []);
+    const setPluginErrorOnJS = Worklets.useRunOnJS((msg: string) => {
+        setFpError(msg);
+    }, []);
 
     const frameProcessor = useFrameProcessor((frame) => {
         'worklet';
@@ -258,24 +358,29 @@ export default function Index() {
     }, [setPluginResultOnJS, setPluginErrorOnJS]);
 
     React.useEffect(() => {
-        if (!hasPermission) requestPermission().catch(() => { });
+        if (!hasPermission) {
+            requestPermission().catch(() => { });
+        }
     }, [hasPermission, requestPermission]);
 
     const announce = (msg: string) => {
         if (speechOn) AccessibilityInfo.announceForAccessibility(msg);
     };
+
     React.useEffect(() => {
-        if (!speechOn || !isActive) ttsStop().catch(() => { });
+        if (!speechOn || !isActive) {
+            ttsStop().catch(() => { });
+            speechSupervisorRef.current?.notifyStopped();
+        }
     }, [speechOn, isActive]);
 
-    // Notifier (kept)
     const notifyDetections = useDetectionsNotifier({
         enabled: speechOn && isActive && detectionStatus === 'ok',
-        useTTS: !screenReaderOn,
+        useTTS: false,
         stableFrames: 3,
         minConfidence: 0.5,
         perObjectCooldownMs: 5000,
-        globalCooldownMs: 400, // low; we control gating
+        globalCooldownMs: 400,
         includeConfidenceInMessage: false,
         summarizeMultiple: false,
         allowUnlabeled: false,
@@ -290,7 +395,9 @@ export default function Index() {
         announceA11y: (msg: string) => AccessibilityInfo.announceForAccessibility(msg),
     });
 
-    /* Speech Supervisor instance */
+    /* Speech Supervisor & Logging */
+
+    const lastA11yRef = React.useRef<{ phrase: string; ts: number }>({ phrase: '', ts: 0 });
     const speechSupervisorRef = React.useRef<SpeechSupervisor | null>(null);
     if (!speechSupervisorRef.current) {
         speechSupervisorRef.current = new SpeechSupervisor({
@@ -298,18 +405,40 @@ export default function Index() {
             interruptGraceMs: SPEECH_INTERRUPT_GRACE_MS,
             minMajorIntervalMs: MIN_MAJOR_INTERVAL_MS,
             minMinorIntervalMs: MIN_MINOR_INTERVAL_MS,
-            onSpeak: (phrase) => {
-                // One synthetic detection
-                notifyDetections([{
-                    id: 'speech:aggregate',
-                    label: phrase,
-                    score: 0.99,
-                }]);
+            fallbackTimer: true,
+            onSpeak: (rawPhrase, utteranceId, priority) => {
+                const clean = postPhraseSanitize(rawPhrase);
+                const iso = new Date().toISOString();
+                console.log(`[Speech] ${iso} priority=${priority} id=${utteranceId} phrase="${clean}"`);
+                ttsSpeak(clean, {
+                    utteranceId,
+                    onDone: (id) => speechSupervisorRef.current?.notifyDone(id),
+                    onError: (id) => speechSupervisorRef.current?.notifyDone(id)
+                }).catch(() => {
+                    speechSupervisorRef.current?.notifyDone(utteranceId);
+                });
+
+                if (SPEAK_AGGREGATE_VIA_NOTIFIER) {
+                    notifyDetections([{
+                        id: 'speech:aggregate',
+                        label: clean,
+                        score: 0.99,
+                    }]);
+                } else {
+                    // Deduplicate rapid identical accessibility announcements
+                    const now = Date.now();
+                    if (lastA11yRef.current.phrase === clean && (now - lastA11yRef.current.ts) < DUP_A11Y_SUPPRESS_MS) {
+                        console.log(`[SpeechSkipDup] suppressed a11y repeat phrase="${clean}"`);
+                    } else {
+                        AccessibilityInfo.announceForAccessibility(clean);
+                        lastA11yRef.current = { phrase: clean, ts: now };
+                    }
+                }
             }
         });
     }
 
-    // Direction smoothing cache
+    /* Direction smoothing cache */
     type DirCache = { stable: string | null; current: string | null; count: number; nullHold: number; lastSeen: number };
     const directionCacheRef = React.useRef<Map<number, DirCache>>(new Map());
 
@@ -340,30 +469,36 @@ export default function Index() {
         }
         return entry.stable ?? rawDir;
     }
-
     function purgeDirCache(now: number) {
         for (const [id, v] of Array.from(directionCacheRef.current.entries())) {
             if (now - v.lastSeen > DIR_CACHE_TTL_MS) directionCacheRef.current.delete(id);
         }
     }
 
-    // Previous semantic signature
-    type CatSeg = { cat: string; count: number };
-    type GroupSig = {
-        nat: string;
-        priority: number;
-        totalBucket: number;
-        cats: CatSeg[];
-        hasNear: boolean;
-        critical: boolean;
-    };
-    type Signature = {
-        groups: GroupSig[];
-        hasNear: boolean;
-        hasCritical: boolean;
-        sumBucket: number;
-    };
     const lastSigRef = React.useRef<Signature | null>(null);
+
+    interface PerLabelState {
+        lastBucket: string | null;
+        lastBucketSpokenAt: number;
+        lastNearState: 'none' | 'near' | 'mid' | 'far' | null;
+        lastNearChangeAt: number;
+        idLastSeen: Map<number, number>;
+    }
+    const perLabelStateRef = React.useRef<Map<string, PerLabelState>>(new Map());
+    const getPerLabelState = React.useCallback((label: string): PerLabelState => {
+        let s = perLabelStateRef.current.get(label);
+        if (!s) {
+            s = {
+                lastBucket: null,
+                lastBucketSpokenAt: 0,
+                lastNearState: null,
+                lastNearChangeAt: 0,
+                idLastSeen: new Map(),
+            };
+            perLabelStateRef.current.set(label, s);
+        }
+        return s;
+    }, []);
 
     React.useEffect(() => {
         if (!speechOn || detectionStatus !== 'ok') return;
@@ -372,7 +507,6 @@ export default function Index() {
         purgeDirCache(now);
         if (!rawList.length) return;
 
-        // Build infos
         type Info = {
             id: number;
             nat: string;
@@ -387,6 +521,7 @@ export default function Index() {
             const distStable = (typeof o.distance_cat === 'string'
                 && o.distance_cat !== 'unknown'
                 && o.distance_cat_conf === 'stable') ? o.distance_cat as string : undefined;
+
             const b = Array.isArray(o.b) ? o.b : [];
             let xc: number | undefined, yc: number | undefined;
             if (b.length === 4) {
@@ -411,8 +546,18 @@ export default function Index() {
             groupsMap.get(i.nat)!.push(i);
         });
 
-        // Build phrases + signature groups
-        const groupPhrases: { phrase: string; nat: string; priority: number; total: number; hasNear: boolean; critical: boolean; catCounts: Map<string, number> }[] = [];
+        type GroupPhraseObj = {
+            phrase: string;
+            nat: string;
+            priority: number;
+            total: number;
+            hasNear: boolean;
+            critical: boolean;
+            catCounts: Map<string, number>;
+            overrideSpoken?: boolean;
+        };
+
+        const groupPhrases: GroupPhraseObj[] = [];
 
         groupsMap.forEach((arr, nat) => {
             const catCounts = new Map<string, number>();
@@ -421,23 +566,187 @@ export default function Index() {
                 catCounts.set(c, (catCounts.get(c) ?? 0) + 1);
             });
             const stableCats = Array.from(catCounts.keys()).filter(c => c !== 'unknown');
-            const priority = stableCats.length ? Math.min(...stableCats.map(c => DIST_PRIORITY[c] ?? 3)) : 3;
+            const priority = stableCats.length
+                ? Math.min(...stableCats.map(c => DIST_PRIORITY[c] ?? 3))
+                : 3;
             const total = arr.length;
             const uniformCat = (stableCats.length === 1 && catCounts.get(stableCats[0]) === total);
-            const phrase = buildGroupPhrase(arr, nat, total, uniformCat, stableCats, catCounts);
+            let phrase = buildGroupPhrase(arr, nat, total, uniformCat, stableCats, catCounts);
             const hasNear = (catCounts.get('near') ?? 0) > 0;
             const critical = CRITICAL_LABELS.has(nat);
-            groupPhrases.push({ phrase, nat, priority, total, hasNear, critical, catCounts });
+
+            if (MULTI_COUNT_LABELS.has(nat)) {
+                const st = getPerLabelState(nat);
+                arr.forEach(o => {
+                    if (o.id && o.id !== -1) st.idLastSeen.set(o.id, now);
+                });
+                for (const [id, ts] of Array.from(st.idLastSeen.entries())) {
+                    if (now - ts > ID_ABSENCE_MS) st.idLastSeen.delete(id);
+                }
+                const stableCount = st.idLastSeen.size;
+                const bucket = mapCountToSemanticBucket(stableCount);
+
+                let minCat: string = 'unknown';
+                let minVal = 99;
+                arr.forEach(a => {
+                    if (!st.idLastSeen.has(a.id)) return;
+                    const dc = (a.distCat || 'unknown');
+                    const p = DIST_PRIORITY[dc] ?? 99;
+                    if (p < minVal) { minVal = p; minCat = dc; }
+                });
+
+                let nearState: 'none' | 'near' | 'mid' | 'far';
+                if (bucket === 'none') nearState = 'none';
+                else if (minCat === 'near') nearState = 'near';
+                else if (minCat === 'mid') nearState = 'mid';
+                else if (minCat === 'far') nearState = 'far';
+                else nearState = 'mid';
+
+                const bucketChanged = bucket !== st.lastBucket;
+                const nearChanged = nearState !== st.lastNearState;
+                const nowSinceBucket = now - st.lastBucketSpokenAt;
+                const nowSinceNearChange = now - st.lastNearChangeAt;
+
+                let shouldSpeak = false;
+                let reason: 'nearEscalation' | 'bucketChange' | 'nearRetreat' | '' = '';
+                if (st.lastNearState !== 'near' && nearState === 'near') {
+                    shouldSpeak = true; reason = 'nearEscalation';
+                } else if (bucketChanged && bucket !== 'none' && nowSinceBucket >= MIN_BUCKET_SPEAK_INTERVAL_MS) {
+                    shouldSpeak = true; reason = 'bucketChange';
+                } else if (nearChanged && (nearState === 'mid' || nearState === 'far')) {
+                    if (nowSinceNearChange >= NEAR_DEESC_DELAY_MS) {
+                        shouldSpeak = true; reason = 'nearRetreat';
+                    }
+                }
+
+                if (shouldSpeak) {
+                    const basePlural = pluralize(nat, 2);
+                    const bucketPhrase = bucketToPhrase(bucket, basePlural);
+                    if (bucket !== 'none') {
+                        let distancePart = '';
+                        if (nearState === 'near') distancePart = 'close';
+                        else if (nearState === 'mid') distancePart = 'ahead';
+                        else if (nearState === 'far') distancePart = 'far';
+
+                        let dirs: string[] = [];
+                        if (nearState === 'near') {
+                            dirs = arr.filter(o => o.distCat === 'near' && st.idLastSeen.has(o.id) && o.dir)
+                                .map(o => o.dir as string);
+                        }
+                        if (dirs.length === 0) {
+                            dirs = arr.filter(o => st.idLastSeen.has(o.id) && o.dir).map(o => o.dir as string);
+                        }
+                        dirs = Array.from(new Set(dirs))
+                            .sort((a, b) => (DIRECTION_ORDER[a] ?? 99) - (DIRECTION_ORDER[b] ?? 99))
+                            .slice(0, MAX_DIRECTION_MENTIONS);
+
+                        const dirPart = dirs.length
+                            ? (dirs.length === 1 ? dirs[0] : joinHuman(dirs))
+                            : 'ahead';
+
+                        phrase = distancePart
+                            ? `${bucketPhrase} ${distancePart} ${dirPart}`
+                            : `${bucketPhrase} ${dirPart}`;
+                        phrase = postPhraseSanitize(phrase);
+
+                        groupPhrases.push({
+                            phrase,
+                            nat,
+                            priority,
+                            total,
+                            hasNear,
+                            critical,
+                            catCounts,
+                            overrideSpoken: true
+                        });
+
+                        const priorityLevel: SpeechPriority =
+                            reason === 'nearEscalation' ? 'critical'
+                                : reason === 'bucketChange' ? 'major'
+                                    : 'minor';
+                        speechSupervisorRef.current?.requestSpeak(phrase, priorityLevel);
+
+                        if (bucketChanged) {
+                            st.lastBucket = bucket;
+                            st.lastBucketSpokenAt = now;
+                        }
+                        if (nearChanged) {
+                            st.lastNearState = nearState;
+                            st.lastNearChangeAt = now;
+                        }
+                    }
+                } else {
+                    if (nearChanged) {
+                        st.lastNearState = nearState;
+                        st.lastNearChangeAt = now;
+                    }
+                    if (bucketChanged) {
+                        st.lastBucket = bucket;
+                    }
+                    if (hasNear && bucket !== 'one') {
+                        const nearDirs = arr.filter(a => a.distCat === 'near' && a.dir).map(a => a.dir!) ?? [];
+                        const uniqNearDirs = Array.from(new Set(nearDirs)).slice(0, 2);
+                        const nearDirPhrase = uniqNearDirs.length
+                            ? uniqNearDirs.length === 1 ? uniqNearDirs[0] : joinHuman(uniqNearDirs)
+                            : 'ahead';
+                        phrase = `${pluralize(nat, 2)} close ${nearDirPhrase}, others ahead`;
+                    }
+                    phrase = postPhraseSanitize(phrase);
+                    groupPhrases.push({
+                        phrase,
+                        nat,
+                        priority,
+                        total,
+                        hasNear,
+                        critical,
+                        catCounts,
+                        overrideSpoken: false
+                    });
+                }
+            } else {
+                phrase = postPhraseSanitize(phrase);
+                groupPhrases.push({
+                    phrase,
+                    nat,
+                    priority,
+                    total,
+                    hasNear,
+                    critical,
+                    catCounts
+                });
+            }
         });
 
-        groupPhrases.sort((a, b) => {
+        const residual = groupPhrases.filter(g => !g.overrideSpoken);
+        if (!residual.length) {
+            const sig: Signature = {
+                groups: groupPhrases.map(g => ({
+                    nat: g.nat,
+                    priority: g.priority,
+                    totalBucket: bucketCount(g.total),
+                    cats: Array
+                        .from(g.catCounts.entries())
+                        .filter(([c]) => c !== 'unknown')
+                        .sort((a, b) => (DIST_PRIORITY[a[0]] ?? 3) - (DIST_PRIORITY[b[0]] ?? 3))
+                        .map(([cat, count]) => ({ cat, count: bucketCount(count) })),
+                    hasNear: g.hasNear,
+                    critical: g.critical
+                })),
+                hasNear: groupPhrases.some(g => g.hasNear),
+                hasCritical: groupPhrases.some(g => g.critical),
+                sumBucket: bucketCount(groupPhrases.reduce((a, g) => a + g.total, 0))
+            };
+            lastSigRef.current = sig;
+            return;
+        }
+
+        residual.sort((a, b) => {
             if (a.priority !== b.priority) return a.priority - b.priority;
             if (a.total !== b.total) return b.total - a.total;
             return a.nat.localeCompare(b.nat);
         });
-        const selected = groupPhrases.slice(0, MAX_GROUPS_SPOKEN);
 
-        // Build final phrase
+        const selected = residual.slice(0, MAX_GROUPS_SPOKEN);
         let finalPhrase: string;
         if (selected.length === 1) finalPhrase = selected[0].phrase;
         else {
@@ -447,7 +756,6 @@ export default function Index() {
                 : `${parts.slice(0, -1).join(', ')}, and ${parts[parts.length - 1]}`;
         }
 
-        // Build signature
         const sig: Signature = {
             groups: selected.map(g => ({
                 nat: g.nat,
@@ -468,80 +776,11 @@ export default function Index() {
 
         const prevSig = lastSigRef.current;
         const changeClass = classifyChange(prevSig, sig);
-
-        if (changeClass === 'none') {
-            // No need to speak
-            return;
+        if (changeClass !== 'none') {
+            speechSupervisorRef.current?.requestSpeak(postPhraseSanitize(finalPhrase), changeClass);
         }
-
-        // Request speech with priority mapping
-        const supervisor = speechSupervisorRef.current!;
-        supervisor.requestSpeak(finalPhrase, changeClass);
-
         lastSigRef.current = sig;
-    }, [objects, speechOn, detectionStatus, notifyDetections]);
-
-    function classifyChange(prev: Signature | null, curr: Signature): 'critical' | 'major' | 'minor' | 'none' {
-        if (!prev) return 'critical'; // first time => treat as high priority so user gets immediate context
-
-        // Quick structural comparisons
-        const criticalFlip = prev.hasCritical !== curr.hasCritical;
-        if (criticalFlip) return 'critical';
-
-        const nearGain = !prev.hasNear && curr.hasNear;
-        if (nearGain) return 'critical';
-
-        const totalJump = Math.abs(curr.sumBucket - prev.sumBucket) >= 2; // bucketed jump
-        if (totalJump && curr.hasNear) return 'critical';
-
-        // Compare group sets (by nat)
-        const prevMap = new Map(prev.groups.map(g => [g.nat, g]));
-        const currMap = new Map(curr.groups.map(g => [g.nat, g]));
-
-        // New critical group appears
-        for (const g of curr.groups) {
-            if (g.critical && !prevMap.has(g.nat)) return 'critical';
-        }
-
-        // Determine major vs minor:
-        let major = false;
-        for (const g of curr.groups) {
-            const pg = prevMap.get(g.nat);
-            if (!pg) {
-                // New non-critical group
-                major = major || g.hasNear; // only elevate if near to avoid noise
-                continue;
-            }
-            if (pg.priority !== g.priority) {
-                // Priority shift (e.g., mid→near)
-                if (g.priority < pg.priority) return 'critical'; // got closer
-                major = true; // farther -> major
-            }
-            if (pg.hasNear !== g.hasNear) major = true;
-            if (pg.totalBucket !== g.totalBucket) {
-                // Count bucket different; treat as minor unless near present
-                major = major || g.hasNear;
-            }
-            // Category composition difference
-            const prevCatsKey = pg.cats.map(c => `${c.cat}:${c.count}`).join('|');
-            const currCatsKey = g.cats.map(c => `${c.cat}:${c.count}`).join('|');
-            if (prevCatsKey !== currCatsKey) major = true;
-        }
-        // Groups removed
-        for (const pg of prev.groups) {
-            if (!currMap.has(pg.nat)) {
-                major = major || pg.hasNear || pg.critical;
-            }
-        }
-
-        if (major) return 'major';
-
-        // If anything at all changed (signature object diff) -> minor, else none
-        const prevJSON = JSON.stringify(prev);
-        const currJSON = JSON.stringify(curr);
-        if (prevJSON === currJSON) return 'none';
-        return 'minor';
-    }
+    }, [objects, speechOn, detectionStatus, notifyDetections, getPerLabelState]);
 
     function buildGroupPhrase(
         arr: { nat: string; distCat?: string; dir?: string | null }[],
@@ -551,14 +790,44 @@ export default function Index() {
         stableCats: string[],
         catCounts: Map<string, number>
     ): string {
+        // Single object
         if (total === 1) {
             const o = arr[0];
+            const labelRaw = humanizeLabel(nat);
             const cat = o.distCat;
-            if (o.dir) return cat ? `${o.dir} ${nat} ${cat}` : `${o.dir} ${nat} ahead`;
-            return cat ? `${article(nat)} ${nat} ${cat}` : `${article(nat)} ${nat} ahead`;
+            // Crosswalk
+            if (nat === 'crosswalk') {
+                const dw = cat === 'near' ? 'close' : 'ahead';
+                const dir = (o.dir && o.dir !== 'directly ahead') ? o.dir : '';
+                return postPhraseSanitize(dir ? `crosswalk ${dir} ${dw}` : `crosswalk ${dw}`);
+            }
+            // Traffic lights & emergency exit
+            if (/(traffic light|red traffic light|yellow traffic light|green traffic light|emergency exit)/.test(labelRaw)) {
+                // compress "red traffic light" -> "red light" if compression enabled
+                let base = labelRaw;
+                if (COMPRESS_TRAFFIC_LIGHT && /(red|yellow|green) traffic light/.test(base)) {
+                    base = base.replace(' traffic light', ' light');
+                }
+                const dw = cat === 'near' ? 'close' : 'ahead';
+                const dir = (o.dir && o.dir !== 'directly ahead') ? o.dir : '';
+                // direction first for quicker localization
+                return postPhraseSanitize(dir ? `${dir} ${base} ${dw}` : `${base} ${dw}`);
+            }
+            // Generic mapping
+            const distWord =
+                cat === 'near' ? 'close'
+                    : cat === 'mid' ? 'ahead'
+                        : cat === 'far' ? 'far'
+                            : 'ahead';
+            const dir = (o.dir && o.dir !== 'directly ahead') ? o.dir : '';
+            if (dir) return postPhraseSanitize(`${labelRaw} ${distWord} ${dir}`);
+            return postPhraseSanitize(`${labelRaw} ${distWord}`);
         }
+
+        // Uniform single distance category group
         if (uniformCat) {
             const cat = stableCats[0];
+            const label = humanizeLabel(nat);
             const allDirs = arr.every(o => o.dir);
             if (allDirs && total <= INCLUDE_DIRECTION_FOR_UNIFORM_LIMIT) {
                 const dirs = arr
@@ -566,11 +835,14 @@ export default function Index() {
                     .sort((a, b) => (DIRECTION_ORDER[a] ?? 99) - (DIRECTION_ORDER[b] ?? 99));
                 const uniq: string[] = [];
                 dirs.forEach(d => { if (!uniq.includes(d)) uniq.push(d); });
-                return `${total} ${pluralize(nat, total)} ${cat}: ${joinHuman(uniq)}`;
+                return postPhraseSanitize(`${total} ${pluralize(label, total)} ${cat}: ${joinHuman(uniq)}`);
             }
-            return `${total} ${pluralize(nat, total)} ${cat}`;
+            return postPhraseSanitize(`${total} ${pluralize(label, total)} ${cat}`);
         }
+
+        const label = humanizeLabel(nat);
         const stableCatsList = stableCats.length > 0 ? stableCats : Array.from(catCounts.keys());
+
         if (total <= SMALL_GROUP_MAX) {
             const orderedCats = stableCatsList.sort((a, b) => (DIST_PRIORITY[a] ?? 3) - (DIST_PRIORITY[b] ?? 3));
             const segments: string[] = [];
@@ -594,8 +866,9 @@ export default function Index() {
                 }
                 segments.push(seg);
             });
-            return `${total} ${pluralize(nat, total)}: ${segments.join(', ')}`;
+            return postPhraseSanitize(`${total} ${pluralize(label, total)}: ${segments.join(', ')}`);
         }
+
         const orderedCats = stableCats.length
             ? stableCats.sort((a, b) => (DIST_PRIORITY[a] ?? 3) - (DIST_PRIORITY[b] ?? 3))
             : Array.from(catCounts.keys());
@@ -605,7 +878,7 @@ export default function Index() {
             if (cat === 'unknown') parts.push(`${c} unknown`);
             else parts.push(`${c} ${cat}`);
         });
-        return `${total} ${pluralize(nat, total)}: ${parts.join(', ')}`;
+        return postPhraseSanitize(`${total} ${pluralize(label, total)}: ${parts.join(', ')}`);
     }
 
     if (!hasPermission) return <PermissionsPage />;
@@ -623,8 +896,14 @@ export default function Index() {
         });
     };
     const toggleTorch = () => {
-        if (!supportsTorch) { announce('Torch not available on this camera'); return; }
-        if (!isActive) { announce('Cannot toggle torch while live view is paused'); return; }
+        if (!supportsTorch) {
+            announce('Torch not available on this camera');
+            return;
+        }
+        if (!isActive) {
+            announce('Cannot toggle torch while live view is paused');
+            return;
+        }
         setTorch(t => {
             const next = t === 'off' ? 'on' : 'off';
             announce(next === 'on' ? 'Torch on' : 'Torch off');
@@ -639,10 +918,15 @@ export default function Index() {
                     if (firstSpeechActivationRef.current) {
                         firstSpeechActivationRef.current = false;
                         ttsSpeak('Speech feature enabled.').catch(() => { });
-                    } else ttsSpeak('Speech on.').catch(() => { });
-                } else AccessibilityInfo.announceForAccessibility('Speech on');
+                    } else {
+                        ttsSpeak('Speech on.').catch(() => { });
+                    }
+                } else {
+                    AccessibilityInfo.announceForAccessibility('Speech on');
+                }
             } else {
-                ttsStop().catch(() => { speechSupervisorRef.current?.notifyStopped(); });
+                ttsStop().catch(() => { });
+                speechSupervisorRef.current?.notifyStopped();
                 AccessibilityInfo.announceForAccessibility('Speech off');
             }
             return next;
@@ -652,7 +936,9 @@ export default function Index() {
         setCameraPosition(p => {
             const next = p === 'back' ? 'front' : 'back';
             announce(next === 'front' ? 'Front camera active' : 'Rear camera active');
-            if (torch === 'on' && device?.hasTorch === false) setTorch('off');
+            if (torch === 'on' && device?.hasTorch === false) {
+                setTorch('off');
+            }
             return next;
         });
     };
@@ -666,11 +952,13 @@ export default function Index() {
             <TouchableOpacity
                 style={styles.drawerToggle}
                 onPress={() => navigation.toggleDrawer()}
-                accessible accessibilityRole="button"
+                accessible
+                accessibilityRole="button"
                 accessibilityLabel="Open navigation drawer"
             >
                 <Ionicons name="menu" size={32} color={themeColors.text} />
             </TouchableOpacity>
+
             <View
                 style={styles.previewWrapper}
                 accessible
@@ -698,6 +986,7 @@ export default function Index() {
                         <Text style={{ color: '#fff', fontSize: 12 }}>Objs: {objCount}</Text>
                     </View>
                 </View>
+
                 <Camera
                     style={{ flex: 1 }}
                     device={device}
@@ -788,6 +1077,8 @@ export default function Index() {
         </SafeAreaView>
     );
 }
+
+/* ================= Styles ================= */
 
 const styles = StyleSheet.create({
     container: {

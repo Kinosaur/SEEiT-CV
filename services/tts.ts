@@ -1,142 +1,91 @@
-import { Platform } from 'react-native'
-import Tts, { Voice } from 'react-native-tts'
+import Tts from 'react-native-tts';
 
-type InitResult = {
-    cleanup: () => void
-}
+type SpeakOpts = {
+    utteranceId?: string;
+    onDone?: (id: string) => void;
+    onError?: (id: string, err?: any) => void;
+    rate?: number;
+    pitch?: number;
+};
 
-// Change this to 'th-TH' later if you want Thai by default.
-const PREFERRED_LANG = 'en-US'
+let initialized = false;
 
-/**
- * Initializes the TTS engine, applies sane Android defaults, and registers log listeners.
- * - Handles missing engine on Android (prompts install).
- * - Sets default rate/pitch and enables ducking (Android).
- * - Chooses a local (offline) voice for the preferred language when available.
- * - Registers event listeners and returns a cleanup to stop any pending speech.
- *
- * Safe to call once on app start.
- */
-export async function initTTS(): Promise<InitResult> {
-    // Ensure engine exists/ready
+const pendingDone = new Map<string, (id: string) => void>();
+const pendingErr = new Map<string, (id: string, err?: any) => void>();
+
+export async function initTTS() {
+    if (initialized) return { cleanup: () => { } };
+    initialized = true;
+    try { await Tts.getInitStatus(); } catch { }
     try {
-        await Tts.getInitStatus()
-    } catch (err: any) {
-        if (err?.code === 'no_engine' && Platform.OS === 'android') {
-            console.warn('[TTS] No TTS engine. Prompting install...')
-            try {
-                await Tts.requestInstallEngine()
-            } catch {
-                console.warn('[TTS] Failed to request engine install.')
-            }
-        } else {
-            console.warn('[TTS] getInitStatus error:', err)
-        }
-        // Continue; speak() re-checks readiness.
-    }
+        await Tts.setDefaultRate(0.5, true);
+        await Tts.setDefaultPitch(1.0);
+    } catch { }
 
-    // Android: lower other apps while speaking
-    if (Platform.OS === 'android' && typeof (Tts as any).setDucking === 'function') {
-        try {
-            Tts.setDucking(true)
-        } catch (e) {
-            console.warn('[TTS] setDucking failed:', e)
-        }
-    }
-
-    // Default voice parameters (conservative & intelligible)
-    try {
-        Tts.setDefaultRate(0.4)
-        Tts.setDefaultPitch(1.0)
-    } catch (e) {
-        console.warn('[TTS] Failed to set default rate/pitch:', e)
-    }
-
-    // Try to pick a local voice for the preferred language
-    await trySelectPreferredLocalVoice(PREFERRED_LANG)
-
-    // Event listeners for diagnostics (remove or silence in production)
-    try { Tts.addEventListener('tts-start', (e) => console.log('[TTS] start', e)) } catch { }
-    try { Tts.addEventListener('tts-progress', (_e) => { /* verbose */ }) } catch { }
-    try { Tts.addEventListener('tts-finish', (e) => console.log('[TTS] finish', e)) } catch { }
-    try { Tts.addEventListener('tts-cancel', (e) => console.log('[TTS] cancel', e)) } catch { }
-
-    // (Optional) Log voices on Android for debugging
-    if (Platform.OS === 'android') {
-        try {
-            const voices: Voice[] = await Tts.voices()
-            const installed = voices.filter(v => !v.notInstalled)
-            console.log('[TTS] voices(installed):', installed.map(v => ({
-                id: v.id, lang: v.language, latency: v.latency, net: v.networkConnectionRequired
-            })))
-        } catch { }
-    }
+    const finishSub = Tts.addEventListener('tts-finish', (e: any) => {
+        const id = e?.utteranceId;
+        if (!id) return;
+        pendingDone.get(id)?.(id);
+        pendingDone.delete(id);
+        pendingErr.delete(id);
+    });
+    const cancelSub = Tts.addEventListener('tts-cancel', (e: any) => {
+        const id = e?.utteranceId;
+        if (!id) return;
+        pendingDone.get(id)?.(id);
+        pendingDone.delete(id);
+        pendingErr.delete(id);
+    });
+    const errorSub = Tts.addEventListener('tts-error', (e: any) => {
+        const id = e?.utteranceId;
+        if (!id) return;
+        pendingErr.get(id)?.(id, e);
+        pendingErr.delete(id);
+        pendingDone.delete(id);
+    });
 
     const cleanup = () => {
-        // Stop/flush any pending speech to avoid leaks on teardown
-        Tts.stop().catch(() => { })
-    }
-
-    return { cleanup }
+        // @ts-ignore
+        finishSub?.remove?.();
+        // @ts-ignore
+        cancelSub?.remove?.();
+        // @ts-ignore
+        errorSub?.remove?.();
+    };
+    return { cleanup };
 }
 
-async function trySelectPreferredLocalVoice(lang: string) {
-    try {
-        const voices: Voice[] = await Tts.voices()
-        const installed = voices.filter(v => !v.notInstalled)
-        // Prefer local voices in the target language (networkConnectionRequired === false)
-        const localLangVoices = installed.filter(
-            v => v.language?.toLowerCase() === lang.toLowerCase() && v.networkConnectionRequired !== true
-        )
-        // Heuristic: prefer ids that end with "-local"
-        const pick =
-            localLangVoices.find(v => /-local$/i.test(v.id)) ||
-            localLangVoices[0] ||
-            // Fallback: any local English voice if preferred lang not found
-            installed.find(v => v.language?.startsWith('en') && v.networkConnectionRequired !== true) ||
-            installed[0]
+export function ttsSpeak(
+    text: string,
+    opts: SpeakOpts = {}
+): Promise<{ utteranceId: string }> {
+    const utteranceId = opts.utteranceId || 'utt_' + Math.random().toString(36).slice(2, 10);
+    return new Promise((resolve) => {
+        pendingDone.set(utteranceId, (id) => {
+            opts.onDone?.(id);
+            resolve({ utteranceId: id });
+        });
+        pendingErr.set(utteranceId, (id, err) => {
+            opts.onError?.(id, err);
+            resolve({ utteranceId: id });
+        });
 
-        if (pick) {
-            // Set language first; some platforms require language to match the voice
-            try { await Tts.setDefaultLanguage(pick.language) } catch (e) {
-                console.warn('[TTS] setDefaultLanguage failed:', e)
-            }
-            // Voice selection is best-effort on Android; may throw on older devices
-            try { await Tts.setDefaultVoice(pick.id) } catch (e) {
-                console.warn('[TTS] setDefaultVoice failed:', e)
-            }
-            console.log('[TTS] default voice selected:', { id: pick.id, lang: pick.language, net: pick.networkConnectionRequired })
-        } else {
-            // As a minimal baseline, try to set just the language
-            try { await Tts.setDefaultLanguage(lang) } catch (e) {
-                console.warn('[TTS] setDefaultLanguage (fallback) failed:', e)
-            }
+        try {
+            // optional: do not interrupt existing if you want overlap (remove Tts.stop)
+            Tts.stop().catch(() => { });
+            const speakOptions: any = { utteranceId };
+            if (typeof opts.rate === 'number') speakOptions.rate = opts.rate;
+            if (typeof opts.pitch === 'number') speakOptions.pitch = opts.pitch;
+            Tts.speak(text, speakOptions);
+        } catch (e) {
+            pendingDone.delete(utteranceId);
+            pendingErr.delete(utteranceId);
+            opts.onError?.(utteranceId, e);
+            resolve({ utteranceId });
         }
-    } catch (e) {
-        console.warn('[TTS] trySelectPreferredLocalVoice error:', e)
-    }
+    });
 }
 
-/**
- * Speak a line. Interrupts current speech by default.
- * Not wired into product flow beyond Phase 1 testing.
- */
-export async function ttsSpeak(text: string, options?: Parameters<typeof Tts.speak>[1]) {
-    // Ensure engine readiness each time (robust on Android)
-    try {
-        await Tts.getInitStatus()
-    } catch (err: any) {
-        if (err?.code === 'no_engine' && Platform.OS === 'android') {
-            console.warn('[TTS] No engine. Prompting install...')
-            try { await Tts.requestInstallEngine() } catch { }
-        }
-        // Best-effort continue
-    }
-    try { await Tts.stop() } catch { }
-    return Tts.speak(text, options)
-}
-
-/** Stop and flush the queue. */
-export function ttsStop() {
-    return Tts.stop()
+export async function ttsStop() {
+    try { await Tts.stop(); } catch { }
 }
