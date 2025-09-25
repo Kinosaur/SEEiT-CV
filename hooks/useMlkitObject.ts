@@ -9,7 +9,6 @@ export function mlkitObjectDetect(frame: Frame) {
     }
     const plugin = g.__mlkitPlugin
     if (plugin == null) {
-        // Return a recognizable heartbeat; caller can ignore until ready
         return { detSeq: -1, objs: [] }
     }
     return plugin.call(frame)

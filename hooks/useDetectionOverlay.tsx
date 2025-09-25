@@ -6,10 +6,10 @@ type DetObj = {
   id: number
   b: [number, number, number, number]
   labels?: DetLabel[]
-  distance_m?: number | null         // meters; null when unavailable
-  distance_src?: 'arcore' | 'mono' | 'geom' | 'none'
-  // topLabel?: string                // debug only (legacy)
-  // topConfidence?: number           // debug only (legacy)
+  distance_m?: number | null
+  distance_src?: string
+  distance_cat?: string
+  distance_cat_conf?: string
 }
 
 export interface DetectionOverlayProps {
@@ -21,7 +21,6 @@ export interface DetectionOverlayProps {
   strokeColor?: string
   strokeWidth?: number
   showLabel?: boolean
-  // showDebugSrc?: boolean           // dev-only: append [src]
 }
 
 interface BoxStyle { left: number; top: number; width: number; height: number }
@@ -61,7 +60,6 @@ export const DetectionOverlay: React.FC<DetectionOverlayProps> = ({
   strokeColor = '#00FF77',
   strokeWidth = 3,
   showLabel = true,
-  // showDebugSrc = false
 }) => {
   const boxes = useMemo(() => {
     if (!objects || objects.length === 0) return []
@@ -71,11 +69,12 @@ export const DetectionOverlay: React.FC<DetectionOverlayProps> = ({
       const lbl = o.labels && o.labels.length > 0 ? o.labels[0] : undefined
       const dist = o.distance_m
       const distText = dist == null ? '—' : (dist < 10 ? dist.toFixed(1) : Math.round(dist).toString())
-      let text = lbl ? `${lbl.name} — ${distText} m` : `— — ${distText} m`
-      // if (showDebugSrc) text += ` [${o.distance_src ?? 'none'}]`
+      const cat = o.distance_cat && o.distance_cat !== 'unknown' ? o.distance_cat : null
+      const catSuffix = cat ? ` (${cat})` : ''
+      let text = lbl ? `${lbl.name}${catSuffix} — ${distText} m` : `—${catSuffix} — ${distText} m`
       return { id: o.id, style: m, text }
     }).filter(Boolean) as { id: number; style: BoxStyle; text: string }[]
-  }, [objects, frameWidth, frameHeight, containerWidth, containerHeight /*, showDebugSrc*/])
+  }, [objects, frameWidth, frameHeight, containerWidth, containerHeight])
 
   if (containerWidth === 0 || containerHeight === 0) return null
 
