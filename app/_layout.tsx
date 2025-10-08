@@ -136,6 +136,16 @@ export default function RootLayout() {
                 ),
               }}
             />
+            <Drawer.Screen
+              name="feedback"
+              options={{
+                title: 'Feedback',
+                headerShown: false,
+                drawerIcon: ({ color, size }) => (
+                  <Ionicons name="chatbubble-ellipses" size={size} color={color} />
+                ),
+              }}
+            />
           </Drawer>
           <StatusBar style="auto" />
         </ThemeProvider>

@@ -61,8 +61,8 @@ export default function ColorBlindCameraScreen() {
     const [photoUri, setPhotoUri] = React.useState<string | null>(null);
     const [imgW, setImgW] = React.useState(0);
     const [imgH, setImgH] = React.useState(0);
-    const [processing, setProcessing] = React.useState(false); // import-only busy state
-    const [analyzing, setAnalyzing] = React.useState(false);   // capture/analysis busy state
+    const [processing, setProcessing] = React.useState(false);
+    const [analyzing, setAnalyzing] = React.useState(false);
 
     const [confMode, setConfMode] = React.useState<'protan' | 'deutan' | 'both'>('both');
     const [confRegions, setConfRegions] = React.useState<ConfRegion[]>([]);
@@ -275,8 +275,6 @@ export default function ColorBlindCameraScreen() {
 
     const overlayStyle = { borderColor: 'rgba(255,255,255,0.95)', backgroundColor: 'rgba(0,0,0,0.10)', borderStyle: 'solid' as const };
 
-    // RESTORED HELPERS (missing during refactor)
-
     const confTag = (level?: ConfLevel) => (level ? ` (${level})` : '');
 
     const buildPillLabel = (cr: ConfRegion): string => {
@@ -357,14 +355,15 @@ export default function ColorBlindCameraScreen() {
                 />
 
                 <Buttons
-                    title={processing ? 'Importing…' : 'Import'}
                     onPress={importAndAnalyze}
-                    accessibilityLabel="Import an image for analysis"
-                    accessibilityState={{ busy: processing || undefined }}
-                    disabled={processing || analyzing}
+                    accessibilityLabel="Import image for analysis"
                     circular
-                    size="lg"
+                    size={52}
                     variant="surface"
+                    iconName="image-outline"
+                    iconPosition="only"
+                    containerStyle={{ marginRight: 12 }}
+                    disabled={processing || analyzing}
                 />
             </View>
 
@@ -509,7 +508,8 @@ const styles = StyleSheet.create({
     headerRow: { flexDirection: 'row', justifyContent: 'center', paddingVertical: 2, marginBottom: 10 },
     title: { fontFamily: 'AtkinsonBold', fontSize: 22, textAlign: 'center' },
     previewWrapper: { flex: 1, borderRadius: 10, overflow: 'hidden', marginHorizontal: 12, marginBottom: 12 },
-    controlsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingVertical: 8, gap: 8 },
+    // Add more side padding so rightmost button isn’t hugging the edge
+    controlsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingHorizontal: 16, paddingVertical: 8, gap: 12 },
     pill: { backgroundColor: 'rgba(0,0,0,0.1)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 },
     pillActive: { backgroundColor: 'rgba(0,0,0,0.2)' },
     center: { flex: 1, justifyContent: 'center', padding: 32 },

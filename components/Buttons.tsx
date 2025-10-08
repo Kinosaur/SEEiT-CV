@@ -69,7 +69,17 @@ export default function Buttons({
         xl: { pad: 20, font: 20, icon: 32, diameter: 110 }, // special large action
     } as const;
 
-    const sizeDef = typeof size === "number" ? { pad: size * 0.3, font: size * 0.18, icon: size * 0.3, diameter: circular ? size : undefined } : sizeMap[size];
+    const isNumeric = typeof size === "number";
+    const sizeDef = isNumeric
+        ? {
+              // Keep padding reasonable for rectangular buttons; circular ignores it
+              pad: Math.min(14, (size as number) * 0.3),
+              font: Math.max(12, (size as number) * 0.18),
+              // Make icons proportionally larger for circular numeric buttons for clarity
+              icon: Math.max(18, circular ? (size as number) * 0.42 : (size as number) * 0.3),
+              diameter: circular ? (size as number) : undefined,
+          }
+        : sizeMap[size];
 
     // Variant styling
     let backgroundColor: string | "transparent" = theme.surface;
@@ -126,7 +136,7 @@ export default function Buttons({
         flexDirection: iconPosition === "right" ? "row-reverse" : "row",
         alignItems: "center",
         justifyContent: "center",
-        gap: title && iconName ? 8 : 0,
+        gap: title && iconName ? 6 : 0, // slightly tighter icon-title gap
         alignSelf: "flex-start",
         borderWidth,
         borderColor,
@@ -140,6 +150,12 @@ export default function Buttons({
 
     const effectiveIconSize = iconSize ?? sizeDef.icon;
 
+    // Small default hitSlop to make small circular buttons easier to tap
+    const defaultHitSlop =
+        circular && sizeDef.diameter && sizeDef.diameter < 56
+            ? { top: 6, bottom: 6, left: 6, right: 6 }
+            : undefined;
+
     return (
         <TouchableOpacity
             onPress={disabled || loading ? undefined : onPress}
@@ -150,6 +166,7 @@ export default function Buttons({
             accessibilityLabel={derivedLabel}
             accessibilityState={{ ...(accessibilityState || {}), disabled: disabled || loading, busy: loading || undefined }}
             accessibilityHint={accessibilityHint}
+            hitSlop={defaultHitSlop}
         >
             {loading && (
                 <ActivityIndicator size="small" color={textColor} style={{ marginRight: title ? 6 : 0 }} />
