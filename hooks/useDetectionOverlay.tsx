@@ -10,6 +10,7 @@ type DetObj = {
   distance_src?: string
   distance_cat?: string
   distance_cat_conf?: string
+  distance_conf?: 'high' | 'med' | 'low'
 }
 
 export interface DetectionOverlayProps {
@@ -67,11 +68,18 @@ export const DetectionOverlay: React.FC<DetectionOverlayProps> = ({
       const m = mapBoxCover(o.b, frameWidth, frameHeight, containerWidth, containerHeight)
       if (!m) return null
       const lbl = o.labels && o.labels.length > 0 ? o.labels[0] : undefined
-      const dist = o.distance_m
-      const distText = dist == null ? '—' : (dist < 10 ? dist.toFixed(1) : Math.round(dist).toString())
       const cat = o.distance_cat && o.distance_cat !== 'unknown' ? o.distance_cat : null
       const catSuffix = cat ? ` (${cat})` : ''
-      let text = lbl ? `${lbl.name}${catSuffix} — ${distText} m` : `—${catSuffix} — ${distText} m`
+
+      const distConf = o.distance_conf
+      const dist = typeof o.distance_m === 'number' ? o.distance_m : null
+      // Only show meters if confidence is medium/high; otherwise omit the number
+      const showMeters = dist != null && (distConf === 'med' || distConf === 'high')
+      const distText = showMeters ? (dist < 10 ? dist.toFixed(1) : Math.round(dist).toString()) + ' m' : ''
+
+      let text = lbl ? `${lbl.name}${catSuffix}` : `—${catSuffix}`
+      if (distText) text += ` — ${distText}`
+
       return { id: o.id, style: m, text }
     }).filter(Boolean) as { id: number; style: BoxStyle; text: string }[]
   }, [objects, frameWidth, frameHeight, containerWidth, containerHeight])

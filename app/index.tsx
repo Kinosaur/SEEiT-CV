@@ -513,6 +513,8 @@ export default function Index() {
             distCat?: string;
             score?: number;
             dir?: string | null;
+            dm?: number;
+            dconf?: 'high' | 'med' | 'low';
         };
 
         const infos: Info[] = rawList.map(o => {
@@ -529,12 +531,16 @@ export default function Index() {
                 xc = x + w / 2; yc = y + h / 2;
             }
             const rawDir = (xc != null && yc != null) ? directionDescriptor(xc, yc) : null;
+            const dm = (typeof o.distance_m === 'number' && o.distance_m > 0) ? o.distance_m as number : undefined
+            const dconf = (typeof o.distance_conf === 'string') ? (o.distance_conf as 'high' | 'med' | 'low') : undefined
             return {
                 id: o.id ?? -1,
                 nat: naturalLabel(base),
                 distCat: distStable,
                 score: typeof top?.c === 'number' ? top.c : undefined,
-                dir: smoothDirection(o.id ?? -1, rawDir, now)
+                dir: smoothDirection(o.id ?? -1, rawDir, now),
+                dm,
+                dconf
             };
         }).filter(i => i.nat);
 
@@ -783,7 +789,7 @@ export default function Index() {
     }, [objects, speechOn, detectionStatus, notifyDetections, getPerLabelState]);
 
     function buildGroupPhrase(
-        arr: { nat: string; distCat?: string; dir?: string | null }[],
+        arr: { nat: string; distCat?: string; dir?: string | null; dm?: number; dconf?: 'high' | 'med' | 'low' }[],
         nat: string,
         total: number,
         uniformCat: boolean,
@@ -795,11 +801,22 @@ export default function Index() {
             const o = arr[0];
             const labelRaw = humanizeLabel(nat);
             const cat = o.distCat;
+
+            // Add numeric distance if confidence allows
+            const numericTail = (() => {
+                if (o.dm == null || !o.dconf) return '';
+                const isCritical = CRITICAL_LABELS.has(nat);
+                const allowNumber = o.dconf === 'high' || (o.dconf === 'med' && isCritical);
+                if (!allowNumber) return '';
+                const num = o.dm < 10 ? o.dm.toFixed(1) : Math.round(o.dm).toString();
+                return `, about ${num} meters`;
+            })();
+
             // Crosswalk
             if (nat === 'crosswalk') {
                 const dw = cat === 'near' ? 'close' : 'ahead';
                 const dir = (o.dir && o.dir !== 'directly ahead') ? o.dir : '';
-                return postPhraseSanitize(dir ? `crosswalk ${dir} ${dw}` : `crosswalk ${dw}`);
+                return postPhraseSanitize((dir ? `crosswalk ${dir} ${dw}` : `crosswalk ${dw}`) + numericTail);
             }
             // Traffic lights & emergency exit
             if (/(traffic light|red traffic light|yellow traffic light|green traffic light|emergency exit)/.test(labelRaw)) {
@@ -810,8 +827,7 @@ export default function Index() {
                 }
                 const dw = cat === 'near' ? 'close' : 'ahead';
                 const dir = (o.dir && o.dir !== 'directly ahead') ? o.dir : '';
-                // direction first for quicker localization
-                return postPhraseSanitize(dir ? `${dir} ${base} ${dw}` : `${base} ${dw}`);
+                return postPhraseSanitize((dir ? `${dir} ${base} ${dw}` : `${base} ${dw}`) + numericTail);
             }
             // Generic mapping
             const distWord =
@@ -820,8 +836,8 @@ export default function Index() {
                         : cat === 'far' ? 'far'
                             : 'ahead';
             const dir = (o.dir && o.dir !== 'directly ahead') ? o.dir : '';
-            if (dir) return postPhraseSanitize(`${labelRaw} ${distWord} ${dir}`);
-            return postPhraseSanitize(`${labelRaw} ${distWord}`);
+            if (dir) return postPhraseSanitize(`${labelRaw} ${distWord} ${dir}${numericTail}`);
+            return postPhraseSanitize(`${labelRaw} ${distWord}${numericTail}`);
         }
 
         // Uniform single distance category group

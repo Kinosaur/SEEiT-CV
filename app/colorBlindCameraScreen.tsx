@@ -12,7 +12,7 @@ import { useNavigation } from '@react-navigation/native';
 import * as FileSystem from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 import React from 'react';
-import { AccessibilityInfo, Image, Modal, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { AccessibilityInfo, ActivityIndicator, Image, Modal, Platform, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Camera, useCameraPermission } from 'react-native-vision-camera';
 
@@ -52,7 +52,6 @@ export default function ColorBlindCameraScreen() {
     const { device, format, fps } = useSimpleFormat(cameraPosition);
     const cameraRef = React.useRef<Camera>(null);
     const { hasPermission, requestPermission } = useCameraPermission();
-    const [isActive, setIsActive] = React.useState(true);
 
     const colorScheme = useColorScheme() ?? 'light';
     const theme = Colors[colorScheme];
@@ -62,7 +61,9 @@ export default function ColorBlindCameraScreen() {
     const [photoUri, setPhotoUri] = React.useState<string | null>(null);
     const [imgW, setImgW] = React.useState(0);
     const [imgH, setImgH] = React.useState(0);
-    const [processing, setProcessing] = React.useState(false);
+    const [processing, setProcessing] = React.useState(false); // import-only busy state
+    const [analyzing, setAnalyzing] = React.useState(false);   // capture/analysis busy state
+
     const [confMode, setConfMode] = React.useState<'protan' | 'deutan' | 'both'>('both');
     const [confRegions, setConfRegions] = React.useState<ConfRegion[]>([]);
     const [showLowConf, setShowLowConf] = React.useState(false);
@@ -80,14 +81,6 @@ export default function ColorBlindCameraScreen() {
     React.useEffect(() => {
         if (!hasPermission) requestPermission().catch(() => { });
     }, [hasPermission, requestPermission]);
-
-    const toggleActive = () => {
-        setIsActive(prev => {
-            const next = !prev;
-            AccessibilityInfo.announceForAccessibility?.(next ? 'Live view resumed' : 'Live view paused');
-            return next;
-        });
-    };
 
     React.useEffect(() => {
         AccessibilityInfo.announceForAccessibility?.(
@@ -180,13 +173,15 @@ export default function ColorBlindCameraScreen() {
         setImgH(res.height || 0);
 
         AccessibilityInfo.announceForAccessibility?.(
-            `Detected ${filtered.length} region${filtered.length === 1 ? '' : 's'} for ${mode === 'both' ? 'both types' : mode}.`
+            filtered.length === 0
+                ? 'No confident regions detected for this mode.'
+                : `Detected ${filtered.length} region${filtered.length === 1 ? '' : 's'} for ${mode === 'both' ? 'both types' : mode}.`
         );
 
         return res;
     }, [showLowConf]);
 
-    React.useEffect(() => { void rerunIfPossible(); }, [showLowConf, labelMode]); // labelMode toggle doesn't change data but keeps UX synced
+    React.useEffect(() => { void rerunIfPossible(); }, [showLowConf, labelMode]);
 
     const toggleShowLowConf = React.useCallback(() => {
         setShowLowConf(prev => !prev);
@@ -228,6 +223,31 @@ export default function ColorBlindCameraScreen() {
         }
     }, [requestMediaPermission, pickOneImage, ensureFileUri, runConfusions, confMode]);
 
+    // Capture and analyze flow
+    const captureAndAnalyze = React.useCallback(async () => {
+        if (!cameraRef.current) return;
+        try {
+            setAnalyzing(true);
+            const file = await cameraRef.current.takePhoto({ flash: 'off' });
+            const rawPath = (file as any)?.path as string | undefined;
+            if (!rawPath) throw new Error('No photo path returned');
+            const fileUri = rawPath.startsWith('file://') ? rawPath : `file://${rawPath}`;
+            AccessibilityInfo.announceForAccessibility?.('Photo captured. Analyzing…');
+
+            setPhotoUri(fileUri);
+            setConfRegions([]);
+            const res = await runConfusions(fileUri, confMode);
+            setImgW(res.width || 0);
+            setImgH(res.height || 0);
+            AccessibilityInfo.announceForAccessibility?.('Analysis complete.');
+        } catch (e) {
+            console.warn('[Capture] failed:', e);
+            AccessibilityInfo.announceForAccessibility?.('Capture failed.');
+        } finally {
+            setAnalyzing(false);
+        }
+    }, [cameraRef, runConfusions, confMode]);
+
     if (!hasPermission) {
         return (
             <ThemedView style={styles.center} accessible accessibilityRole="alert" accessibilityLabel="Camera permission required">
@@ -254,15 +274,8 @@ export default function ColorBlindCameraScreen() {
     };
 
     const overlayStyle = { borderColor: 'rgba(255,255,255,0.95)', backgroundColor: 'rgba(0,0,0,0.10)', borderStyle: 'solid' as const };
-    const mainButtonLabel = isActive ? 'Pause' : 'Resume';
 
-    const Line = ({ label, swatch, text }: { label: string; swatch: string; text: string }) => (
-        <View style={styles.lineRow}>
-            <ThemedText style={styles.lineLabel}>{label}</ThemedText>
-            <View style={[styles.swatch, { backgroundColor: swatch }]} />
-            <ThemedText style={styles.lineText} numberOfLines={1}>{text}</ThemedText>
-        </View>
-    );
+    // RESTORED HELPERS (missing during refactor)
 
     const confTag = (level?: ConfLevel) => (level ? ` (${level})` : '');
 
@@ -275,6 +288,14 @@ export default function ColorBlindCameraScreen() {
         const mark = conf === 'high' ? ' ↑' : '';
         return `${dom} → ${sim}${mark}`;
     };
+
+    const Line = ({ label, swatch, text }: { label: string; swatch: string; text: string }) => (
+        <View style={styles.lineRow}>
+            <ThemedText style={styles.lineLabel}>{label}</ThemedText>
+            <View style={[styles.swatch, { backgroundColor: swatch }]} />
+            <ThemedText style={styles.lineText} numberOfLines={1}>{text}</ThemedText>
+        </View>
+    );
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} accessible={false}>
@@ -292,18 +313,24 @@ export default function ColorBlindCameraScreen() {
                 <ThemedText style={styles.title}>Color Finder</ThemedText>
             </View>
 
-            <View style={styles.previewWrapper} accessible accessibilityLabel={`Live camera preview (${isActive ? 'running' : 'paused'})`}>
+            <View style={styles.previewWrapper} accessible accessibilityLabel="Live camera preview">
                 <Camera
                     ref={cameraRef}
                     style={{ flex: 1 }}
                     device={device}
-                    isActive={isActive}
+                    isActive={true}
                     resizeMode="cover"
-                    photo={false}
+                    photo={true}
                     androidPreviewViewType="texture-view"
                     {...(format ? { format } : {})}
                     {...(format && fps ? { fps } : {})}
                 />
+                {analyzing && (
+                    <View style={styles.analyzingOverlay} pointerEvents="none" accessibilityElementsHidden>
+                        <ActivityIndicator color="#fff" size="large" />
+                        <ThemedText style={styles.analyzingText}>Analyzing…</ThemedText>
+                    </View>
+                )}
             </View>
 
             <View style={styles.controlsRow}>
@@ -313,28 +340,31 @@ export default function ColorBlindCameraScreen() {
                     accessibilityRole="button"
                     accessibilityLabel="Switch colorblind mode"
                     accessibilityHint="Cycles between Both, Protan, and Deutan"
+                    disabled={analyzing || processing}
                 >
                     <ThemedText>Mode: {confMode === 'both' ? 'Both' : confMode === 'protan' ? 'Protan' : 'Deutan'}</ThemedText>
                 </TouchableOpacity>
+
+                <Buttons
+                    onPress={captureAndAnalyze}
+                    accessibilityLabel="Capture and analyze"
+                    circular
+                    size={72}
+                    variant="primary"
+                    iconName="camera"
+                    iconPosition="only"
+                    disabled={analyzing || processing}
+                />
 
                 <Buttons
                     title={processing ? 'Importing…' : 'Import'}
                     onPress={importAndAnalyze}
                     accessibilityLabel="Import an image for analysis"
                     accessibilityState={{ busy: processing || undefined }}
-                    disabled={processing}
-                    circular
-                    size="xl"
-                    variant="primary"
-                />
-
-                <Buttons
-                    title={mainButtonLabel}
-                    onPress={toggleActive}
-                    accessibilityLabel={mainButtonLabel}
+                    disabled={processing || analyzing}
                     circular
                     size="lg"
-                    variant={isActive ? 'danger' : 'primary'}
+                    variant="surface"
                 />
             </View>
 
@@ -448,7 +478,9 @@ export default function ColorBlindCameraScreen() {
                             })}
 
                             {confRegions.length === 0 && (
-                                <ThemedText style={{ opacity: 0.7, marginTop: 8 }}>No regions detected for this mode.</ThemedText>
+                                <ThemedText style={{ opacity: 0.7, marginTop: 8 }}>
+                                    No confident regions detected for this mode.
+                                </ThemedText>
                             )}
                         </ScrollView>
 
@@ -484,10 +516,23 @@ const styles = StyleSheet.create({
     permissionText: { fontSize: 20, fontFamily: 'AtkinsonBold', textAlign: 'center' },
     confBox: { position: 'absolute', borderWidth: 2, borderRadius: 4 },
 
+    analyzingOverlay: {
+        position: 'absolute',
+        left: 0, right: 0, top: 0, bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.25)',
+    },
+    analyzingText: {
+        marginTop: 8,
+        color: '#fff',
+        fontSize: 16,
+        fontFamily: 'AtkinsonBold',
+    },
+
     labelPill: { position: 'absolute', top: -22, left: -2, backgroundColor: 'rgba(0,0,0,0.75)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, maxWidth: 200 },
     labelText: { color: '#fff', fontSize: 12, fontWeight: '700' },
 
-    // Small on-image badge for tiny regions or number mode
     smallBadge: {
         position: 'absolute',
         top: -10,
