@@ -57,6 +57,9 @@ export const Colors = {
     icon: accentLight,
     tabIconDefault: accentLight,
     tabIconSelected: focusLight,
+    // NEW foreground tokens for colored backgrounds
+    onAccent: '#FFFFFF',
+    onError: '#FFFFFF',
   },
   dark: {
     background: backgroundDark,
@@ -76,5 +79,8 @@ export const Colors = {
     icon: accentDark,
     tabIconDefault: accentDark,
     tabIconSelected: focusDark,
+    // NEW foreground tokens for colored backgrounds
+    onAccent: '#FFFFFF',
+    onError: '#FFFFFF',
   },
 };

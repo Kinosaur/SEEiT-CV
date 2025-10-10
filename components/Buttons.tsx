@@ -33,7 +33,6 @@ export interface ButtonProps {
     children?: ReactNode;
 }
 
-// Backward compatibility defaults mimic previous styling
 export default function Buttons({
     onPress,
     iconName,
@@ -72,25 +71,23 @@ export default function Buttons({
     const isNumeric = typeof size === "number";
     const sizeDef = isNumeric
         ? {
-              // Keep padding reasonable for rectangular buttons; circular ignores it
               pad: Math.min(14, (size as number) * 0.3),
               font: Math.max(12, (size as number) * 0.18),
-              // Make icons proportionally larger for circular numeric buttons for clarity
               icon: Math.max(18, circular ? (size as number) * 0.42 : (size as number) * 0.3),
               diameter: circular ? (size as number) : undefined,
           }
         : sizeMap[size];
 
-    // Variant styling
+    // Variant styling (background/border)
     let backgroundColor: string | "transparent" = theme.surface;
     let borderColor: string | undefined;
-    let textColor = theme.text;
+    let textColor = theme.text; // default neutral for surface
     let borderWidth = 0;
 
     switch (variant) {
         case "primary":
             backgroundColor = theme.accent;
-            textColor = theme.text;
+            textColor = theme.onAccent; // foreground for colored background
             break;
         case "outline":
             backgroundColor = "transparent";
@@ -104,12 +101,12 @@ export default function Buttons({
             break;
         case "danger":
             backgroundColor = theme.error;
-            textColor = theme.background;
+            textColor = theme.onError; // ensure contrast on error
             break;
         case "surface":
         default:
             backgroundColor = theme.surface;
-            textColor = theme.accent;
+            textColor = theme.text; // neutral content in surface buttons
             break;
     }
 
@@ -136,7 +133,7 @@ export default function Buttons({
         flexDirection: iconPosition === "right" ? "row-reverse" : "row",
         alignItems: "center",
         justifyContent: "center",
-        gap: title && iconName ? 6 : 0, // slightly tighter icon-title gap
+        gap: title && iconName ? 6 : 0,
         alignSelf: "flex-start",
         borderWidth,
         borderColor,
@@ -144,13 +141,11 @@ export default function Buttons({
         ...(circular && sizeDef.diameter
             ? { width: sizeDef.diameter, height: sizeDef.diameter }
             : {}),
-        // Provide min tap target if not circular
         minHeight: circular ? undefined : 44,
     };
 
     const effectiveIconSize = iconSize ?? sizeDef.icon;
 
-    // Small default hitSlop to make small circular buttons easier to tap
     const defaultHitSlop =
         circular && sizeDef.diameter && sizeDef.diameter < 56
             ? { top: 6, bottom: 6, left: 6, right: 6 }

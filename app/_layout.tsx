@@ -141,8 +141,12 @@ export default function RootLayout() {
               options={{
                 title: 'Feedback',
                 headerShown: false,
-                drawerIcon: ({ color, size }) => (
-                  <Ionicons name="chatbubble-ellipses" size={size} color={color} />
+                drawerIcon: ({ color, size, focused }) => (
+                  <IconSymbol
+                    name={focused ? 'message.fill' : 'message'}
+                    color={color}
+                    size={size}
+                  />
                 ),
               }}
             />

@@ -108,7 +108,7 @@ export default function FeatureSelectScreen() {
                 <ThemedText style={[styles.title, { color: theme.text }]}>
                     Select your feature
                 </ThemedText>
-                <ThemedText style={styles.subtitle}>
+                <ThemedText style={[styles.subtitle, { color: theme.textSecondary }]}>
                     These features are currently available. You can change anytime.
                 </ThemedText>
             </View>
@@ -177,7 +177,6 @@ const styles = StyleSheet.create({
         fontFamily: 'Atkinson',
         fontSize: 16,
         marginTop: 6,
-        color: '#555',
     },
     row: {
         flexDirection: 'row',
@@ -208,7 +207,6 @@ const styles = StyleSheet.create({
     optionDesc: {
         fontFamily: 'Atkinson',
         fontSize: 14,
-        color: '#666',
         marginTop: 2,
     },
     footer: {

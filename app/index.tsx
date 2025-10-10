@@ -959,7 +959,7 @@ export default function Index() {
         });
     };
 
-    const statusColor = detectionStatus === 'ok' ? '#9cff9c' : detectionStatus === 'warm' ? '#ffd27a' : '#ff9c9c';
+    const statusColor = detectionStatus === 'ok' ? themeColors.success : detectionStatus === 'warm' ? themeColors.warning : themeColors.error;
     const statusText = detectionStatus === 'ok' ? 'Detection: OK' : detectionStatus === 'warm' ? 'Detection: Warming…' : 'Detection: Off';
     const objCount = objects?.length ?? 0;
 
@@ -988,18 +988,18 @@ export default function Index() {
                 <View style={{ position: 'absolute', top: 8, right: 8, zIndex: 12, flexDirection: 'row', gap: 8 }}>
                     <TouchableOpacity
                         onPress={() => setShowOverlay(v => !v)}
-                        style={{ backgroundColor: 'rgba(0,0,0,0.45)', paddingHorizontal: 8, paddingVertical: 6, borderRadius: 6 }}
+                        style={{ backgroundColor: `${themeColors.surface}CC`, paddingHorizontal: 8, paddingVertical: 6, borderRadius: 6 }}
                         accessibilityRole="switch"
                         accessibilityState={{ checked: showOverlay }}
                         accessibilityLabel="Toggle detection overlay"
                     >
-                        <Text style={{ color: '#fff', fontSize: 12 }}>{showOverlay ? 'Overlay: On' : 'Overlay: Off'}</Text>
+                        <Text style={{ color: themeColors.text, fontSize: 12 }}>{showOverlay ? 'Overlay: On' : 'Overlay: Off'}</Text>
                     </TouchableOpacity>
-                    <View style={{ backgroundColor: 'rgba(0,0,0,0.45)', paddingHorizontal: 8, paddingVertical: 6, borderRadius: 6 }}>
+                    <View style={{ backgroundColor: `${themeColors.surface}CC`, paddingHorizontal: 8, paddingVertical: 6, borderRadius: 6 }}>
                         <Text style={{ color: statusColor, fontSize: 12 }}>{statusText}</Text>
                     </View>
-                    <View style={{ backgroundColor: 'rgba(0,0,0,0.45)', paddingHorizontal: 8, paddingVertical: 6, borderRadius: 6 }}>
-                        <Text style={{ color: '#fff', fontSize: 12 }}>Objs: {objCount}</Text>
+                    <View style={{ backgroundColor: `${themeColors.surface}CC`, paddingHorizontal: 8, paddingVertical: 6, borderRadius: 6 }}>
+                        <Text style={{ color: themeColors.text, fontSize: 12 }}>Objs: {objCount}</Text>
                     </View>
                 </View>
 
@@ -1024,8 +1024,8 @@ export default function Index() {
                     />
                 )}
                 {fpError ? (
-                    <View style={{ position: 'absolute', top: 8, left: 8, right: 8, backgroundColor: 'rgba(255,0,0,0.35)', padding: 6, borderRadius: 4 }}>
-                        <Text style={{ color: '#fff', fontSize: 12 }}>Detection error: {fpError}</Text>
+                    <View style={{ position: 'absolute', top: 8, left: 8, right: 8, backgroundColor: `${themeColors.error}88`, padding: 6, borderRadius: 4 }}>
+                        <Text style={{ color: themeColors.text, fontSize: 12 }}>Detection error: {fpError}</Text>
                     </View>
                 ) : null}
             </View>

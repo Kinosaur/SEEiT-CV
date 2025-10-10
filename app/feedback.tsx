@@ -2,6 +2,8 @@ import Buttons from '@/components/Buttons';
 import { ThemedText } from '@/components/ThemedText';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import React from 'react';
 import {
@@ -19,6 +21,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function Feedback() {
     const colorScheme = useColorScheme() ?? 'light';
     const theme = Colors[colorScheme];
+    const navigation = useNavigation();
 
     const [title, setTitle] = React.useState('');
     const [desc, setDesc] = React.useState('');
@@ -60,9 +63,22 @@ export default function Feedback() {
 
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]} accessible accessibilityLabel="Feedback screen">
+            {/* Drawer menu toggle (top-left) */}
+            <TouchableOpacity
+                style={styles.drawerToggle}
+                onPress={() => (navigation as any).toggleDrawer?.()}
+                accessible
+                accessibilityRole="button"
+                accessibilityLabel="Open navigation drawer"
+            >
+                <Ionicons name="menu" size={32} color={theme.text} />
+            </TouchableOpacity>
+
             <ScrollView contentContainerStyle={{ padding: 16, gap: 12 }}>
                 <ThemedText style={[styles.title, { color: theme.text }]}>Feedback</ThemedText>
-                <ThemedText style={[styles.subtitle]}>Tell us what’s working, what’s not, or what you need.</ThemedText>
+                <ThemedText style={[styles.subtitle, { color: theme.textSecondary }]}>
+                    Tell us what is working, what is not, or what you need.
+                </ThemedText>
 
                 <View accessible accessibilityLabel="Title field">
                     <ThemedText style={[styles.label, { color: theme.textSecondary }]}>Title</ThemedText>
@@ -132,8 +148,16 @@ export default function Feedback() {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
+    drawerToggle: {
+        position: 'absolute',
+        top: Platform.OS === 'android' ? 40 : 10,
+        right: 10,
+        zIndex: 10,
+        padding: 8,
+        borderRadius: 20,
+    },
     title: { fontFamily: 'AtkinsonBold', fontSize: 22 },
-    subtitle: { fontFamily: 'Atkinson', fontSize: 14, color: '#666' },
+    subtitle: { fontFamily: 'Atkinson', fontSize: 14 },
     label: { fontFamily: 'AtkinsonBold', fontSize: 14, marginBottom: 4 },
     input: {
         borderWidth: 2,

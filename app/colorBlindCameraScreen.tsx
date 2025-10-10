@@ -58,6 +58,8 @@ export default function ColorBlindCameraScreen() {
     const navigation = useNavigation<DrawerNavigationProp<any>>();
     const insets = useSafeAreaInsets();
 
+    const dynamicStyles = React.useMemo(() => createDynamicStyles(theme), [theme]);
+
     const [photoUri, setPhotoUri] = React.useState<string | null>(null);
     const [imgW, setImgW] = React.useState(0);
     const [imgH, setImgH] = React.useState(0);
@@ -273,7 +275,7 @@ export default function ColorBlindCameraScreen() {
         };
     };
 
-    const overlayStyle = { borderColor: 'rgba(255,255,255,0.95)', backgroundColor: 'rgba(0,0,0,0.10)', borderStyle: 'solid' as const };
+    const overlayStyle = { borderColor: `${theme.text}F2`, backgroundColor: `${theme.surface}1A`, borderStyle: 'solid' as const };
 
     const confTag = (level?: ConfLevel) => (level ? ` (${level})` : '');
 
@@ -290,7 +292,7 @@ export default function ColorBlindCameraScreen() {
     const Line = ({ label, swatch, text }: { label: string; swatch: string; text: string }) => (
         <View style={styles.lineRow}>
             <ThemedText style={styles.lineLabel}>{label}</ThemedText>
-            <View style={[styles.swatch, { backgroundColor: swatch }]} />
+            <View style={[dynamicStyles.swatch, { backgroundColor: swatch }]} />
             <ThemedText style={styles.lineText} numberOfLines={1}>{text}</ThemedText>
         </View>
     );
@@ -324,9 +326,9 @@ export default function ColorBlindCameraScreen() {
                     {...(format && fps ? { fps } : {})}
                 />
                 {analyzing && (
-                    <View style={styles.analyzingOverlay} pointerEvents="none" accessibilityElementsHidden>
-                        <ActivityIndicator color="#fff" size="large" />
-                        <ThemedText style={styles.analyzingText}>Analyzing…</ThemedText>
+                    <View style={dynamicStyles.analyzingOverlay} pointerEvents="none" accessibilityElementsHidden>
+                        <ActivityIndicator color={theme.text} size="large" />
+                        <ThemedText style={dynamicStyles.analyzingText}>Analyzing…</ThemedText>
                     </View>
                 )}
             </View>
@@ -334,7 +336,7 @@ export default function ColorBlindCameraScreen() {
             <View style={styles.controlsRow}>
                 <TouchableOpacity
                     onPress={() => setConfMode(m => (m === 'both' ? 'protan' : m === 'protan' ? 'deutan' : 'both'))}
-                    style={styles.pill}
+                    style={dynamicStyles.pill}
                     accessibilityRole="button"
                     accessibilityLabel="Switch colorblind mode"
                     accessibilityHint="Cycles between Both, Protan, and Deutan"
@@ -403,13 +405,13 @@ export default function ColorBlindCameraScreen() {
                                                     style={[styles.confBox, overlayStyle, { left: box.left, top: box.top, width: box.width, height: box.height }]}
                                                 >
                                                     {labelMode === 'names' && canShowNamePill && (
-                                                        <View style={styles.labelPill}>
-                                                            <ThemedText style={styles.labelText} numberOfLines={1}>{pillText}</ThemedText>
+                                                        <View style={dynamicStyles.labelPill}>
+                                                            <ThemedText style={dynamicStyles.labelText} numberOfLines={1}>{pillText}</ThemedText>
                                                         </View>
                                                     )}
                                                     {labelMode === 'numbers' && (
-                                                        <View style={styles.smallBadge}>
-                                                            <ThemedText style={styles.indexBadgeText}>{idx + 1}</ThemedText>
+                                                        <View style={dynamicStyles.smallBadge}>
+                                                            <ThemedText style={dynamicStyles.indexBadgeText}>{idx + 1}</ThemedText>
                                                         </View>
                                                     )}
                                                 </View>
@@ -423,7 +425,7 @@ export default function ColorBlindCameraScreen() {
                         <View style={styles.modalControlsRow} accessible accessibilityRole="toolbar">
                             <TouchableOpacity
                                 onPress={toggleShowLowConf}
-                                style={[styles.pill, showLowConf && styles.pillActive]}
+                                style={[dynamicStyles.pill, showLowConf && dynamicStyles.pillActive]}
                                 accessibilityRole="button"
                                 accessibilityLabel={showLowConf ? 'Hide low confidence regions' : 'Show low confidence regions'}
                             >
@@ -432,7 +434,7 @@ export default function ColorBlindCameraScreen() {
 
                             <TouchableOpacity
                                 onPress={() => setLabelMode(m => m === 'numbers' ? 'names' : m === 'names' ? 'off' : 'numbers')}
-                                style={[styles.pill, labelMode !== 'off' && styles.pillActive]}
+                                style={[dynamicStyles.pill, labelMode !== 'off' && dynamicStyles.pillActive]}
                                 accessibilityRole="button"
                                 accessibilityLabel="Toggle label mode"
                                 accessibilityHint="Cycles Numbers, Names, Off"
@@ -460,7 +462,7 @@ export default function ColorBlindCameraScreen() {
                                 return (
                                     <View key={`legend-${idx}`} style={[styles.legendCard, { borderColor: theme.divider }]}>
                                         <View style={styles.cardHeader}>
-                                            <View style={styles.indexBadge}><ThemedText style={styles.indexBadgeText}>{idx + 1}</ThemedText></View>
+                                            <View style={dynamicStyles.indexBadge}><ThemedText style={dynamicStyles.indexBadgeText}>{idx + 1}</ThemedText></View>
                                             <ThemedText style={styles.cardTitle}>Region {idx + 1}</ThemedText>
                                         </View>
 
@@ -502,6 +504,67 @@ export default function ColorBlindCameraScreen() {
     );
 }
 
+const createDynamicStyles = (theme: typeof Colors.light) => StyleSheet.create({
+    analyzingOverlay: {
+        position: 'absolute',
+        left: 0, right: 0, top: 0, bottom: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: `${theme.surface}66`,
+    },
+    analyzingText: {
+        marginTop: 8,
+        color: theme.text,
+        fontSize: 16,
+        fontFamily: 'AtkinsonBold',
+    },
+    labelPill: { 
+        position: 'absolute', 
+        top: -22, 
+        left: -2, 
+        backgroundColor: `${theme.surface}CC`, 
+        paddingHorizontal: 6, 
+        paddingVertical: 2, 
+        borderRadius: 6, 
+        maxWidth: 200 
+    },
+    labelText: { color: theme.text, fontSize: 12, fontWeight: '700' },
+    smallBadge: {
+        position: 'absolute',
+        top: -10,
+        left: -10,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: theme.accent,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    indexBadge: { 
+        width: 22, 
+        height: 22, 
+        borderRadius: 11, 
+        backgroundColor: theme.accent, 
+        alignItems: 'center', 
+        justifyContent: 'center' 
+    },
+    indexBadgeText: { color: theme.background, fontSize: 12, fontWeight: '700' },
+    swatch: { 
+        width: 18, 
+        height: 12, 
+        borderRadius: 2, 
+        borderWidth: StyleSheet.hairlineWidth, 
+        borderColor: `${theme.divider}80` 
+    },
+    pill: { 
+        backgroundColor: `${theme.surface}99`, 
+        paddingHorizontal: 10, 
+        paddingVertical: 6, 
+        borderRadius: 6 
+    },
+    pillActive: { backgroundColor: `${theme.surface}CC` },
+});
+
 const styles = StyleSheet.create({
     container: { flex: 1, paddingTop: Platform.OS === 'android' ? 20 : 0 },
     drawerToggle: { position: 'absolute', top: Platform.OS === 'android' ? 40 : 10, right: 10, zIndex: 10, padding: 8, borderRadius: 20 },
@@ -510,40 +573,12 @@ const styles = StyleSheet.create({
     previewWrapper: { flex: 1, borderRadius: 10, overflow: 'hidden', marginHorizontal: 12, marginBottom: 12 },
     // Add more side padding so rightmost button isn’t hugging the edge
     controlsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingHorizontal: 16, paddingVertical: 8, gap: 12 },
-    pill: { backgroundColor: 'rgba(0,0,0,0.1)', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 6 },
-    pillActive: { backgroundColor: 'rgba(0,0,0,0.2)' },
+
     center: { flex: 1, justifyContent: 'center', padding: 32 },
     permissionText: { fontSize: 20, fontFamily: 'AtkinsonBold', textAlign: 'center' },
     confBox: { position: 'absolute', borderWidth: 2, borderRadius: 4 },
 
-    analyzingOverlay: {
-        position: 'absolute',
-        left: 0, right: 0, top: 0, bottom: 0,
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'rgba(0,0,0,0.25)',
-    },
-    analyzingText: {
-        marginTop: 8,
-        color: '#fff',
-        fontSize: 16,
-        fontFamily: 'AtkinsonBold',
-    },
 
-    labelPill: { position: 'absolute', top: -22, left: -2, backgroundColor: 'rgba(0,0,0,0.75)', paddingHorizontal: 6, paddingVertical: 2, borderRadius: 6, maxWidth: 200 },
-    labelText: { color: '#fff', fontSize: 12, fontWeight: '700' },
-
-    smallBadge: {
-        position: 'absolute',
-        top: -10,
-        left: -10,
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        backgroundColor: '#111',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
 
     modalControlsRow: { paddingHorizontal: 12, paddingTop: 6, paddingBottom: 0, flexDirection: 'row', gap: 10, alignItems: 'center' },
 
@@ -556,10 +591,7 @@ const styles = StyleSheet.create({
     lineLabel: { width: 58, fontFamily: 'AtkinsonBold' },
     lineText: { fontSize: 14, flexShrink: 1 },
 
-    indexBadge: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#111', alignItems: 'center', justifyContent: 'center' },
-    indexBadgeText: { color: '#fff', fontSize: 12, fontWeight: '700' },
 
-    swatch: { width: 18, height: 12, borderRadius: 2, borderWidth: StyleSheet.hairlineWidth, borderColor: 'rgba(0,0,0,0.3)' },
 
     footerBar: {
         position: 'absolute',

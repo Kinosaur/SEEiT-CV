@@ -16,11 +16,13 @@ const MAPPING = {
   'eye.fill': 'eye',
   'checkmark.circle': 'checkmark-circle-outline',
   'checkmark.circle.fill': 'checkmark-circle',
+  'message': 'chatbubbles-outline',
+  'message.fill': 'chatbubbles',
 } as Record<SymbolViewProps['name'], ComponentProps<typeof Ionicons>['name']>;
 
 type IconSymbolName = keyof typeof MAPPING;
 
-/**
+/**s
  * An icon component that uses native SF Symbols on iOS, and Ionicons on Android and web.
  * This ensures a consistent look across platforms, and optimal resource usage.
  * Icon `name`s are based on SF Symbols and require manual mapping to Ionicons.
