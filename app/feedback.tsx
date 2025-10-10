@@ -35,21 +35,22 @@ export default function Feedback() {
             setBusy(true);
             const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
             if (status !== 'granted') {
-                Alert.alert('Permission required', 'Media library permission is needed to attach an image.');
-                return;
+            Alert.alert('Permission required', 'Media library permission is needed to attach an image.');
+            return;
             }
             const res = await ImagePicker.launchImageLibraryAsync({
-                mediaTypes: 'images',
-                allowsMultipleSelection: false,
-                quality: 0.8,
-                exif: false,
-                ...(Platform.OS === 'android' ? { legacy: false } as const : {}),
+            mediaTypes: 'images',
+            allowsMultipleSelection: false,
+            quality: 0.8,
+            exif: false,
+            ...(Platform.OS === 'android' ? { legacy: false } as const : {}),
             });
             if (!res.canceled && res.assets?.length) {
-                setImgUri(res.assets[0].uri);
+            setImgUri(res.assets[0].uri);
             }
         } catch (e) {
-            // Best-effort; no crash
+            console.error('Image picking failed:', e);
+            Alert.alert('Error', 'Could not pick image. Please try again.');
         } finally {
             setBusy(false);
         }
