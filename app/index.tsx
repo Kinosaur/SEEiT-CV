@@ -3,13 +3,44 @@ import Buttons from '@/components/Buttons';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
+import {
+    CRITICAL_LABELS,
+    DEFAULT_SPEECH_ON,
+    DIRECTION_ORDER,
+    DIST_PRIORITY,
+    ID_ABSENCE_MS,
+    INCLUDE_DIRECTION_FOR_UNIFORM_LIMIT,
+    MAX_DIRECTION_MENTIONS,
+    MAX_GROUPS_SPOKEN,
+    MIN_BUCKET_SPEAK_INTERVAL_MS,
+    MIN_MAJOR_INTERVAL_MS,
+    MIN_MINOR_INTERVAL_MS,
+    MULTI_COUNT_LABELS,
+    NEAR_DEESC_DELAY_MS,
+    SMALL_GROUP_MAX,
+    SPEECH_INTERRUPT_GRACE_MS,
+} from '@/constants/detection';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { DetectionOverlay } from '@/hooks/useDetectionOverlay';
 import { useDetectionsNotifier } from '@/hooks/useDetectionsNotifier';
+import { useDirectionSmoothing } from '@/hooks/useDirectionSmoothing';
 import { mlkitObjectDetect } from '@/hooks/useMlkitObject';
 import { useSimpleFormat } from '@/hooks/useSimpleFormat';
+import { classifyChange, type Signature } from '@/services/detections/signature';
 import { SpeechPriority, SpeechSupervisor } from '@/services/speechSupervisor';
 import { initTTS, ttsSpeak, ttsStop } from '@/services/tts';
+import {
+    bucketCount,
+    bucketToPhrase,
+    directionDescriptor,
+    estimateSpeechDurationMs,
+    humanizeLabel,
+    joinHuman,
+    mapCountToSemanticBucket,
+    naturalLabel,
+    pluralize,
+    postPhraseSanitize,
+} from '@/utils/text';
 import { Ionicons } from '@expo/vector-icons';
 import { DrawerNavigationProp } from '@react-navigation/drawer';
 import { useNavigation } from '@react-navigation/native';
@@ -36,203 +67,6 @@ import * as Worklets from 'react-native-worklets-core';
 const SPEAK_AGGREGATE_VIA_NOTIFIER = false;
 const COMPRESS_TRAFFIC_LIGHT = true;
 const DUP_A11Y_SUPPRESS_MS = 900;
-
-/* ================= Constants & Mappings ================= */
-
-const DEFAULT_SPEECH_ON = false;
-
-const NATURAL_LABEL_MAP: Record<string, string> = {
-    stop: 'stop sign',
-    stop_sign: 'stop sign',
-    speed_limit: 'speed limit sign',
-    'speed limit': 'speed limit sign',
-    no_entry: 'no entry sign',
-    'no entry': 'no entry sign',
-    hazard: 'hazard sign',
-    crosswalk: 'crosswalk',
-    bike: 'bicycle',
-    bicycle: 'bicycle',
-    car: 'car',
-    van: 'van',
-    truck: 'truck',
-    motorcycle: 'motorcycle',
-    'traffic red': 'red traffic light',
-    'traffic yellow': 'yellow traffic light',
-    'traffic green': 'green traffic light',
-    emergency_exit: 'emergency exit',
-    'emergency exit': 'emergency exit',
-};
-
-const DIST_PRIORITY: Record<string, number> = { near: 0, mid: 1, far: 2, unknown: 3 };
-const DIRECTION_ORDER: Record<string, number> = {
-    'upper left': 0,
-    'upper right': 1,
-    'left': 2,
-    'directly ahead': 3,
-    'right': 4,
-    'lower left': 5,
-    'lower right': 6,
-};
-
-const DIR_STABLE_FRAMES = 3;
-const DIR_NULL_GRACE = 2;
-const DIR_CACHE_TTL_MS = 9000;
-
-const SMALL_GROUP_MAX = 4;
-const INCLUDE_DIRECTION_FOR_UNIFORM_LIMIT = 3;
-const MAX_GROUPS_SPOKEN = 3;
-
-const SPEECH_INTERRUPT_GRACE_MS = 1600;
-const MIN_MAJOR_INTERVAL_MS = 2800;
-const MIN_MINOR_INTERVAL_MS = 4200;
-
-const CRITICAL_LABELS = new Set([
-    'stop sign',
-    'hazard sign',
-    'crosswalk',
-    'emergency exit',
-    'red traffic light',
-]);
-
-const MULTI_COUNT_LABELS = new Set([
-    'car', 'truck', 'van', 'bicycle', 'motorcycle'
-]);
-
-const ID_ABSENCE_MS = 900;
-const MIN_BUCKET_SPEAK_INTERVAL_MS = 2500;
-const NEAR_DEESC_DELAY_MS = 1500;
-const MAX_DIRECTION_MENTIONS = 2;
-
-/* Helpers */
-
-function bucketCount(n: number): number {
-    if (n <= 2) return n;
-    if (n <= 4) return 3;
-    return 5;
-}
-function naturalLabel(base?: string) {
-    if (!base) return 'object';
-    return NATURAL_LABEL_MAP[base] || base.replace(/_/g, ' ');
-}
-function humanizeLabel(label: string) {
-    return NATURAL_LABEL_MAP[label] || label.replace(/_/g, ' ');
-}
-function pluralize(label: string, n: number) {
-    if (n === 1) return label;
-    if (label.endsWith('y') && !label.endsWith('ay') && !label.endsWith('ey')) return label.slice(0, -1) + 'ies';
-    if (label.endsWith('s')) return label;
-    return label + 's';
-}
-function joinHuman(list: string[]): string {
-    if (list.length <= 1) return list[0] ?? '';
-    if (list.length === 2) return `${list[0]} and ${list[1]}`;
-    return `${list.slice(0, -1).join(', ')}, and ${list[list.length - 1]}`;
-}
-function directionDescriptor(xc: number, yc: number): string | null {
-    const col = xc < 1 / 3 ? 0 : xc < 2 / 3 ? 1 : 2;
-    const row = yc < 1 / 3 ? 0 : yc < 2 / 3 ? 1 : 2;
-    if (row === 0) {
-        if (col === 0) return 'upper left';
-        if (col === 2) return 'upper right';
-        return null;
-    }
-    if (row === 1) {
-        if (col === 0) return 'left';
-        if (col === 1) return 'directly ahead';
-        if (col === 2) return 'right';
-    } else {
-        if (col === 0) return 'lower left';
-        if (col === 2) return 'lower right';
-        return null;
-    }
-    return null;
-}
-function estimateSpeechDurationMs(phrase: string) {
-    const words = phrase.trim().split(/\s+/).filter(Boolean).length;
-    return 500 + words * 350;
-}
-function mapCountToSemanticBucket(n: number): 'none' | 'one' | 'few' | 'several' {
-    if (n <= 0) return 'none';
-    if (n === 1) return 'one';
-    if (n <= 3) return 'few';
-    return 'several';
-}
-function bucketToPhrase(bucket: string, baseLabelPlural: string) {
-    switch (bucket) {
-        case 'none': return '';
-        case 'one': return `one ${baseLabelPlural.replace(/s$/, '')}`;
-        case 'few': return `a few ${baseLabelPlural}`;
-        case 'several': return `several ${baseLabelPlural}`;
-        default: return baseLabelPlural;
-    }
-}
-function postPhraseSanitize(p: string) {
-    return p
-        .replace(/\b(ahead)\s+\1\b/gi, '$1')
-        .replace(/\b(directly ahead)\s+ahead\b/gi, 'directly ahead')
-        .replace(/\b(close ahead)\b/gi, 'close')
-        .replace(/\bnear distance\b/gi, 'near')
-        .replace(/\s+/g, ' ')
-        .trim();
-}
-
-/* Signatures */
-
-type CatSeg = { cat: string; count: number };
-type GroupSig = {
-    nat: string;
-    priority: number;
-    totalBucket: number;
-    cats: CatSeg[];
-    hasNear: boolean;
-    critical: boolean;
-};
-type Signature = {
-    groups: GroupSig[];
-    hasNear: boolean;
-    hasCritical: boolean;
-    sumBucket: number;
-};
-
-function classifyChange(prev: Signature | null, curr: Signature): 'critical' | 'major' | 'minor' | 'none' {
-    if (!prev) return 'critical';
-    const criticalFlip = prev.hasCritical !== curr.hasCritical;
-    if (criticalFlip) return 'critical';
-    const nearGain = !prev.hasNear && curr.hasNear;
-    if (nearGain) return 'critical';
-    const totalJump = Math.abs(curr.sumBucket - prev.sumBucket) >= 2;
-    if (totalJump && curr.hasNear) return 'critical';
-    const prevMap = new Map(prev.groups.map(g => [g.nat, g]));
-    const currMap = new Map(curr.groups.map(g => [g.nat, g]));
-    for (const g of curr.groups) {
-        if (g.critical && !prevMap.has(g.nat)) return 'critical';
-    }
-    let major = false;
-    for (const g of curr.groups) {
-        const pg = prevMap.get(g.nat);
-        if (!pg) {
-            major = major || g.hasNear;
-            continue;
-        }
-        if (pg.priority !== g.priority) {
-            if (g.priority < pg.priority) return 'critical';
-            major = true;
-        }
-        if (pg.hasNear !== g.hasNear) major = true;
-        if (pg.totalBucket !== g.totalBucket) major = major || g.hasNear;
-        const prevCatsKey = pg.cats.map(c => `${c.cat}:${c.count}`).join('|');
-        const currCatsKey = g.cats.map(c => `${c.cat}:${c.count}`).join('|');
-        if (prevCatsKey !== currCatsKey) major = true;
-    }
-    for (const pg of prev.groups) {
-        if (!currMap.has(pg.nat)) {
-            major = major || pg.hasNear || pg.critical;
-        }
-    }
-    if (major) return 'major';
-    if (JSON.stringify(prev) === JSON.stringify(curr)) return 'none';
-    return 'minor';
-}
 
 /* ================= Components ================= */
 
@@ -438,42 +272,8 @@ export default function Index() {
         });
     }
 
-    /* Direction smoothing cache */
-    type DirCache = { stable: string | null; current: string | null; count: number; nullHold: number; lastSeen: number };
-    const directionCacheRef = React.useRef<Map<number, DirCache>>(new Map());
-
-    function smoothDirection(id: number, rawDir: string | null, now: number): string | null {
-        if (id < 0) return rawDir;
-        const cache = directionCacheRef.current;
-        let entry = cache.get(id);
-        if (!entry) {
-            entry = { stable: rawDir, current: rawDir, count: 1, nullHold: rawDir ? 0 : 1, lastSeen: now };
-            cache.set(id, entry);
-            return rawDir;
-        }
-        entry.lastSeen = now;
-        if (rawDir === entry.current) {
-            entry.count += 1;
-        } else {
-            entry.current = rawDir;
-            entry.count = 1;
-        }
-        if (rawDir == null) {
-            if (entry.stable) {
-                entry.nullHold += 1;
-                if (entry.nullHold > DIR_NULL_GRACE) entry.stable = null;
-            }
-        } else {
-            entry.nullHold = 0;
-            if (entry.count >= DIR_STABLE_FRAMES) entry.stable = rawDir;
-        }
-        return entry.stable ?? rawDir;
-    }
-    function purgeDirCache(now: number) {
-        for (const [id, v] of Array.from(directionCacheRef.current.entries())) {
-            if (now - v.lastSeen > DIR_CACHE_TTL_MS) directionCacheRef.current.delete(id);
-        }
-    }
+    /* Direction smoothing hook */
+    const { smoothDirection, purgeDirCache } = useDirectionSmoothing();
 
     const lastSigRef = React.useRef<Signature | null>(null);
 
