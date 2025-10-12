@@ -108,7 +108,9 @@ sequenceDiagram
   participant MLP as Kotlin Plugin
   participant MLK as ML Kit Detector
   participant IMU as SensorManager
+  participant TFL as TFLite (EffNetB0)
   participant RN as RN UI
+  participant Post as PostProc & Smoothing
   participant Sp as SpeechSupervisor
   participant TTS as System TTS
 
@@ -116,13 +118,18 @@ sequenceDiagram
   FP->>MLP: mlkitObjectDetect(frame)
   MLP->>MLP: convert YUV to NV21 and orient
   MLP->>MLK: process InputImage
-  MLK-->>MLP: DetectedObject[]
+  MLK-->>MLP: DetectedObject[] (bboxes)
   MLP->>IMU: read pitch
-  MLP->>MLP: fuse distances and smooth
-  MLP-->>FP: JSON { objects, distance_cat }
+  MLP->>MLP: crop ROIs, resize 224, preprocess
+  MLP->>TFL: classify(ROIs)
+  TFL-->>MLP: logits/labels per ROI
+  MLP->>MLP: fuse distances (bbox height + pitch) and smooth
+  MLP-->>FP: JSON { objects, dims }
   FP-->>RN: set state (objects, dims)
-  RN->>RN: render overlay and derive signature
-  RN->>Sp: requestSpeak(phrase, priority)
+  FP-->>RN: apply thresholds + k-frame majority
+  RN->>Post: final { message, overlay data }
+  Post-->>RN: requestSpeak(phrase, priority)
+  RN->>Sp: speak
   Sp->>TTS: speak
   TTS-->>Sp: done or error
 ```
