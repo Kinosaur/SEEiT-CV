@@ -144,22 +144,16 @@ export default function ColorBlindCameraScreen() {
         }
     }, []);
 
-    const rerunIfPossible = React.useCallback(async () => {
-        if (photoUri) {
-            try { await runConfusions(photoUri, confMode); } catch { }
-        }
-    }, [photoUri, confMode]);
-
     const runConfusions = React.useCallback(async (uri: string, mode: 'protan' | 'deutan' | 'both') => {
         const res = await detectConfusableColors(uri, 360, mode, CF_MIN_AREA_FRAC, CF_MIN_SAT, CF_MIN_VAL);
         let filtered = (res.regions ?? []) as ConfRegion[];
 
+        // STRICT: only show high-confidence by default
         if (!showLowConf) {
             filtered = filtered.filter(r => {
-                if (mode === 'protan') return (r.confProtan ?? 'med') !== 'low';
-                if (mode === 'deutan') return (r.confDeutan ?? 'med') !== 'low';
-                const p = r.confProtan ?? 'med'; const d = r.confDeutan ?? 'med';
-                return p !== 'low' || d !== 'low';
+                if (mode === 'protan') return r.confProtan === 'high';
+                if (mode === 'deutan') return r.confDeutan === 'high';
+                return (r.confProtan === 'high') || (r.confDeutan === 'high');
             });
         }
 
@@ -176,14 +170,20 @@ export default function ColorBlindCameraScreen() {
 
         AccessibilityInfo.announceForAccessibility?.(
             filtered.length === 0
-                ? 'No confident regions detected for this mode.'
-                : `Detected ${filtered.length} region${filtered.length === 1 ? '' : 's'} for ${mode === 'both' ? 'both types' : mode}.`
+                ? 'No high-confidence regions detected for this mode.'
+                : `Detected ${filtered.length} high-confidence region${filtered.length === 1 ? '' : 's'}.`
         );
 
         return res;
     }, [showLowConf]);
 
-    React.useEffect(() => { void rerunIfPossible(); }, [showLowConf, labelMode]);
+    const rerunIfPossible = React.useCallback(async () => {
+        if (photoUri) {
+            try { await runConfusions(photoUri, confMode); } catch { }
+        }
+    }, [photoUri, confMode, runConfusions]);
+
+    React.useEffect(() => { void rerunIfPossible(); }, [showLowConf, labelMode, rerunIfPossible]);
 
     const toggleShowLowConf = React.useCallback(() => {
         setShowLowConf(prev => !prev);
