@@ -1,4 +1,4 @@
-// Detection and speech constants (extracted + additions)
+// Detection and speech constants
 
 export const DEFAULT_SPEECH_ON = false;
 
@@ -41,14 +41,14 @@ export const DIRECTION_ORDER: Record<string, number> = {
     'lower right': 6,
 };
 
-// Direction smoothing
+// Direction smoothing controls (used by useDirectionSmoothing)
 export const DIR_STABLE_FRAMES = 3;
 export const DIR_NULL_GRACE = 2;
 export const DIR_CACHE_TTL_MS = 9000;
 
-// Distance category smoothing (NEW)
-export const DIST_CAT_STABLE_FRAMES = 3;  // require 3 consecutive frames before switching category
-export const DIST_CAT_NULL_GRACE = 2;     // tolerate brief unknown/missing before dropping stable
+// Distance category smoothing controls (used by useDistanceCategorySmoothing)
+export const DIST_CAT_STABLE_FRAMES = 3;
+export const DIST_CAT_NULL_GRACE = 2;
 export const DIST_CAT_CACHE_TTL_MS = 9000;
 
 // Grouping and phrasing
@@ -56,10 +56,12 @@ export const SMALL_GROUP_MAX = 4;
 export const INCLUDE_DIRECTION_FOR_UNIFORM_LIMIT = 3;
 export const MAX_GROUPS_SPOKEN = 3;
 
+// Speech timing
 export const SPEECH_INTERRUPT_GRACE_MS = 1600;
 export const MIN_MAJOR_INTERVAL_MS = 2800;
 export const MIN_MINOR_INTERVAL_MS = 4200;
 
+// Critical labels (higher priority phrasing)
 export const CRITICAL_LABELS = new Set([
     'stop sign',
     'hazard sign',
@@ -68,6 +70,7 @@ export const CRITICAL_LABELS = new Set([
     'red traffic light',
 ]);
 
+// Labels where multiple instances are common and bucketed
 export const MULTI_COUNT_LABELS = new Set([
     'car',
     'truck',
@@ -76,6 +79,7 @@ export const MULTI_COUNT_LABELS = new Set([
     'motorcycle',
 ]);
 
+// Per-id stability and phrasing timers
 export const ID_ABSENCE_MS = 900;
 export const MIN_BUCKET_SPEAK_INTERVAL_MS = 2500;
 export const NEAR_DEESC_DELAY_MS = 1500;

@@ -7,21 +7,19 @@ import { SpeechSupervisor, type SpeechPriority } from '@/services/speechSupervis
 import { ttsSpeak, ttsStop } from '@/services/tts';
 import { estimateSpeechDurationMs, postPhraseSanitize } from '@/utils/text';
 import React from 'react';
-import { AccessibilityInfo } from 'react-native';
 
 type NotifyFn = (items: { id: string; label: string; score: number }[]) => void;
 
 type UseSpeechChannelOptions = {
     active: boolean;
     speakAggregateViaNotifier?: boolean;
-    dupA11ySuppressMs?: number;
+    dupA11ySuppressMs?: number; // kept for API compatibility, no longer used in this file
     notifyDetections: NotifyFn;
 };
 
 export function useSpeechChannel(opts: UseSpeechChannelOptions) {
-    const { active, speakAggregateViaNotifier = false, dupA11ySuppressMs = 900, notifyDetections } = opts;
+    const { active, speakAggregateViaNotifier = false, notifyDetections } = opts;
 
-    const lastA11yRef = React.useRef<{ phrase: string; ts: number }>({ phrase: '', ts: 0 });
     const speechSupervisorRef = React.useRef<SpeechSupervisor | null>(null);
 
     if (!speechSupervisorRef.current) {
@@ -35,6 +33,8 @@ export function useSpeechChannel(opts: UseSpeechChannelOptions) {
                 const clean = postPhraseSanitize(rawPhrase);
                 const iso = new Date().toISOString();
                 console.log(`[Speech] ${iso} priority=${priority} id=${utteranceId} phrase="${clean}"`);
+
+                // Speak via TTS only. Do NOT also announce for accessibility here to avoid double-speak with TalkBack.
                 ttsSpeak(clean, {
                     utteranceId,
                     onDone: (id) => speechSupervisorRef.current?.notifyDone(id),
@@ -43,16 +43,10 @@ export function useSpeechChannel(opts: UseSpeechChannelOptions) {
                     speechSupervisorRef.current?.notifyDone(utteranceId);
                 });
 
+                // Optional: aggregate/log elsewhere if desired.
                 if (speakAggregateViaNotifier) {
+                    // Note: This does NOT trigger speech by itself; it's a callback for telemetry/aggregation.
                     notifyDetections([{ id: 'speech:aggregate', label: clean, score: 0.99 }]);
-                } else {
-                    const now = Date.now();
-                    if (lastA11yRef.current.phrase === clean && (now - lastA11yRef.current.ts) < dupA11ySuppressMs) {
-                        console.log(`[SpeechSkipDup] suppressed a11y repeat phrase="${clean}"`);
-                    } else {
-                        AccessibilityInfo.announceForAccessibility(clean);
-                        lastA11yRef.current = { phrase: clean, ts: now };
-                    }
                 }
             },
         });

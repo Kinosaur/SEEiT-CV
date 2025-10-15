@@ -73,9 +73,13 @@ export const DetectionOverlay: React.FC<DetectionOverlayProps> = ({
 
       const distConf = o.distance_conf
       const dist = typeof o.distance_m === 'number' ? o.distance_m : null
-      // Only show meters if confidence is medium/high; otherwise omit the number
-      const showMeters = dist != null && (distConf === 'med' || distConf === 'high')
-      const distText = showMeters ? (dist < 10 ? dist.toFixed(1) : Math.round(dist).toString()) + ' m' : ''
+
+      // Demo polish:
+      // - Show meters only at high confidence to reduce flicker
+      // - Quantize to 0.5 m steps below 10 m, otherwise nearest 1 m
+      const quantize = (v: number) => (v < 10 ? Math.round(v * 2) / 2 : Math.round(v))
+      const showMeters = dist != null && distConf === 'high'
+      const distText = showMeters ? `${quantize(dist)} m` : ''
 
       let text = lbl ? `${lbl.name}${catSuffix}` : `—${catSuffix}`
       if (distText) text += ` — ${distText}`

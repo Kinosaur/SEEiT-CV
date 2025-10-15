@@ -1,9 +1,9 @@
 import Buttons from '@/components/Buttons';
+import { DetectionOverlay } from '@/components/DetectionOverlay';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { DetectionOverlay } from '@/hooks/useDetectionOverlay';
 import { useDetectionsNotifier } from '@/hooks/useDetectionsNotifier';
 import { mlkitObjectDetect } from '@/hooks/useMlkitObject';
 import { useSimpleFormat } from '@/hooks/useSimpleFormat';
