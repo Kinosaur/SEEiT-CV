@@ -201,6 +201,7 @@ export default function ColorBlindCameraScreen() {
         })();
     }, [photoUri, confMode, runConfusions]);
 
+    // Import and analyze flow
     const importAndAnalyze = React.useCallback(async () => {
         try {
             setProcessing(true);
@@ -518,15 +519,15 @@ const createDynamicStyles = (theme: typeof Colors.light) => StyleSheet.create({
         fontSize: 16,
         fontFamily: 'AtkinsonBold',
     },
-    labelPill: { 
-        position: 'absolute', 
-        top: -22, 
-        left: -2, 
-        backgroundColor: `${theme.surface}CC`, 
-        paddingHorizontal: 6, 
-        paddingVertical: 2, 
-        borderRadius: 6, 
-        maxWidth: 200 
+    labelPill: {
+        position: 'absolute',
+        top: -22,
+        left: -2,
+        backgroundColor: `${theme.surface}CC`,
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 6,
+        maxWidth: 200
     },
     labelText: { color: theme.text, fontSize: 12, fontWeight: '700' },
     smallBadge: {
@@ -540,27 +541,27 @@ const createDynamicStyles = (theme: typeof Colors.light) => StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
     },
-    indexBadge: { 
-        width: 22, 
-        height: 22, 
-        borderRadius: 11, 
-        backgroundColor: theme.accent, 
-        alignItems: 'center', 
-        justifyContent: 'center' 
+    indexBadge: {
+        width: 22,
+        height: 22,
+        borderRadius: 11,
+        backgroundColor: theme.accent,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     indexBadgeText: { color: theme.background, fontSize: 12, fontWeight: '700' },
-    swatch: { 
-        width: 18, 
-        height: 12, 
-        borderRadius: 2, 
-        borderWidth: StyleSheet.hairlineWidth, 
-        borderColor: `${theme.divider}80` 
+    swatch: {
+        width: 18,
+        height: 12,
+        borderRadius: 2,
+        borderWidth: StyleSheet.hairlineWidth,
+        borderColor: `${theme.divider}80`
     },
-    pill: { 
-        backgroundColor: `${theme.surface}99`, 
-        paddingHorizontal: 10, 
-        paddingVertical: 6, 
-        borderRadius: 6 
+    pill: {
+        backgroundColor: `${theme.surface}99`,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 6
     },
     pillActive: { backgroundColor: `${theme.surface}CC` },
 });
