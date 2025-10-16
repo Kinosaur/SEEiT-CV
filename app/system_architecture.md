@@ -134,6 +134,54 @@ sequenceDiagram
   TTS-->>Sp: done or error
 ```
 
+# SEEiT CV — Concise Runtime Architecture (Top-down)
+
+```mermaid
+flowchart TB
+  subgraph App["SEEiT Mobile App (Android)"]
+    subgraph RN["React Native"]
+      vcjs["VisionCamera"]
+      fpcall["Frame processor\nmlkitObjectDetect"]
+      speech_hooks["Speech hooks"]
+      speech_sup["SpeechSupervisor"]
+      tts_wrap["TTS wrapper"]
+      uicf["Color Finder UI"]
+      prot_bridge["ProtanTools bridge"]
+      overlay["Overlay mapping"]
+    end
+
+    subgraph Native["Android (Kotlin)"]
+      plugin["MlkitObjectDetectPlugin"]
+      mlkit["ML Kit ObjectDetector"]
+      sensors["Sensors + intrinsics"]
+      prot_mod["ProtanToolsModule"]
+      bitmap["BitmapIO"]
+      colorsci["ColorSpaces + CvdSimulation"]
+    end
+
+    sys_tts["System TTS"]
+    cam["Camera HAL"]
+  end
+
+  %% Live detection path
+  vcjs --> fpcall --> plugin --> mlkit
+  plugin --> sensors
+  plugin -->|results| vcjs
+  vcjs --> speech_hooks --> speech_sup --> tts_wrap --> sys_tts
+  vcjs --> overlay
+
+  %% Color Finder path
+  uicf --> prot_bridge --> prot_mod
+  prot_mod --> bitmap
+  prot_mod --> colorsci
+  prot_mod -->|regions + meta| uicf
+  uicf --> overlay
+
+  %% Device
+  vcjs --- cam
+  plugin --- cam
+```
+
 ### Notes
 - Use `<br/>` for line breaks inside labels in flowcharts.
 - Keep each sequence message on a single line; avoid slashes and arrow symbols in the text to prevent parsing issues on GitHub’s Mermaid.
