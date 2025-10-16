@@ -134,29 +134,33 @@ sequenceDiagram
   TTS-->>Sp: done or error
 ```
 
-# SEEiT CV — Concise Runtime Architecture (Top-down)
+# SEEiT CV — Concise Runtime Architecture (top-down, compact labels)
 
 ```mermaid
 flowchart TB
   subgraph App["SEEiT Mobile App (Android)"]
+    %% RN (JS/TS)
     subgraph RN["React Native"]
-      vcjs["VisionCamera"]
-      fpcall["Frame processor\nmlkitObjectDetect"]
+      vcjs["VCam UI"]
+      fpcall["FP call\nmlkitObjectDetect"]
       speech_hooks["Speech hooks"]
-      speech_sup["SpeechSupervisor"]
+      speech_sup["Speech supervisor"]
       tts_wrap["TTS wrapper"]
-      uicf["Color Finder UI"]
-      prot_bridge["ProtanTools bridge"]
+      uicf["ColorFinder UI"]
+      prot_bridge["Protan bridge"]
       overlay["Overlay mapping"]
     end
 
-    subgraph Native["Android (Kotlin)"]
+    %% Android (Kotlin)
+    subgraph Native["Android"]
       plugin["MlkitObjectDetectPlugin"]
-      mlkit["ML Kit ObjectDetector"]
+      mlkit["ML Kit OD"]
+      tfl["TFLite\nEffNetB0"]
+      model_loader["LocalModel loader"]
       sensors["Sensors + intrinsics"]
-      prot_mod["ProtanToolsModule"]
+      prot_mod["ProtanTools"]
       bitmap["BitmapIO"]
-      colorsci["ColorSpaces + CvdSimulation"]
+      colorsci["ColorSpaces + CVD"]
     end
 
     sys_tts["System TTS"]
@@ -164,9 +168,14 @@ flowchart TB
   end
 
   %% Live detection path
-  vcjs --> fpcall --> plugin --> mlkit
+  vcjs --> fpcall --> plugin
+  plugin --> mlkit
   plugin --> sensors
-  plugin -->|results| vcjs
+  plugin --> tfl
+  tfl --> plugin
+  model_loader --> tfl
+  plugin --> vcjs
+
   vcjs --> speech_hooks --> speech_sup --> tts_wrap --> sys_tts
   vcjs --> overlay
 
@@ -174,13 +183,22 @@ flowchart TB
   uicf --> prot_bridge --> prot_mod
   prot_mod --> bitmap
   prot_mod --> colorsci
-  prot_mod -->|regions + meta| uicf
+  prot_mod --> uicf
   uicf --> overlay
 
   %% Device
   vcjs --- cam
   plugin --- cam
 ```
+
+Legend (to avoid clipped node text in tight containers)
+- VCam = VisionCamera
+- FP = frame processor
+- OD = ObjectDetector
+- TFLite EffNetB0 = local EfficientNet-B0 model loaded via LocalModel
+- Sensors + intrinsics = rotation vector (pitch) + camera params (focal/center)
+- CVD = color-vision simulation (Viénot/Vischeck matrices), ΔE00 in ColorSpaces
+- Protan bridge = JS bridge to native ProtanTools
 
 ### Notes
 - Use `<br/>` for line breaks inside labels in flowcharts.
