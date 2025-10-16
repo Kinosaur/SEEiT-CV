@@ -139,24 +139,28 @@ sequenceDiagram
 ```mermaid
 flowchart TB
   subgraph App["SEEiT Mobile App (Android)"]
+    %% RN (JS/TS)
     subgraph RN["React Native"]
-      vcjs["VisionCamera"]
-      fpcall["Frame processor\nmlkitObjectDetect"]
+      vcjs["VisionCamera UI"]
+      fpcall["Frame processor - mlkitObjectDetect"]
       speech_hooks["Speech hooks"]
-      speech_sup["SpeechSupervisor"]
+      speech_sup["Speech supervisor"]
       tts_wrap["TTS wrapper"]
       uicf["Color Finder UI"]
       prot_bridge["ProtanTools bridge"]
       overlay["Overlay mapping"]
     end
 
-    subgraph Native["Android (Kotlin)"]
+    %% Android (Kotlin)
+    subgraph Native["Android"]
       plugin["MlkitObjectDetectPlugin"]
-      mlkit["ML Kit ObjectDetector"]
-      sensors["Sensors + intrinsics"]
+      mlkit["ML Kit ObjectDetector - custom local model"]
+      tfl["TFLite classifier - EfficientNetB0"]
+      model_loader["LocalModel loader"]
+      sensors["Sensors and intrinsics - rotation vector, pitch, focal"]
       prot_mod["ProtanToolsModule"]
       bitmap["BitmapIO"]
-      colorsci["ColorSpaces + CvdSimulation"]
+      colorsci["ColorSpaces and CvdSimulation - DeltaE00, Vienot Vischeck"]
     end
 
     sys_tts["System TTS"]
@@ -164,9 +168,14 @@ flowchart TB
   end
 
   %% Live detection path
-  vcjs --> fpcall --> plugin --> mlkit
+  vcjs --> fpcall --> plugin
+  plugin --> mlkit
   plugin --> sensors
-  plugin -->|results| vcjs
+  plugin --> tfl
+  tfl --> plugin
+  model_loader --> tfl
+  plugin -->|results: objs, dims, distance| vcjs
+
   vcjs --> speech_hooks --> speech_sup --> tts_wrap --> sys_tts
   vcjs --> overlay
 
@@ -174,7 +183,7 @@ flowchart TB
   uicf --> prot_bridge --> prot_mod
   prot_mod --> bitmap
   prot_mod --> colorsci
-  prot_mod -->|regions + meta| uicf
+  prot_mod -->|regions + meta: boxes, swatches, confidence| uicf
   uicf --> overlay
 
   %% Device
