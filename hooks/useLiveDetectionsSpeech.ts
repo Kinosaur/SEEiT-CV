@@ -12,7 +12,7 @@ import {
     SMALL_GROUP_MAX,
 } from '@/constants/detection';
 import { useDirectionSmoothing } from '@/hooks/useDirectionSmoothing';
-import { useDistanceCategorySmoothing, type DistCat } from '@/hooks/useDistanceCategorySmoothing';
+import { type DistCat } from '@/hooks/useDistanceCategorySmoothing';
 import { classifyChange, type Signature } from '@/services/detections/signature';
 import { type SpeechPriority } from '@/services/speechSupervisor';
 import {
@@ -39,7 +39,6 @@ export function useLiveDetectionsSpeech(params: {
     const { enabled, objects, requestSpeak } = params;
 
     const { smoothDirection, purgeDirCache } = useDirectionSmoothing();
-    const { smoothDistCat, purgeDistCache } = useDistanceCategorySmoothing();
     const lastSigRef = React.useRef<Signature | null>(null);
 
     type PerLabelState = {
@@ -70,13 +69,12 @@ export function useLiveDetectionsSpeech(params: {
         const rawList = (objects ?? []) as Obj[];
         const now = Date.now();
         purgeDirCache(now);
-        purgeDistCache(now);
         if (!rawList.length) return;
 
         type Info = {
             id: number;
             nat: string;
-            distCat?: DistCat; // smoothed categorical distance
+            distCat?: DistCat; // native-stable categorical distance
             score?: number;
             dir?: string | null;
             dm?: number;
@@ -88,7 +86,7 @@ export function useLiveDetectionsSpeech(params: {
                 const top = Array.isArray(o.labels) && o.labels.length > 0 ? o.labels[0] : null;
                 const base = top?.name as string | undefined;
 
-                // Use only "stable" distance categories as raw input to smoother
+                // Use only native "stable" distance categories directly (avoid extra JS smoothing latency)
                 let rawStableCat: DistCat | null = null;
                 if (
                     typeof o.distance_cat === 'string' &&
@@ -114,7 +112,7 @@ export function useLiveDetectionsSpeech(params: {
                 return {
                     id: o.id ?? -1,
                     nat: naturalLabel(base),
-                    distCat: smoothDistCat(o.id ?? -1, rawStableCat, now) || undefined,
+                    distCat: rawStableCat || undefined,
                     score: typeof top?.c === 'number' ? top.c : undefined,
                     dir: smoothDirection(o.id ?? -1, rawDir, now),
                     dm,
@@ -365,7 +363,7 @@ export function useLiveDetectionsSpeech(params: {
             requestSpeak(postPhraseSanitize(finalPhrase), changeClass);
         }
         lastSigRef.current = sig;
-    }, [enabled, objects, purgeDirCache, purgeDistCache, smoothDirection, smoothDistCat, requestSpeak, getPerLabelState]);
+    }, [enabled, objects, purgeDirCache, smoothDirection, requestSpeak, getPerLabelState]);
 
     function buildGroupPhrase(
         arr: { nat: string; distCat?: DistCat; dir?: string | null; dm?: number; dconf?: 'high' | 'med' | 'low' }[],

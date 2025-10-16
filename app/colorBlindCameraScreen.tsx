@@ -37,7 +37,7 @@ type ConfRegion = {
 }
 
 const CF_MIN_AREA_FRAC = 0.0035;
-const CF_MIN_SAT = 0.25;
+const CF_MIN_SAT = 0.35; // align with native clamp (max(minSat, 0.35))
 const CF_MIN_VAL = 0.15;
 
 // Label sizing guards
@@ -148,7 +148,7 @@ export default function ColorBlindCameraScreen() {
         const res = await detectConfusableColors(uri, 360, mode, CF_MIN_AREA_FRAC, CF_MIN_SAT, CF_MIN_VAL);
         let filtered = (res.regions ?? []) as ConfRegion[];
 
-        // STRICT: only show high-confidence by default
+        // STRICT: only show high-confidence by default (native already prunes to high)
         if (!showLowConf) {
             filtered = filtered.filter(r => {
                 if (mode === 'protan') return r.confProtan === 'high';
@@ -187,7 +187,7 @@ export default function ColorBlindCameraScreen() {
 
     const toggleShowLowConf = React.useCallback(() => {
         setShowLowConf(prev => !prev);
-        AccessibilityInfo.announceForAccessibility?.('Toggled low confidence regions');
+        AccessibilityInfo.announceForAccessibility?.('Toggled region verbosity');
     }, []);
 
     React.useEffect(() => {
@@ -428,9 +428,9 @@ export default function ColorBlindCameraScreen() {
                                 onPress={toggleShowLowConf}
                                 style={[dynamicStyles.pill, showLowConf && dynamicStyles.pillActive]}
                                 accessibilityRole="button"
-                                accessibilityLabel={showLowConf ? 'Hide low confidence regions' : 'Show low confidence regions'}
+                                accessibilityLabel={showLowConf ? 'Show fewer regions' : 'Show more regions'}
                             >
-                                <ThemedText>{showLowConf ? 'Hide low-conf' : 'Show low-conf'}</ThemedText>
+                                <ThemedText>{showLowConf ? 'Fewer regions' : 'More regions'}</ThemedText>
                             </TouchableOpacity>
 
                             <TouchableOpacity
@@ -579,8 +579,6 @@ const styles = StyleSheet.create({
     permissionText: { fontSize: 20, fontFamily: 'AtkinsonBold', textAlign: 'center' },
     confBox: { position: 'absolute', borderWidth: 2, borderRadius: 4 },
 
-
-
     modalControlsRow: { paddingHorizontal: 12, paddingTop: 6, paddingBottom: 0, flexDirection: 'row', gap: 10, alignItems: 'center' },
 
     legendHeader: { fontFamily: 'AtkinsonBold', fontSize: 14, marginBottom: 8 },
@@ -591,8 +589,6 @@ const styles = StyleSheet.create({
     lineRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginVertical: 2 },
     lineLabel: { width: 58, fontFamily: 'AtkinsonBold' },
     lineText: { fontSize: 14, flexShrink: 1 },
-
-
 
     footerBar: {
         position: 'absolute',
