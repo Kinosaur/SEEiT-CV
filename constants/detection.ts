@@ -24,13 +24,6 @@ export const NATURAL_LABEL_MAP: Record<string, string> = {
     'emergency exit': 'emergency exit',
 };
 
-export const DIST_PRIORITY: Record<string, number> = {
-    near: 0,
-    mid: 1,
-    far: 2,
-    unknown: 3,
-};
-
 export const DIRECTION_ORDER: Record<string, number> = {
     'upper left': 0,
     'upper right': 1,
@@ -45,11 +38,6 @@ export const DIRECTION_ORDER: Record<string, number> = {
 export const DIR_STABLE_FRAMES = 3;
 export const DIR_NULL_GRACE = 2;
 export const DIR_CACHE_TTL_MS = 9000;
-
-// Distance category smoothing controls (used by useDistanceCategorySmoothing)
-export const DIST_CAT_STABLE_FRAMES = 3;
-export const DIST_CAT_NULL_GRACE = 2;
-export const DIST_CAT_CACHE_TTL_MS = 9000;
 
 // Grouping and phrasing
 export const SMALL_GROUP_MAX = 4;
@@ -81,6 +69,4 @@ export const MULTI_COUNT_LABELS = new Set([
 
 // Per-id stability and phrasing timers
 export const ID_ABSENCE_MS = 900;
-export const MIN_BUCKET_SPEAK_INTERVAL_MS = 2500;
-export const NEAR_DEESC_DELAY_MS = 1500;
 export const MAX_DIRECTION_MENTIONS = 2;

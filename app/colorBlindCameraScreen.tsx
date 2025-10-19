@@ -20,32 +20,24 @@ type ConfLevel = 'low' | 'med' | 'high';
 
 type ConfRegion = {
     type: string;
-    mode: 'protan' | 'deutan' | 'general';
-    riskFor: 'protan' | 'deutan' | 'both';
+    mode: 'protan';
+    riskFor: 'protan';
     trueFamily: string;
     dominantFamily?: string;
     meanR: number; meanG: number; meanB: number;
-    meanProtanR?: number; meanProtanG?: number; meanProtanB?: number;
-    meanDeutanR?: number; meanDeutanG?: number; meanDeutanB?: number;
-    simFamilyProtan?: string;
-    simFamilyDeutan?: string;
-    avgDeltaEProtan?: number;
-    avgDeltaEDeutan?: number;
-    confProtan?: ConfLevel;
-    confDeutan?: ConfLevel;
+    meanProtanR: number; meanProtanG: number; meanProtanB: number;
+    simFamilyProtan: string;
+    confProtan: ConfLevel;
     x: number; y: number; w: number; h: number; areaFrac: number;
 }
 
 const CF_MIN_AREA_FRAC = 0.0035;
-const CF_MIN_SAT = 0.35; // align with native clamp (max(minSat, 0.35))
+const CF_MIN_SAT = 0.35;
 const CF_MIN_VAL = 0.15;
 
-// Label sizing guards
 const MIN_LABEL_AREA_FRAC = 0.006;
 const MIN_LABEL_PX_W = 56;
 const MIN_LABEL_PX_H = 24;
-
-type LabelMode = 'numbers' | 'names' | 'off';
 
 export default function ColorBlindCameraScreen() {
     const [cameraPosition] = React.useState<'back' | 'front'>('back');
@@ -66,10 +58,9 @@ export default function ColorBlindCameraScreen() {
     const [processing, setProcessing] = React.useState(false);
     const [analyzing, setAnalyzing] = React.useState(false);
 
-    const [confMode, setConfMode] = React.useState<'protan' | 'deutan' | 'both'>('both');
     const [confRegions, setConfRegions] = React.useState<ConfRegion[]>([]);
     const [showLowConf, setShowLowConf] = React.useState(false);
-    const [labelMode, setLabelMode] = React.useState<LabelMode>('numbers');
+    const [labelMode, setLabelMode] = React.useState<'numbers' | 'names' | 'off'>('numbers');
 
     const [containerW, setContainerW] = React.useState(0);
     const [containerH, setContainerH] = React.useState(0);
@@ -83,12 +74,6 @@ export default function ColorBlindCameraScreen() {
     React.useEffect(() => {
         if (!hasPermission) requestPermission().catch(() => { });
     }, [hasPermission, requestPermission]);
-
-    React.useEffect(() => {
-        AccessibilityInfo.announceForAccessibility?.(
-            `Mode set to ${confMode === 'both' ? 'Both' : confMode === 'protan' ? 'Protan' : 'Deutan'}.`
-        );
-    }, [confMode]);
 
     const ensureFileUri = React.useCallback(async (uri: string): Promise<string> => {
         if (uri.startsWith('file://')) return uri;
@@ -144,23 +129,13 @@ export default function ColorBlindCameraScreen() {
         }
     }, []);
 
-    const runConfusions = React.useCallback(async (uri: string, mode: 'protan' | 'deutan' | 'both') => {
-        const res = await detectConfusableColors(uri, 360, mode, CF_MIN_AREA_FRAC, CF_MIN_SAT, CF_MIN_VAL);
+    const runConfusions = React.useCallback(async (uri: string) => {
+        const res = await detectConfusableColors(uri, 360, 'protan', CF_MIN_AREA_FRAC, CF_MIN_SAT, CF_MIN_VAL);
         let filtered = (res.regions ?? []) as ConfRegion[];
 
-        // STRICT: only show high-confidence by default (native already prunes to high)
         if (!showLowConf) {
-            filtered = filtered.filter(r => {
-                if (mode === 'protan') return r.confProtan === 'high';
-                if (mode === 'deutan') return r.confDeutan === 'high';
-                return (r.confProtan === 'high') || (r.confDeutan === 'high');
-            });
+            filtered = filtered.filter(r => r.confProtan === 'high');
         }
-
-        filtered = filtered.filter(r => mode === 'both'
-            ? (r.riskFor === 'both' || r.riskFor === 'protan' || r.riskFor === 'deutan')
-            : r.riskFor === mode || r.riskFor === 'both'
-        );
 
         filtered.sort((a, b) => (a.y === b.y ? a.x - b.x : a.y - b.y));
 
@@ -170,7 +145,7 @@ export default function ColorBlindCameraScreen() {
 
         AccessibilityInfo.announceForAccessibility?.(
             filtered.length === 0
-                ? 'No high-confidence regions detected for this mode.'
+                ? 'No high-confidence regions detected.'
                 : `Detected ${filtered.length} high-confidence region${filtered.length === 1 ? '' : 's'}.`
         );
 
@@ -179,9 +154,9 @@ export default function ColorBlindCameraScreen() {
 
     const rerunIfPossible = React.useCallback(async () => {
         if (photoUri) {
-            try { await runConfusions(photoUri, confMode); } catch { }
+            try { await runConfusions(photoUri); } catch { }
         }
-    }, [photoUri, confMode, runConfusions]);
+    }, [photoUri, runConfusions]);
 
     React.useEffect(() => { void rerunIfPossible(); }, [showLowConf, labelMode, rerunIfPossible]);
 
@@ -194,14 +169,13 @@ export default function ColorBlindCameraScreen() {
         (async () => {
             if (!photoUri) return;
             try {
-                await runConfusions(photoUri, confMode);
+                await runConfusions(photoUri);
             } catch {
                 setConfRegions([]);
             }
         })();
-    }, [photoUri, confMode, runConfusions]);
+    }, [photoUri, runConfusions]);
 
-    // Import and analyze flow
     const importAndAnalyze = React.useCallback(async () => {
         try {
             setProcessing(true);
@@ -216,7 +190,7 @@ export default function ColorBlindCameraScreen() {
             const fileUri = await ensureFileUri(pickedUri);
             setPhotoUri(fileUri);
             setConfRegions([]);
-            const res = await runConfusions(fileUri, confMode);
+            const res = await runConfusions(fileUri);
             setImgW(res.width || 0);
             setImgH(res.height || 0);
         } catch (e) {
@@ -224,9 +198,8 @@ export default function ColorBlindCameraScreen() {
         } finally {
             setProcessing(false);
         }
-    }, [requestMediaPermission, pickOneImage, ensureFileUri, runConfusions, confMode]);
+    }, [requestMediaPermission, pickOneImage, ensureFileUri, runConfusions]);
 
-    // Capture and analyze flow
     const captureAndAnalyze = React.useCallback(async () => {
         if (!cameraRef.current) return;
         try {
@@ -239,7 +212,7 @@ export default function ColorBlindCameraScreen() {
 
             setPhotoUri(fileUri);
             setConfRegions([]);
-            const res = await runConfusions(fileUri, confMode);
+            const res = await runConfusions(fileUri);
             setImgW(res.width || 0);
             setImgH(res.height || 0);
             AccessibilityInfo.announceForAccessibility?.('Analysis complete.');
@@ -249,7 +222,7 @@ export default function ColorBlindCameraScreen() {
         } finally {
             setAnalyzing(false);
         }
-    }, [cameraRef, runConfusions, confMode]);
+    }, [cameraRef, runConfusions]);
 
     if (!hasPermission) {
         return (
@@ -277,14 +250,12 @@ export default function ColorBlindCameraScreen() {
     };
 
     const overlayStyle = { borderColor: `${theme.text}F2`, backgroundColor: `${theme.surface}1A`, borderStyle: 'solid' as const };
-
     const confTag = (level?: ConfLevel) => (level ? ` (${level})` : '');
 
     const buildPillLabel = (cr: ConfRegion): string => {
         const dom = cr.dominantFamily || cr.trueFamily || '';
-        if (confMode === 'both') return dom;
-        const sim = confMode === 'protan' ? (cr.simFamilyProtan || '') : (cr.simFamilyDeutan || '');
-        const conf = confMode === 'protan' ? cr.confProtan : cr.confDeutan;
+        const sim = cr.simFamilyProtan || '';
+        const conf = cr.confProtan;
         if (!sim || conf === 'low') return dom;
         const mark = conf === 'high' ? ' ↑' : '';
         return `${dom} → ${sim}${mark}`;
@@ -335,17 +306,6 @@ export default function ColorBlindCameraScreen() {
             </View>
 
             <View style={styles.controlsRow}>
-                <TouchableOpacity
-                    onPress={() => setConfMode(m => (m === 'both' ? 'protan' : m === 'protan' ? 'deutan' : 'both'))}
-                    style={dynamicStyles.pill}
-                    accessibilityRole="button"
-                    accessibilityLabel="Switch colorblind mode"
-                    accessibilityHint="Cycles between Both, Protan, and Deutan"
-                    disabled={analyzing || processing}
-                >
-                    <ThemedText>Mode: {confMode === 'both' ? 'Both' : confMode === 'protan' ? 'Protan' : 'Deutan'}</ThemedText>
-                </TouchableOpacity>
-
                 <Buttons
                     onPress={captureAndAnalyze}
                     accessibilityLabel="Capture and analyze"
@@ -361,11 +321,10 @@ export default function ColorBlindCameraScreen() {
                     onPress={importAndAnalyze}
                     accessibilityLabel="Import image for analysis"
                     circular
-                    size={52}
-                    variant="surface"
+                    size={72}
+                    variant="primary"
                     iconName="image-outline"
                     iconPosition="only"
-                    containerStyle={{ marginRight: 12 }}
                     disabled={processing || analyzing}
                 />
             </View>
@@ -425,7 +384,7 @@ export default function ColorBlindCameraScreen() {
 
                         <View style={styles.modalControlsRow} accessible accessibilityRole="toolbar">
                             <TouchableOpacity
-                                onPress={toggleShowLowConf}
+                                onPress={() => setShowLowConf(prev => !prev)}
                                 style={[dynamicStyles.pill, showLowConf && dynamicStyles.pillActive]}
                                 accessibilityRole="button"
                                 accessibilityLabel={showLowConf ? 'Show fewer regions' : 'Show more regions'}
@@ -450,15 +409,12 @@ export default function ColorBlindCameraScreen() {
                             showsVerticalScrollIndicator
                         >
                             <ThemedText style={[styles.legendHeader, { color: theme.text }]}>
-                                Regions: {confRegions.length} • Mode: {confMode === 'both' ? 'Both' : confMode === 'protan' ? 'Protan' : 'Deutan'}
+                                Regions: {confRegions.length} • Mode: Protan
                             </ThemedText>
 
                             {confRegions.map((cr, idx) => {
                                 const trueSw = `rgb(${cr.meanR},${cr.meanG},${cr.meanB})`;
-                                const showProtan = confMode !== 'deutan';
-                                const showDeutan = confMode !== 'protan';
-                                const protSw = cr.meanProtanR != null ? `rgb(${cr.meanProtanR},${cr.meanProtanG},${cr.meanProtanB})` : 'transparent';
-                                const deutSw = cr.meanDeutanR != null ? `rgb(${cr.meanDeutanR},${cr.meanDeutanG},${cr.meanDeutanB})` : 'transparent';
+                                const protSw = `rgb(${cr.meanProtanR},${cr.meanProtanG},${cr.meanProtanB})`;
 
                                 return (
                                     <View key={`legend-${idx}`} style={[styles.legendCard, { borderColor: theme.divider }]}>
@@ -468,20 +424,14 @@ export default function ColorBlindCameraScreen() {
                                         </View>
 
                                         <Line label="True" swatch={trueSw} text={(cr.dominantFamily || cr.trueFamily || '—')} />
-
-                                        {showProtan && (
-                                            <Line label="Protan" swatch={protSw} text={`${cr.simFamilyProtan || '—'}${confTag(cr.confProtan)}`} />
-                                        )}
-                                        {showDeutan && (
-                                            <Line label="Deutan" swatch={deutSw} text={`${cr.simFamilyDeutan || '—'}${confTag(cr.confDeutan)}`} />
-                                        )}
+                                        <Line label="Protan" swatch={protSw} text={`${cr.simFamilyProtan || '—'}${confTag(cr.confProtan)}`} />
                                     </View>
                                 );
                             })}
 
                             {confRegions.length === 0 && (
                                 <ThemedText style={{ opacity: 0.7, marginTop: 8 }}>
-                                    No confident regions detected for this mode.
+                                    No confident regions detected.
                                 </ThemedText>
                             )}
                         </ScrollView>
@@ -572,7 +522,6 @@ const styles = StyleSheet.create({
     headerRow: { flexDirection: 'row', justifyContent: 'center', paddingVertical: 2, marginBottom: 10 },
     title: { fontFamily: 'AtkinsonBold', fontSize: 22, textAlign: 'center' },
     previewWrapper: { flex: 1, borderRadius: 10, overflow: 'hidden', marginHorizontal: 12, marginBottom: 12 },
-    // Add more side padding so rightmost button isn’t hugging the edge
     controlsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', paddingHorizontal: 16, paddingVertical: 8, gap: 12 },
 
     center: { flex: 1, justifyContent: 'center', padding: 32 },

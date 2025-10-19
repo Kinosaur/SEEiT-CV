@@ -268,13 +268,13 @@ export default function Index() {
                         accessibilityState={{ checked: showOverlay }}
                         accessibilityLabel="Toggle detection overlay"
                     >
-                        <Text style={{ color: themeColors.text, fontSize: 12 }}>{showOverlay ? 'Overlay: On' : 'Overlay: Off'}</Text>
+                        <Text style={{ color: themeColors.text, fontSize: 14 }}>{showOverlay ? 'Overlay: On' : 'Overlay: Off'}</Text>
                     </TouchableOpacity>
                     <View style={{ backgroundColor: `${themeColors.surface}CC`, paddingHorizontal: 8, paddingVertical: 6, borderRadius: 6 }}>
-                        <Text style={{ color: statusColor, fontSize: 12 }}>{statusText}</Text>
+                        <Text style={{ color: statusColor, fontSize: 14 }}>{statusText}</Text>
                     </View>
                     <View style={{ backgroundColor: `${themeColors.surface}CC`, paddingHorizontal: 8, paddingVertical: 6, borderRadius: 6 }}>
-                        <Text style={{ color: themeColors.text, fontSize: 12 }}>Objs: {objCount}</Text>
+                        <Text style={{ color: themeColors.text, fontSize: 14 }}>Objs: {objCount}</Text>
                     </View>
                 </View>
 

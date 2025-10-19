@@ -1,3 +1,4 @@
+import { useDistanceMetersSmoothing } from '@/hooks/useDistanceMetersSmoothing';
 import React, { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
@@ -8,8 +9,6 @@ type DetObj = {
   labels?: DetLabel[]
   distance_m?: number | null
   distance_src?: string
-  distance_cat?: string
-  distance_cat_conf?: string
   distance_conf?: 'high' | 'med' | 'low'
 }
 
@@ -62,31 +61,30 @@ export const DetectionOverlay: React.FC<DetectionOverlayProps> = ({
   strokeWidth = 3,
   showLabel = true,
 }) => {
+  const { smoothMeters, purgeDistCache } = useDistanceMetersSmoothing();
+
   const boxes = useMemo(() => {
+    const now = Date.now();
+    purgeDistCache(now);
+
     if (!objects || objects.length === 0) return []
     return objects.map(o => {
       const m = mapBoxCover(o.b, frameWidth, frameHeight, containerWidth, containerHeight)
       if (!m) return null
       const lbl = o.labels && o.labels.length > 0 ? o.labels[0] : undefined
-      const cat = o.distance_cat && o.distance_cat !== 'unknown' ? o.distance_cat : null
-      const catSuffix = cat ? ` (${cat})` : ''
 
-      const distConf = o.distance_conf
-      const dist = typeof o.distance_m === 'number' ? o.distance_m : null
+      const raw = typeof o.distance_m === 'number' ? o.distance_m : undefined
+      const conf = o.distance_conf as any
+      const { display } = smoothMeters(o.id, raw, conf, now)
 
-      // Demo polish:
-      // - Show meters only at high confidence to reduce flicker
-      // - Quantize to 0.5 m steps below 10 m, otherwise nearest 1 m
-      const quantize = (v: number) => (v < 10 ? Math.round(v * 2) / 2 : Math.round(v))
-      const showMeters = dist != null && distConf === 'high'
-      const distText = showMeters ? `${quantize(dist)} m` : ''
+      const distText = typeof display === 'number' ? `${display} m` : ''
 
-      let text = lbl ? `${lbl.name}${catSuffix}` : `—${catSuffix}`
+      let text = lbl ? `${lbl.name}` : `—`
       if (distText) text += ` — ${distText}`
 
       return { id: o.id, style: m, text }
     }).filter(Boolean) as { id: number; style: BoxStyle; text: string }[]
-  }, [objects, frameWidth, frameHeight, containerWidth, containerHeight])
+  }, [objects, frameWidth, frameHeight, containerWidth, containerHeight, purgeDistCache, smoothMeters])
 
   if (containerWidth === 0 || containerHeight === 0) return null
 
@@ -109,7 +107,9 @@ export const DetectionOverlay: React.FC<DetectionOverlayProps> = ({
         >
           {showLabel && (
             <View style={styles.labelContainer}>
-              <Text style={styles.labelText}>{bx.text}</Text>
+              <Text style={styles.labelText} numberOfLines={1} ellipsizeMode="tail">
+                {bx.text}
+              </Text>
             </View>
           )}
         </View>
@@ -126,16 +126,17 @@ const styles = StyleSheet.create({
   },
   labelContainer: {
     position: 'absolute',
-    top: -22,
+    top: -26,
     left: 0,
     backgroundColor: 'rgba(0,0,0,0.65)',
     paddingHorizontal: 6,
     paddingVertical: 2,
-    borderRadius: 4
+    borderRadius: 4,
+    maxWidth: '85%',
   },
   labelText: {
     color: '#fff',
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '600'
   }
 })
