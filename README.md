@@ -1,50 +1,110 @@
-# Welcome to your Expo app 👋
+# SEEiT-CV 👁️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**SEEiT-CV** is a React Native accessibility app that uses computer vision to help visually impaired users navigate their environment through real-time object detection and audio feedback.
 
-## Get started
+## Features
 
-1. Install dependencies
+- 🎥 **Real-time Object Detection**: Uses ML Kit for live camera object detection
+- 🔊 **Audio Feedback**: Text-to-speech announcements for detected objects
+- ♿ **Accessibility First**: Built with comprehensive accessibility features
+- 🌗 **Theme Support**: Light and dark mode support
+- 🎛️ **Camera Controls**: Torch, camera switching, pause/resume functionality
+- 🔄 **Color Blind Support**: Specialized features for color vision deficiency
+- 📱 **Android Target**: Optimized for Android devices
 
+## Prerequisites
+
+- Node.js (v16 or higher)
+- npm or yarn
+- Android Studio and Android SDK
+- Expo CLI (`npm install -g @expo/cli`)
+
+## Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Kinosaur/SEEiT-CV.git
+   cd SEEiT-CV
+   ```
+
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. **Start the development server**
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+4. **Run on Android**
+   ```bash
+   npx expo run:android
+   ```
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Project Structure
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+SEEiT-CV/
+├── app/                          # Main application screens
+│   ├── index.tsx                 # Main camera detection screen
+│   ├── colorBlindCameraScreen.tsx # Color blind assistance features
+│   ├── colorBlindnessSelect.tsx  # Color blindness type selection
+│   └── feedback.tsx              # User feedback screen
+├── components/                   # Reusable UI components
+│   ├── Buttons.tsx              # Custom button components
+│   ├── DetectionOverlay.tsx     # Object detection overlay
+│   └── ui/                      # UI components
+├── constants/                    # App constants and configuration
+├── hooks/                       # Custom React hooks
+├── services/                    # Core services (TTS, speech)
+├── utils/                       # Utility functions
+├── assets/                      # Images, fonts, ML models
+│   └── models/                  # TensorFlow Lite models
+└── android/                     # Android-specific configuration
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Key Technologies
 
-## Learn more
+- **React Native** (0.79.5) with Expo (53.0.22)
+- **React Native Vision Camera** for camera functionality
+- **ML Kit Object Detection** for real-time computer vision
+- **React Native TTS** for text-to-speech functionality
+- **React Navigation** for app navigation
+- **TensorFlow Lite** models for enhanced detection
 
-To learn more about developing your project with Expo, look at the following resources:
+## Development
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- **Linting**: `npm run lint`
+- **Android Build**: `npm run android`
+- **Start Dev Server**: `npm start`
 
-## Join the community
+## Configuration
 
-Join our community of developers creating universal apps.
+The app is configured for Android-only deployment. Key configurations:
+- Camera and microphone permissions
+- ML Kit frame processors
+- Text-to-speech capabilities
+- Accessibility features
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## Documentation
+
+- [System Architecture](./app/system_architecture.md) - Technical architecture overview
+- [Project Report](.docs/SEEiT Senior Porject 1 report.pdf) - Comprehensive project documentation and findings
+
+## Contributing
+
+This project focuses on accessibility and computer vision for Android platforms. When contributing:
+
+1. Ensure accessibility compliance
+2. Test with Android devices
+3. Follow the existing code patterns
+4. Update documentation as needed
+
+## License
+
+This project is developed for educational and accessibility purposes.
+
+## Contact
+
+For questions or feedback about SEEiT-CV, please use the in-app feedback feature or contact the development team.
