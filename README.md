@@ -90,7 +90,7 @@ The app is configured for Android-only deployment. Key configurations:
 ## Documentation
 
 - [System Architecture](./app/system_architecture.md) - Technical architecture overview
-- [Project Report](.docs/SEEiT Senior Porject 1 report.pdf) - Comprehensive project documentation and findings
+- [Project Report](.docs/SEEiT_Senior_Porject_1_report.pdf) - Comprehensive project documentation and findings
 
 ## Contributing
 
