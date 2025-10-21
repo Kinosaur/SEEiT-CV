@@ -403,7 +403,7 @@ export default function ColorBlindCameraScreen() {
 
                         <View style={styles.modalControlsRow} accessible accessibilityRole="toolbar">
                             <TouchableOpacity
-                                onPress={() => setShowLowConf(prev => !prev)}
+                                onPress={toggleShowLowConf}
                                 style={[dynamicStyles.pill, showLowConf && dynamicStyles.pillActive]}
                                 accessibilityRole="button"
                                 accessibilityLabel={showLowConf ? 'Show fewer regions' : 'Show more regions'}
