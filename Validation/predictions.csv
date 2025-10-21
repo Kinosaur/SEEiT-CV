@@ -1,0 +1,770 @@
+filepath,true,pred
+D:\SeeIt\Combined_Dataset_V9\test\car\10_jpg.rf.acb11b4d9755534b752e988d4176635b_10.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\10_jpg.rf.acb11b4d9755534b752e988d4176635b_11.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\10_jpg.rf.acb11b4d9755534b752e988d4176635b_12.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\10_jpg.rf.acb11b4d9755534b752e988d4176635b_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\10_jpg.rf.acb11b4d9755534b752e988d4176635b_6.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\10_jpg.rf.acb11b4d9755534b752e988d4176635b_7.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\10_jpg.rf.acb11b4d9755534b752e988d4176635b_8.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\10_jpg.rf.acb11b4d9755534b752e988d4176635b_9.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\11_jpg.rf.dc41b4bb1134afecbe88356b3f2be568_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\11_jpg.rf.dc41b4bb1134afecbe88356b3f2be568_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\11_jpg.rf.dc41b4bb1134afecbe88356b3f2be568_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\11_jpg.rf.dc41b4bb1134afecbe88356b3f2be568_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\11_jpg.rf.dc41b4bb1134afecbe88356b3f2be568_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\12_jpg.rf.94f62af51bf756b45787bce69d70b27c_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\12_jpg.rf.94f62af51bf756b45787bce69d70b27c_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\12_jpg.rf.94f62af51bf756b45787bce69d70b27c_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\12_jpg.rf.94f62af51bf756b45787bce69d70b27c_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\12_jpg.rf.94f62af51bf756b45787bce69d70b27c_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\12_jpg.rf.94f62af51bf756b45787bce69d70b27c_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\12_jpg.rf.94f62af51bf756b45787bce69d70b27c_6.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\14_jpg.rf.0d0eb6ead94779381e81a2226b29951d_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_10.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_11.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_12.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_13.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_14.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_15.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_16.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_17.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_18.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_19.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_20.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_3.jpg,car,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_5.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_6.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_7.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_8.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\15_jpg.rf.ee82dbf14de7680f9b2ffd1c695bcd8d_9.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.3d9e6d10a5fd53a163f55800f8e91be8_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.3d9e6d10a5fd53a163f55800f8e91be8_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.3d9e6d10a5fd53a163f55800f8e91be8_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.3d9e6d10a5fd53a163f55800f8e91be8_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.3d9e6d10a5fd53a163f55800f8e91be8_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.3d9e6d10a5fd53a163f55800f8e91be8_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.69b090f21c74c567b8d015b881758065_0.jpg,car,cycle
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.69b090f21c74c567b8d015b881758065_1.jpg,car,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.69b090f21c74c567b8d015b881758065_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.69b090f21c74c567b8d015b881758065_3.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.69b090f21c74c567b8d015b881758065_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.69b090f21c74c567b8d015b881758065_5.jpg,car,stop
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.69b090f21c74c567b8d015b881758065_6.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.69b090f21c74c567b8d015b881758065_7.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\1_jpg.rf.69b090f21c74c567b8d015b881758065_8.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\20_jpg.rf.89ce5f719ff2ae18836b587a64133541_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\20_jpg.rf.89ce5f719ff2ae18836b587a64133541_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\20_jpg.rf.89ce5f719ff2ae18836b587a64133541_10.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\20_jpg.rf.89ce5f719ff2ae18836b587a64133541_11.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\20_jpg.rf.89ce5f719ff2ae18836b587a64133541_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\20_jpg.rf.89ce5f719ff2ae18836b587a64133541_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\20_jpg.rf.89ce5f719ff2ae18836b587a64133541_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\20_jpg.rf.89ce5f719ff2ae18836b587a64133541_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\20_jpg.rf.89ce5f719ff2ae18836b587a64133541_6.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\20_jpg.rf.89ce5f719ff2ae18836b587a64133541_7.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\20_jpg.rf.89ce5f719ff2ae18836b587a64133541_8.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\20_jpg.rf.89ce5f719ff2ae18836b587a64133541_9.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\21_jpg.rf.44c3e412275e74a8cc469c04e068fd9f_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\21_jpg.rf.44c3e412275e74a8cc469c04e068fd9f_1.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\21_jpg.rf.44c3e412275e74a8cc469c04e068fd9f_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\21_jpg.rf.44c3e412275e74a8cc469c04e068fd9f_3.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\22_jpg.rf.2f2a41c595de46a1c9416632f0559b31_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\22_jpg.rf.2f2a41c595de46a1c9416632f0559b31_1.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\22_jpg.rf.2f2a41c595de46a1c9416632f0559b31_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\22_jpg.rf.2f2a41c595de46a1c9416632f0559b31_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\22_jpg.rf.2f2a41c595de46a1c9416632f0559b31_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\22_jpg.rf.2f2a41c595de46a1c9416632f0559b31_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\22_jpg.rf.2f2a41c595de46a1c9416632f0559b31_6.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\22_jpg.rf.2f2a41c595de46a1c9416632f0559b31_7.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\22_jpg.rf.2f2a41c595de46a1c9416632f0559b31_8.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\23_jpg.rf.f3afd0cb6e577516fc971772c62bef89_0.jpg,car,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\car\23_jpg.rf.f3afd0cb6e577516fc971772c62bef89_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\23_jpg.rf.f3afd0cb6e577516fc971772c62bef89_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\23_jpg.rf.f3afd0cb6e577516fc971772c62bef89_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\23_jpg.rf.f3afd0cb6e577516fc971772c62bef89_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\23_jpg.rf.f3afd0cb6e577516fc971772c62bef89_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\24_jpg.rf.8ab06a5df942bd61ff148cba09c5eea3_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\24_jpg.rf.8ab06a5df942bd61ff148cba09c5eea3_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\24_jpg.rf.8ab06a5df942bd61ff148cba09c5eea3_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\24_jpg.rf.8ab06a5df942bd61ff148cba09c5eea3_3.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\24_jpg.rf.8ab06a5df942bd61ff148cba09c5eea3_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\24_jpg.rf.8ab06a5df942bd61ff148cba09c5eea3_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\24_jpg.rf.8ab06a5df942bd61ff148cba09c5eea3_6.jpg,car,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\car\24_jpg.rf.8ab06a5df942bd61ff148cba09c5eea3_7.jpg,car,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\car\25_jpg.rf.f1084254b2a6b38afebcab5840c1b2f2_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\25_jpg.rf.f1084254b2a6b38afebcab5840c1b2f2_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\25_jpg.rf.f1084254b2a6b38afebcab5840c1b2f2_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\25_jpg.rf.f1084254b2a6b38afebcab5840c1b2f2_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\26_jpg.rf.22c30ef4700b36711a762a1a6de2c0d2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\27_jpg.rf.3f0d7cf5f4be9488d455685957dfdb4d_0.jpg,car,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\car\27_jpg.rf.3f0d7cf5f4be9488d455685957dfdb4d_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\28_jpg.rf.6dc2ff603f78a2ba811f6711cb9e35f0_0.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\28_jpg.rf.6dc2ff603f78a2ba811f6711cb9e35f0_1.jpg,car,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_10.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_11.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_12.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_13.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_14.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_15.jpg,car,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_16.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_6.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_7.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_8.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\2_jpg.rf.b98b66ff5f72d8e7e6189ace8eadd32c_9.jpg,car,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\car\30_jpg.rf.294e124ea5d1bfac484b56ed9bbf1288_0.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\30_jpg.rf.294e124ea5d1bfac484b56ed9bbf1288_1.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\30_jpg.rf.294e124ea5d1bfac484b56ed9bbf1288_2.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\30_jpg.rf.294e124ea5d1bfac484b56ed9bbf1288_3.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\30_jpg.rf.294e124ea5d1bfac484b56ed9bbf1288_4.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\31_jpg.rf.61a8dbfc78131a0b3589f1036dbf2687_0.jpg,car,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\car\31_jpg.rf.61a8dbfc78131a0b3589f1036dbf2687_1.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\31_jpg.rf.61a8dbfc78131a0b3589f1036dbf2687_2.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\31_jpg.rf.61a8dbfc78131a0b3589f1036dbf2687_3.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\32_jpg.rf.b13aca01dafbf2a231f83448cf51efc7_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\32_jpg.rf.b13aca01dafbf2a231f83448cf51efc7_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\32_jpg.rf.b13aca01dafbf2a231f83448cf51efc7_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\33_jpg.rf.8ed84b03cd42aee8dd20e3c5ba55d4cf_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\33_jpg.rf.8ed84b03cd42aee8dd20e3c5ba55d4cf_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\34_jpg.rf.728a6bbfd3077e4e5ca8d76f3bc61827_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\36_jpg.rf.46077eccbb477592bbdd01259ec047fd_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\36_jpg.rf.46077eccbb477592bbdd01259ec047fd_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\37_jpg.rf.ba52a3ab37024db7da121beb507b8e83_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\37_jpg.rf.ba52a3ab37024db7da121beb507b8e83_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\37_jpg.rf.ba52a3ab37024db7da121beb507b8e83_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\37_jpg.rf.ba52a3ab37024db7da121beb507b8e83_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\38_jpg.rf.a27693a0d344e5ab471a92cd47de42f2_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\38_jpg.rf.a27693a0d344e5ab471a92cd47de42f2_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\38_jpg.rf.a27693a0d344e5ab471a92cd47de42f2_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\38_jpg.rf.a27693a0d344e5ab471a92cd47de42f2_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\38_jpg.rf.a27693a0d344e5ab471a92cd47de42f2_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\38_jpg.rf.a27693a0d344e5ab471a92cd47de42f2_5.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\39_jpg.rf.06ef187e269c9d48725ad219c11e7b8c.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_10.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_11.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_12.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_13.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_6.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_7.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_8.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\3_jpg.rf.ea30bcf6eef30b3404801693ba7f4f72_9.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\40_jpg.rf.87fa1c674a57b3af12816d8a4eb58ea2_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\40_jpg.rf.87fa1c674a57b3af12816d8a4eb58ea2_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\40_jpg.rf.87fa1c674a57b3af12816d8a4eb58ea2_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\40_jpg.rf.87fa1c674a57b3af12816d8a4eb58ea2_3.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\40_jpg.rf.87fa1c674a57b3af12816d8a4eb58ea2_4.jpg,car,stop
+D:\SeeIt\Combined_Dataset_V9\test\car\40_jpg.rf.87fa1c674a57b3af12816d8a4eb58ea2_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\40_jpg.rf.87fa1c674a57b3af12816d8a4eb58ea2_6.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\41_jpg.rf.00aba09ec829ed3e2ee4be0185cfc7cf_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\41_jpg.rf.00aba09ec829ed3e2ee4be0185cfc7cf_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\41_jpg.rf.00aba09ec829ed3e2ee4be0185cfc7cf_3.jpg,car,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\car\41_jpg.rf.00aba09ec829ed3e2ee4be0185cfc7cf_4.jpg,car,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\car\42_jpg.rf.2db54c5d7f3a297942d200e021844bc4_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\42_jpg.rf.2db54c5d7f3a297942d200e021844bc4_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\42_jpg.rf.2db54c5d7f3a297942d200e021844bc4_10.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\42_jpg.rf.2db54c5d7f3a297942d200e021844bc4_11.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\42_jpg.rf.2db54c5d7f3a297942d200e021844bc4_12.jpg,car,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\car\42_jpg.rf.2db54c5d7f3a297942d200e021844bc4_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\42_jpg.rf.2db54c5d7f3a297942d200e021844bc4_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\42_jpg.rf.2db54c5d7f3a297942d200e021844bc4_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\42_jpg.rf.2db54c5d7f3a297942d200e021844bc4_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\42_jpg.rf.2db54c5d7f3a297942d200e021844bc4_6.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\42_jpg.rf.2db54c5d7f3a297942d200e021844bc4_7.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\42_jpg.rf.2db54c5d7f3a297942d200e021844bc4_8.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\42_jpg.rf.2db54c5d7f3a297942d200e021844bc4_9.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\43_jpg.rf.bd394d2c16daac0cb21cd0d6b23a229f_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\43_jpg.rf.bd394d2c16daac0cb21cd0d6b23a229f_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\43_jpg.rf.bd394d2c16daac0cb21cd0d6b23a229f_10.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\43_jpg.rf.bd394d2c16daac0cb21cd0d6b23a229f_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\43_jpg.rf.bd394d2c16daac0cb21cd0d6b23a229f_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\43_jpg.rf.bd394d2c16daac0cb21cd0d6b23a229f_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\43_jpg.rf.bd394d2c16daac0cb21cd0d6b23a229f_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\43_jpg.rf.bd394d2c16daac0cb21cd0d6b23a229f_6.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\43_jpg.rf.bd394d2c16daac0cb21cd0d6b23a229f_7.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\43_jpg.rf.bd394d2c16daac0cb21cd0d6b23a229f_8.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\43_jpg.rf.bd394d2c16daac0cb21cd0d6b23a229f_9.jpg,car,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\car\45_jpg.rf.dccdd27c17c4db0bd389cf074623587a_10.jpg,car,stop
+D:\SeeIt\Combined_Dataset_V9\test\car\45_jpg.rf.dccdd27c17c4db0bd389cf074623587a_11.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\45_jpg.rf.dccdd27c17c4db0bd389cf074623587a_7.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\45_jpg.rf.dccdd27c17c4db0bd389cf074623587a_8.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\45_jpg.rf.dccdd27c17c4db0bd389cf074623587a_9.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\46_jpg.rf.f2169ffd01af22b511dbc36a75c5ef37_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\46_jpg.rf.f2169ffd01af22b511dbc36a75c5ef37_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\46_jpg.rf.f2169ffd01af22b511dbc36a75c5ef37_2.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpeg.rf.8b60bb62442fc0230a463fb1bd090a4c_0.jpg,car,truck
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpeg.rf.8b60bb62442fc0230a463fb1bd090a4c_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpeg.rf.8b60bb62442fc0230a463fb1bd090a4c_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpeg.rf.8b60bb62442fc0230a463fb1bd090a4c_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpeg.rf.8b60bb62442fc0230a463fb1bd090a4c_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpeg.rf.8b60bb62442fc0230a463fb1bd090a4c_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_10.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_11.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_12.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_13.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_14.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_4.jpg,car,van
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_6.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_7.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_8.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\47_jpg.rf.c4af8a9d664ada95406ca46226f2e011_9.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\4_jpg.rf.f5b4df75cc1181d65b664dc05defd565_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\4_jpg.rf.f5b4df75cc1181d65b664dc05defd565_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\4_jpg.rf.f5b4df75cc1181d65b664dc05defd565_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\4_jpg.rf.f5b4df75cc1181d65b664dc05defd565_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\4_jpg.rf.f5b4df75cc1181d65b664dc05defd565_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\4_jpg.rf.f5b4df75cc1181d65b664dc05defd565_5.jpg,car,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\car\5_jpg.rf.256e94de3d76d4be724b164ddcbec3fc_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\5_jpg.rf.256e94de3d76d4be724b164ddcbec3fc_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\5_jpg.rf.256e94de3d76d4be724b164ddcbec3fc_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\5_jpg.rf.256e94de3d76d4be724b164ddcbec3fc_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\5_jpg.rf.256e94de3d76d4be724b164ddcbec3fc_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\6_jpg.rf.14c9946965a85cb4f88db831c076cfcb_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\6_jpg.rf.14c9946965a85cb4f88db831c076cfcb_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\6_jpg.rf.14c9946965a85cb4f88db831c076cfcb_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\6_jpg.rf.14c9946965a85cb4f88db831c076cfcb_3.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\6_jpg.rf.14c9946965a85cb4f88db831c076cfcb_4.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\6_jpg.rf.14c9946965a85cb4f88db831c076cfcb_5.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\6_jpg.rf.14c9946965a85cb4f88db831c076cfcb_6.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\6_jpg.rf.14c9946965a85cb4f88db831c076cfcb_7.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\6_jpg.rf.14c9946965a85cb4f88db831c076cfcb_8.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\6_jpg.rf.14c9946965a85cb4f88db831c076cfcb_9.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\7_jpg.rf.eb0654d4269bfea029d515fac35b9308_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\7_jpg.rf.eb0654d4269bfea029d515fac35b9308_1.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\x102_jpg.rf.24173e949069e9b7a0ec8ce8ed8d3c3d_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\x102_jpg.rf.24173e949069e9b7a0ec8ce8ed8d3c3d_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\x102_jpg.rf.24173e949069e9b7a0ec8ce8ed8d3c3d_2.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\x102_jpg.rf.24173e949069e9b7a0ec8ce8ed8d3c3d_3.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\x102_jpg.rf.24173e949069e9b7a0ec8ce8ed8d3c3d_4.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\x118_jpg.rf.7a8a9d1a602397ebb8764204273808e1_0.jpg,car,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\car\x118_jpg.rf.7a8a9d1a602397ebb8764204273808e1_1.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\x118_jpg.rf.7a8a9d1a602397ebb8764204273808e1_2.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\x118_jpg.rf.7a8a9d1a602397ebb8764204273808e1_3.jpg,car,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\car\x126_jpg.rf.7836eb16d573104c479b3fd470e959bc_0.jpg,car,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\car\x126_jpg.rf.7836eb16d573104c479b3fd470e959bc_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\x145_jpg.rf.6a457f2919f63b4f7b0f1a8f87bca40b_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\x145_jpg.rf.6a457f2919f63b4f7b0f1a8f87bca40b_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\x145_jpg.rf.6a457f2919f63b4f7b0f1a8f87bca40b_2.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\x152_jpg.rf.780fde2c21b5e72f8d838a9bcb6e1a84_0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\x152_jpg.rf.780fde2c21b5e72f8d838a9bcb6e1a84_1.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\x225_jpg.rf.8175adb319016f1023901b795f9c73a0.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\car\x79_jpg.rf.c026999d51ce6650976490490edd3c83_7.jpg,car,car
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\100_jpg.rf.e2a0c206f802e98faa2704b2c8fc3635.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\103_jpg.rf.1a1d3ea7f864e1f84fdc9a36ae263242.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\103_jpg.rf.b197d598cf53e7bcf618aac186c1f7c9.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\104_jpg.rf.d3b079766161901010028b037d0372f5.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\108_jpg.rf.dbc71ebed42fa8ce79f5e64578e58b8b_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\109_jpg.rf.2883ec05e927212059f4febd8cfb31e8_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\110_jpg.rf.73a0f22c500bc90b4bf9170d793b228a.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\112_jpg.rf.e5b0e3d3a220b3eb207625f08e19b9b0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\115_jpg.rf.36a82b63a282868aed1466aba14b037d.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\116_jpg.rf.104e47d9383447bf996281e069806ae2_2.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\116_jpg.rf.caf11ab25fe5426a74e9c90f8f44f19d_2.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\117_jpg.rf.e5a99603502749d6359100dadf117cb7.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\119_jpg.rf.461d11d0a5f3d6ef38d6e38b0546ee46.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\11_jpg.rf.3cbf9c95f7af6342dbe87df17437547e.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\121_jpg.rf.35bb50b363e81f12e53a95d91502f8c3.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\124_jpg.rf.223d87151b464a7990673b6999ffaedb.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\125_jpg.rf.9f0b7196bd3e0378b7da38720ea6c5f0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\128_jpg.rf.d06c2fc2d6e382940965694b257607a0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\129_jpg.rf.5b2fc1fe18368ff3ef61e7f62ddd1d86.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\12_jpg.rf.5e8f0453074e90c00a7c665af8db60f2.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\12_jpg.rf.b6dd73483afaa95aedee9e8532916ef5.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\130_jpg.rf.4e4df235d3be2d6a6f36f8700d27553a.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\131_jpg.rf.368bcdc160810676929f26dcf8b9bd06.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\133_jpg.rf.6050b6c97172bb9e5eb4d1ada12a3bea.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\133_jpg.rf.c2b885066d980f30e5daa96381d4e5d7.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\137_jpg.rf.bd3df9464a1accb207443dbb42c51d47.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\140_jpg.rf.69e15e323cfa6730434de6c5ca13dff3.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\141_jpg.rf.fe3d85a94aa22cd3a7cb962181f8a3c5.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\145_jpg.rf.78e63ee9f131ca20a8e21908537a6793.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\148_jpg.rf.3d31e635b3658631b3b3508f37133c75.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\149_jpg.rf.76ee3e7aa435a8b9c7537958d4693611.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\150_jpg.rf.e9a7070d9f48fcf53102dc1a2e985e65.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\151_jpg.rf.ae66c0ce6466a1e5a1b8547723b7e3f7.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\152_jpg.rf.7e6a2963331ee7c175f41832e8353035.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\157_jpg.rf.14b3c0e88b4b51108a043be70641a5e8.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\157_jpg.rf.c234dcb65d9777e058e618054a24a4e7.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\157_jpg.rf.e1470b7f362eafe76d03ceca17b5cdfb.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\158_jpg.rf.4c624c605e42815bbef68332e61f600a.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\158_jpg.rf.d009e1ccc7fedc4888f34d777619ba02.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\159_jpg.rf.8114646684884934cbd890c5a1b6f2d6.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\160_jpg.rf.ba90583ab7777c4302908a1e0ac8b436.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\162_jpg.rf.4bc77ed2212badb85c4df80771acacf8.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\163_jpg.rf.a3b5c3af0f3eb2855aa648b563456d3a_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\165_jpg.rf.3affa6515d43d6239f70078718cc1c88.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\166_jpg.rf.553c0fbbf28e38fa919c3835d652d76d.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\167_jpg.rf.15792b229dbef9db94fe9421c8ce8eb8_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\167_jpg.rf.381eb384f78eb1d2172494f65cb6557f_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\167_jpg.rf.381eb384f78eb1d2172494f65cb6557f_1.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\168_jpg.rf.1ef2acdaeb9857896c6c1f18c6f3de5a_1.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\168_jpg.rf.d67c1f50c397115081cbd66e5c8c5886_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\168_jpg.rf.d67c1f50c397115081cbd66e5c8c5886_1.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\168_jpg.rf.d67c1f50c397115081cbd66e5c8c5886_2.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\168_jpg.rf.d67c1f50c397115081cbd66e5c8c5886_3.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\168_jpg.rf.d67c1f50c397115081cbd66e5c8c5886_4.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\169_jpg.rf.d4f5ae947bbf27c8d9ab5c2662fa3e0b_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\16_jpg.rf.3e6f9c4080ef7938361b644ca9592952.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\170_jpg.rf.6ad5cc7489136e5b29b4b0816c5c1781_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\172_jpg.rf.db7fa646c68f06daf5fef025030cb393.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\174_jpg.rf.2ebf79ae9a3a19d44e734b797fab18b0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\177_jpg.rf.57d6c8864a82e99372e7b38d7213bb52_1.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\177_jpg.rf.c89fac23713298294392c7ed82d72d0f_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\177_jpg.rf.c89fac23713298294392c7ed82d72d0f_1.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\180_jpg.rf.7d257c558189ca48e7f9b5bf4dfdc2c2_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\183_jpg.rf.711edb9bb14f596f3a236494a354b245_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\183_jpg.rf.711edb9bb14f596f3a236494a354b245_1.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\183_jpg.rf.711edb9bb14f596f3a236494a354b245_2.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\183_jpg.rf.fc70ef16f6669fa257c5ae2b8f7e461d_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\186_jpg.rf.f3f7efed9624b6c0a5e9f3cbaa849472.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\189_jpg.rf.39b99640bc960b2f02c91d49b559264d.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\190_jpg.rf.5db9d183fb8eff35b4b35eaf6d7abfe2.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\194_jpg.rf.dbc6624ed8c06a943519cbafc64ea802_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\195_jpg.rf.ee8ae7ca9a815fe942e7e31073aefbf1.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\19_jpg.rf.8c564aa043301c2fb0defb3477c4c029.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\1_jpg.rf.7d19dd12e6336225e7e99a7db6ad9551_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\1_jpg.rf.7d19dd12e6336225e7e99a7db6ad9551_1.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\1_jpg.rf.7d19dd12e6336225e7e99a7db6ad9551_3.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\24_jpg.rf.f3d188b50205ae2effe7548baf4a2a5f.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\27_jpg.rf.b698b7d1abbf872fb9274aecdcee8d3b.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\28_jpg.rf.4391253d1288c5ce5d708653ec8a3923_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\30_jpg.rf.bde125d2b775ee927b01c73a909952d5.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\31_jpg.rf.98e2a522cbc696c1b72f4fb83d3903f0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\36_jpg.rf.af64e12739ef43977761b863f6faf2a4.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\3_jpg.rf.0d7d62411a3bb24286ad29c6f25bfb58.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\45_jpg.rf.28e247683782ed62acbf8e980e0017ed.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\47_jpg.rf.6aa936cea8dbe32e56a6e52dc0e3a9ab_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\48_jpg.rf.0d26ed6cd84ff65bfc781c6fa81d96f7_2.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\48_jpg.rf.3277f76dcb47a4f2a74856bf7e3e6c18_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\48_jpg.rf.3277f76dcb47a4f2a74856bf7e3e6c18_1.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\48_jpg.rf.3277f76dcb47a4f2a74856bf7e3e6c18_2.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\48_jpg.rf.bde0978fd5efff372e979939625e3f5b_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\48_jpg.rf.bde0978fd5efff372e979939625e3f5b_1.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\48_jpg.rf.bde0978fd5efff372e979939625e3f5b_2.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\49_jpg.rf.d343506cc61ef03fb1788066b515fa12.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\4_jpg.rf.2830ec6830b01da1dcec17f4306221c5.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\50_jpg.rf.162aef078adaa680efff384406f1c226.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\51_jpg.rf.90f4f55ac57bd910807b77bb28992461.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\55_jpg.rf.e86ab62affc05485588f345cc8423a39.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\56_jpg.rf.9fc5da7fc0eb4a272525e18a7901b37d.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\57_jpg.rf.c7920ac611bb00bc93144f28886d32bd.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\59_jpg.rf.d89dcb83f0bef4e450444498dce57345.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\5_jpg.rf.5baa73ebc26bf3f2e7f90dcd519630d2.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\61_jpg.rf.e48f8ae6685b887c52569da7b37cc730.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\62_jpg.rf.8e4a80698c06edc430648addc1c05b92.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\65_jpg.rf.c764f2652ce0c532ad623a4852a50a9a.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\67_jpg.rf.9a6a90c2f9406abafba659b52ae4c063.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\68_jpg.rf.bf2306cd385456c7a72f7136a50be45e.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\69_jpg.rf.a1d6a3cbd5988ada4f95ab861787d09f.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\6_jpg.rf.c57327e5320e8d3d1f782e5741cf7fb3.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\70_jpg.rf.9f924a7ea6271dd7905605660932a271_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\71_jpg.rf.4aefa9183d9e80ab6387ccb75b8951be.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\73_jpg.rf.65aefb2a9994b7dac86a062aab92bdbf.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\77_jpg.rf.073f1f3cc7089ae24e64f9a8a0fff150.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\78_jpg.rf.9e1aebb1e24558ad88b0cb7b5c65e893.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\79_jpg.rf.48b452d8ea26ac2084df70afc0cb20dd.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\80_jpg.rf.15732ad114a149c888161aa9e4d9ef71.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\80_jpg.rf.f24de9866ec428cf4957f1e2de364e02.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\84_jpg.rf.fb5f41cd4d4cb27a17b2ca8c715b36ca_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\85_jpg.rf.b2d37e279e8d4c35181322c2e0f5d48a.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\87_jpg.rf.3d4d26fc9e94b70169c660bd4f184cb7.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\87_jpg.rf.92a84cabe11d8091577b7e06c9bf8816.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\89_jpg.rf.a3282d54d85e334833731f5c206193db.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\8_jpg.rf.28d93c2a097ec268f5b496e11b107afc.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\8_jpg.rf.614146bc4e5bdc439c2e7d331f0fe79b.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\90_jpg.rf.6b7c26c51bc5b9c96495cae2e0a00360.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\93_jpg.rf.0ddb2b7ecd07b4a95242ad6369c0b151.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\98_jpg.rf.7ac8f10e848e85137cf2ef11351364b0_1.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\99_jpg.rf.6fa111ff000c2915a2107046cca318b8.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\aug_002_141_jpg.rf.fe3d85a94aa22cd3a7cb962181f8a3c5.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\aug_016_180_jpg.rf.a1ff26bf25d1589032e0fcdb8af9b707_0.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\aug_057_72_jpg.rf.179576cea2a0a29f72222c8b6e2f480f.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\crosswalk\aug_124_169_jpg.rf.142302bc17a1e06cc69d1cdc7b1ca5e5_1.jpg,crosswalk,crosswalk
+D:\SeeIt\Combined_Dataset_V9\test\cycle\00nyvirus-motorcycles-3-mobileMasterAt3x_jpg.rf.59924f6e06c03dcd0e32c38d159f18cd.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\100753882_836672400434422_8033746016614219776_n-1_jpg.rf.9e3f12db509f89554929d1f6dbe81113.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\1400762614840-lzpu5wuc6xso-146c928_jpg.rf.d5ab954821ca2772841147b8f62542c5.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\2020-Honda-Rebel-300-Review-cruiser-beginner-motorcycle-5_jpg.rf.1483f3dc690ffdb6f678ae039d776ad6.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\2022-Honda-CBR150R-Revealed-Features-Fireblade-Inspired-Styling-4_jpg.rf.01372d4b60a3570bddfdc53d3bb5a891.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\3_rain_jpg.rf.95ac87ca66c5b6db40168d7790411172.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\41858373_1_jpg.rf.fb6ef39d17fea50e76929cdacd99899b.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\685b5f2d7c25c753f11b7e7314322cde_jpg.rf.6937edc54d3cdb1f8ff2856e9678321e.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\84814360_614_jpg.rf.6048a5d5885899cd253b3e457d290766.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\87c7c4edc1edb048bf0f770d6fb05059_jpg.rf.a0e8b8e1c37734b64ee1fae647c2003d.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\bicycle-person-2742024_1280_jpg.rf.8fd4f785b8cec9834b4b3966b7e78f27.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\bike5_jpg.rf.384534673739447179c849b51728ea70.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\Crusher-In-The-Tushars-20170708-417_jpg.rf.b85b2c70d3d6a31150cdddf31cb69d8a.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\cyclist-carousel_jpg.rf.73bdcf796ee5ce287f6b81b251427a89.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\d8bKjP77253LdkHuceCLiG-1200-80_jpg.rf.da4c751a34acf2961f842ec29cffba99.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\GPUA34GRZNBODLX62UXPMTVBEU_jpg.rf.f3f587bf59498d7ca331a3e1934bb0bb.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\honda-cbr150r-slant-rear-view-full-image-116256_jpg.rf.5caeb304cbef7708ec301de5d94c4a6e.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\i17224_jpg.rf.e2346019cb605539267eee2079767ce7.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\IMG_1207-1024x768_jpg.rf.564be9579889a6d8625f5f34d2f3d114.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\indian-springfield-motorcycle-2_jpg.rf.8fce72a3cd5eea001f0041ed0438b281.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\cycle\PRI_220114175_jpg.rf.c4ca45ad22414acd17d10455a7d6769d.jpg,cycle,cycle
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\exit_101_jpg.rf.05380cd1c523500d9923754798dc0744.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_115_png.rf.d74058ef2fa70663b6dcf55c3acaaa09.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_138_png.rf.221804e4c52b3ddafcad36cdc01f6ee5.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_144_jpeg.rf.55e2c5de94e7639d800f45b7ab954120.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_147_jpeg.rf.2239efc11236de94ddb60081551a50a7.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_150_jpeg.rf.e663b5857bd46cfad451dc4d7e204835.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_153_jpeg.rf.e742306e1897cd8180480db2fa8613d2.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_168_jpeg.rf.b5e405dc2f48d216926f266ea9a9d06e.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_170_jpeg.rf.2fd4ec0b9ee6d42a508b3de4cf306bf1.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_174_jpeg.rf.099428c28dd7e5cc4e9ceff46d1c45ec.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_180_jpeg.rf.99525a23c8fddfc9c8f407e68c99588e.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_188_jpeg.rf.7bba49c1eb00b6c8dd26c8320fcdce6d.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_191_jpeg.rf.15b784be7aef1ce93773a16faf035d3c.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_193_jpeg.rf.479789495c25f238b5f3299f712b92f7.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_197_jpeg.rf.3b1b60d576e9b8defdcb52f2b56723a5.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_1_jpg.rf.0d1eb91a8e84d2c38ffa4034c9acfaf3.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_201_jpeg.rf.4559568b3444c9468e84a3be03d1b6b8.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_206_jpeg.rf.d61a2e293adc91af0e93070b6a8b30bc.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_207_jpeg.rf.45798d7f9920357fc4402e60b3a2634e.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_218_jpeg.rf.b366c3640aa2db2de7775ad80703650d.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_221_jpeg.rf.13c74b405d8aba1a7277917eec717234.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_222_jpeg.rf.6414c801def9acde0e81e4659dfde454.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\exit_26_jpg.rf.e33542c614fe27ce092babde293a052c.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\exit_29_jpg.rf.7d13edde3e6ce81c839496d903ac4cc6.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_29_jpg.rf.7d7295543ebd145da26f321baa639bfb.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_2_jpg.rf.a5999771486ab30342b8382ce17746ec.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\exit_32_jpg.rf.50aa876a8f455366a61f9b1c9f1b7078.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\exit_3_jpg.rf.1ff6e04c98c49a6842e1bee998a8c29a.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\exit_40_jpg.rf.3beaacbe2ba1ca2ac2bbeb8f384c0656.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\exit_53_jpg.rf.c07a6f331882e07d42894e9918662558.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_53_jpg.rf.d20f93ec203e30864dd3ea2e6e8c5696.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\exit_68_jpg.rf.8e7f578588c23b3a29cba0e34278fb92.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_69_jpeg.rf.0fe5ddc1af70b3f80d51a36ee9f89178.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_84_png.rf.4427b3503cd78d322ee255d71a367dc0.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_87_jpeg.rf.e46b68c0cd86801ad0f7e1abc471fad2.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_90_png.rf.f46ec927aa8c739d5396645139c831bc.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\Exit_96_png.rf.5e40c0f285198b851455cc412eb2d2b3.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\exit_99_jpg.rf.fd0c0ea17b130ad2b137f82e0abe7a51.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\frame_s1_2_jpg.rf.43c9e7ad6f32887a5f5a3e9719f90c99.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\frame_s1_36_jpg.rf.aa6855aff0bbe41955c29506431cdff3_0.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\frame_s1_36_jpg.rf.aa6855aff0bbe41955c29506431cdff3_1.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\frame_s1_36_jpg.rf.e80ab0403c6f7d1dc044ec2977ff6093_0.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\frame_s1_36_jpg.rf.e80ab0403c6f7d1dc044ec2977ff6093_1.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\frame_s1_36_jpg.rf.e80ab0403c6f7d1dc044ec2977ff6093_2.jpg,emergency_exit,car
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\frame_s3_643_jpg.rf.2c50325bd9c268be077b261413f3d89f.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\frame_s3_827_jpg.rf.a002cb0fa0f85e666961da09bcc3cd88.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\frame_s3_942_jpg.rf.bd66ef3120a7f204ae957883040f4866.jpg,emergency_exit,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\frame_s5_6_jpg.rf.e0d16176eb70278233cfe8226af88d33.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\frame_s6_173_jpg.rf.44cb6094d264348ad3188b054553279d.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\image_013_jpg.rf.4e8d41b714b3a16821e0f5bd4e349cf1.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\image_014_jpg.rf.d60aa8285a61eaf48b28d81cffcbc078.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\image_053_jpg.rf.bba59009889c44827aa4747de5c94ade_0.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\image_053_jpg.rf.bba59009889c44827aa4747de5c94ade_1.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\image_053_jpg.rf.bba59009889c44827aa4747de5c94ade_2.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\image_066_jpg.rf.e7b0a616025d0d38940c3881e74a7156.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\image_071_jpg.rf.019e2de3bfd83034aad050ad852d90b2.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\image_085_jpg.rf.83107ce3f14c78e0e2b3237f76837cb5.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\image_089_jpg.rf.877eaf7611a207766a10f75e0797911e.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\KakaoTalk_20220529_143658512_02_jpg.rf.6a46b56c1c1019dd6a3cc27778a9afba.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\KakaoTalk_20220529_143658512_06_jpg.rf.78ccfd493fa59184d6450e2a3c07bbc5.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\KakaoTalk_20231124_152523498_jpg.rf.679e39007d812831c66bb980b5cf525e.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\KakaoTalk_20231124_153519752_03_jpg.rf.8197b7e90c55e259f27db50cefc774f8.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\emergency_exit\KakaoTalk_20231124_153519752_jpg.rf.e257f83fcf43f6ce3e31baced0b5eb95.jpg,emergency_exit,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\stop\-7-Copy_png_jpg.rf.4a6abeb82aee04d7b0923c19aefa7cbe.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\00014_00004_00009_png_jpg.rf.2c29e1a6947cf00e0232ab8fdf373c39.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\00014_00005_00016_png_jpg.rf.e8e8ffc4ef78876494f2f0b8c15afd65.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\240_F_107037914_O3zS5hZZlvAZzNbX9f4AsD2pSmJpsjO6_jpg.rf.2cef9b408a9ed0753af87af087ecef19.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\240_F_107037914_O3zS5hZZlvAZzNbX9f4AsD2pSmJpsjO6_jpg.rf.ed8c65ce8fd49a3cfea65c8086fbfe4b.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\240_F_249712035_UsfkHMlyonZZTiAgxPwWpxBd0Jyjbfsw_jpg.rf.99fdb92a8b3f9f4a6bff96ea189fff98.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\6837_jpg.rf.fcab4431371496feb5fc955c9ff13438_1.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\images-2022-12-07T215843-060_jpg.rf.7446725b7f2d5b5d4c44d5e79ca5dceb.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\images-2022-12-07T215854-771_jpg.rf.63c3243442797110e0e34ed93b6c0d3c.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\images-2022-12-07T215854-771_jpg.rf.bfeb24b64c7084a6083f513f22e45f0d.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\imagexxs_jpg.rf.3ed844283cb55986aae97118cfabf62a.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\larangan-berjalan-terus-wajib-berhenti-sesaat-31-_jpg.rf.d77ee586709976ae0cadcee93a52b9eb.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\larangan-berjalan-terus-wajib-berhenti-sesaat-93-_jpg.rf.fa8a412ff14e331b7f8c4fd0fb39d0e3.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\n_jpg.rf.c3d00579900498d153a8fd61a57d2dd5.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road289_png_jpg.rf.bd333ddcd1f1f38abfb2d99ce848ee6d.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road303_png_jpg.rf.757791846360f64c25ada96830db9903.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road53_png_jpg.rf.85b44e9133120343088acaba25a8ac52.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road57_png_jpg.rf.7e8644470961dd4b588be44e4706413a.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road59_png_jpg.rf.6a897e3407777f87dcb38f3bfa059f28.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road61_png_jpg.rf.452f35ad50cbe3e04d098fb79b7bd348.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road61_png_jpg.rf.656d77c8863c19763789451c7eef9c4d.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road64_png_jpg.rf.f30735ea0c585f4f947749e7d83036f2.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road65_png_jpg.rf.2843863e10134483f75bedd5576b150c.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road65_png_jpg.rf.a06f43e27d85a4b36cc0d4928356954a.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road66_png_jpg.rf.03dc138f534c8ab4e00c2283883752eb.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road66_png_jpg.rf.344d4065311b6e8d7a240dc3007134d5.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road68_png_jpg.rf.f102486ebb6137c1d75099f5d407160c.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road69_png_jpg.rf.8d478e872e0419cdb3f6bb4a652f7bb9.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road72_png_jpg.rf.21795581215bb5a6a4218c92c79cb877.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road75_png_jpg.rf.e8a9c940870f152621c99f4128820604.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road76_png_jpg.rf.6f5f9e802d8e7a2acd3dd1fcd0106779.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road76_png_jpg.rf.f49c0e486dfd62c0474e1bcc48c38da7.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road77_png_jpg.rf.24b9acc54ec4ca893353ac469186a566.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road79_png_jpg.rf.5aee9b326f7bf8395a4f3fc73b0bc87b.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road83_png_jpg.rf.4b3eeb8dadf5d7b76f61b5924ad6faea.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road88_png_jpg.rf.afe5c8ba3a6837b05d7fcec78f0400c7.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road93_png_jpg.rf.5fda68d51c59a0fe39ff1d2fc950f3f0.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road95_png_jpg.rf.8bffb6fdb2878fd266bf2962c4434c30.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road96_png_jpg.rf.0531de5c8cd7ca002b3cb506d740a72b.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\road99_png_jpg.rf.1e4bcd3a40a32a74650e5c73d29d7ecc.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\stop_1323804393-avi_image24_png_jpg.rf.476d5a608bd3eea724506c42f1ec4b91.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\stop_1323804497-avi_image18_png_jpg.rf.d123f7a7bb5df4a72951f100316c4468.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\stop_1323817842-avi_image24_png_jpg.rf.a097c69b7d73b624ec18a4fb589d0766.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\stop\u_jpg.rf.128a27640a4834910e81c5e5fdd1645a.jpg,stop,stop
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\10390_jpg.rf.7141a7b6c8a3e8093bb152fe56677f90.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\11061_jpg.rf.94af491a7ec3eb78d63bb19ae88bd820.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\11095_jpg.rf.43e9a884a003cea8a54f6a14fc097ebf_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\11095_jpg.rf.43e9a884a003cea8a54f6a14fc097ebf_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\11196_jpg.rf.a9d8ee341b98140fb95a75d5c4c2d5c1_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\11457_jpg.rf.0f1b6d9f5d87e9b4aaf9689e6be61987_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\11457_jpg.rf.0f1b6d9f5d87e9b4aaf9689e6be61987_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\11653_jpg.rf.76e0f397e84ca910f431567b9d396e2a.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\11984_jpg.rf.f06af2282820cba15cb8861204e9f5f1_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\11984_jpg.rf.f06af2282820cba15cb8861204e9f5f1_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\12125_jpg.rf.4a036714e20c1f9b751a339dfba89c3b_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\12125_jpg.rf.4a036714e20c1f9b751a339dfba89c3b_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\12219_jpg.rf.6d77fe6fe4d5af0637770d7ec556b445.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\12593_jpg.rf.c39bf13ce9de15255b16cdd6438c2cdd.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\12696_jpg.rf.599c37019cd06f656cc6f6d7ed2ddd10_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\12696_jpg.rf.599c37019cd06f656cc6f6d7ed2ddd10_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\12874_jpg.rf.f2ee5dd8a26bcb568772b43260dd8b2b.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\1449_jpg.rf.5699a50423e2c96ac80c3f8bcad97d32.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\1567_jpg.rf.22340c99245b5fcb687959a3e0beef7d_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\1567_jpg.rf.22340c99245b5fcb687959a3e0beef7d_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\1691_jpg.rf.3d81f8be55f0405b069549365f65f3e6_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\1691_jpg.rf.3d81f8be55f0405b069549365f65f3e6_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\1766_jpg.rf.9b68e0e1a8fc65570d09fcc1db0d8f89.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\2028_jpg.rf.ca12335cac7f03b07f4e7475fb2bedc8_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\2063_jpg.rf.5d87f6505589a10fbdd444024520825a.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\2281_jpg.rf.d7ece490d237a4a231895c43fdd003a8_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\2649_jpg.rf.d4252059fa04081ce0c9c540cb7aac6e.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\2779_jpg.rf.5979dea84b6c659a6fa7ca190a896c40.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\2879_jpg.rf.5f11f3c00c5f3436f2355ec11e274bef_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\2879_jpg.rf.5f11f3c00c5f3436f2355ec11e274bef_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\2879_jpg.rf.5f11f3c00c5f3436f2355ec11e274bef_2.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\2879_jpg.rf.5f11f3c00c5f3436f2355ec11e274bef_3.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\3012_jpg.rf.d9baee61f3b4116d51a3d1c9b068f8f8.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\4558_jpg.rf.08229762892169c864e5d2ab54a19947.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\5584_jpg.rf.afdd8ebb8db4ecaf7a326f062be660ae_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\5584_jpg.rf.afdd8ebb8db4ecaf7a326f062be660ae_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\5968_jpg.rf.1f2ed16d9f0ab6704114219790e735a2.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\6030_jpg.rf.c8a52c110833a5a0a083f3e2535abd6d_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\6105_jpg.rf.7adb359f14d2bab21c1f67186612b991.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\6465_jpg.rf.39a46a8006374f74ddd4ae7ee3ce453a_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\6465_jpg.rf.39a46a8006374f74ddd4ae7ee3ce453a_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\6553_jpg.rf.2e77e39603f071024625dd398d43a693.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\6837_jpg.rf.fcab4431371496feb5fc955c9ff13438_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\6923_jpg.rf.09cfc6398d88e0988d4c22c6d3ad0414_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\6923_jpg.rf.09cfc6398d88e0988d4c22c6d3ad0414_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\6923_jpg.rf.09cfc6398d88e0988d4c22c6d3ad0414_2.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\7022_jpg.rf.d2c776df812ee52b0c3b9977adc027e4_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\7022_jpg.rf.d2c776df812ee52b0c3b9977adc027e4_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\7022_jpg.rf.d2c776df812ee52b0c3b9977adc027e4_2.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\8098_jpg.rf.f3578152a0b226f7a868992db261fe7e_0.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\8098_jpg.rf.f3578152a0b226f7a868992db261fe7e_1.jpg,traffic green,traffic green
+D:\SeeIt\Combined_Dataset_V9\test\traffic green\8808_jpg.rf.2aafb5465841583998490aa00d25b327.jpg,traffic green,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\5_png.rf.586c6644abb7d6b86882870840af2e92.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\6_png.rf.1524ac087401aed9936195c12309b850.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_018_traffic-light-74-_jpg.rf.9b548c67f5afb0be107e35bcaae0fabd.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_092_432_png_jpg.rf.ab862e361fd7dd23fc2f7e40f82a3b8a.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_142_traffic-light-13-_jpg.rf.f3030dc8eaca36f897094810b457556d.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_145_traffic-light-816-_jpg.rf.fccec6e7d4974d9069827fdbabf8f3dd.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_146_traffic-light-98-_jpg.rf.19098b40f007b7b93027b5b00f5f6315.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_147_5_png.rf.b5518a5e81f847852bc2b15182d21efd.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_209_img_282_jpg.rf.dd54fd851130b8f3e88ed6dcec2feabf.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_213_img_719_jpg.rf.c79610a5ca899968d287de11a6790f2e.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_225_traffic-light-695-_jpg.rf.b58aa6103526815d2398c57a48f8cdc2.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_246_img_73_jpg.rf.d2ff35ea14ed853601f609a9ef287e9b.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_271_9_png.rf.8dfeddc282a0c43d6ba4a6428b6c49a0.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_301_traffic-light-816-_jpg.rf.09a0fd1b33a91ab0947bef5cc3242115.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_337_img_288_jpg.rf.71293ad932a7ff7423991411f887b758.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_338_2_png.rf.22192c6545086d1d6d9636b327393c1d.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_340_img_759_jpg.rf.833e9aa0018ed76834dc4b15f7d7db59.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_356_img_751_jpg.rf.0594ec0665d23fac45f89061d5e0d965.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_375_img_690_jpg.rf.eb04aeec81b6ad115ef17d94d46aef71.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_380_traffic-light-50-_jpg.rf.f84593176a7f461198e8aaa9fd276a20.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_384_img_665_jpg.rf.66572a57930e065833de627e4b0c2ea9.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_423_img_74_jpg.rf.199cebc5dffdb1a06e7b7f5b5636fae2.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\aug_439_traffic-light-144-_jpg.rf.bb0826d812cd7c4f395cffa6d5cd2d30.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\traffic-light-101-_jpg.rf.9528c2f854ca84b7e053fd02311c0444.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\traffic-light-104-_jpg.rf.89792063118e97b78bee4806e1e83c1c.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\traffic-light-116-_jpg.rf.249b596af03e615b9617b2adde46560b.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\traffic-light-133-_jpg.rf.f99a87963228a39b289891e1faad548a.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\traffic-light-138-_jpg.rf.4e5fb4a5ef03d3d75f6eb1c7770c7e20.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\traffic-light-47-_jpg.rf.8bbe911331a9aafefe9f99a9bba12773.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic red\traffic-light-59-_jpg.rf.92c77dd9e741533c1e2648c5c5d95cd6.jpg,traffic red,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\137_png_jpg.rf.ebe80a4b20fa3c61e2ba0b317d4d7182.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\199_png_jpg.rf.970302c4b679004c5f023f32fcd39595.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\259_png_jpg.rf.74547e5f9b81493e37f0159c659d1c9d.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\342_png_jpg.rf.7db4b18de81238345828f731fc0f2536.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\359_png_jpg.rf.8f60804f0249afd3c40891676a3d0b5b.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\382_png_jpg.rf.a7be3f8f5612a0012e16728bbca8c8c1.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\402_png_jpg.rf.a6468e9e84a351cf6b9344cda784306d.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\482_png_jpg.rf.c5215ad8d2edc5f21cc3879e9a72411a.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\496_png_jpg.rf.b98cbbeeca9291ad1763b942905ee092.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\519_png_jpg.rf.8eb34ceee372bc8eec85258cce4f9559.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\78_png_jpg.rf.da58d1d1647dbafb1d08756332068fef.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\hard_red_light_7_png_jpg.rf.285d6513541a3a17b3a4a659ba6f10fa_4.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\lampu-merah-98-_jpg.rf.f5088795a5137950c49d6f87f305afb6.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\medium_red_light_2_png_jpg.rf.a3472e6f94545633a4a75440263b2914_0.jpg,traffic yellow,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\medium_red_light_2_png_jpg.rf.a3472e6f94545633a4a75440263b2914_2.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\medium_red_light_2_png_jpg.rf.a3472e6f94545633a4a75440263b2914_3.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\medium_red_light_3_png_jpg.rf.6dbd5870e7e30b2ddc01d006dca6e975_0.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\medium_red_light_3_png_jpg.rf.6dbd5870e7e30b2ddc01d006dca6e975_1.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\medium_red_light_4_png_jpg.rf.5f2750ad616df4e02c4ad2198df11f9b.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\medium_red_light_5_png_jpg.rf.6d2f1d2fd3ca3bc1aabd7ab73c38774b.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\traffic-light-344-_jpg.rf.025442791f0a5bd922dffdf68c5791de_0.jpg,traffic yellow,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\traffic-light-473-_jpg.rf.b2ab7917afbdf5e17b03691af8f8872b_0.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\traffic-light-473-_jpg.rf.b2ab7917afbdf5e17b03691af8f8872b_1.jpg,traffic yellow,emergency_exit
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\traffic-light-582-_jpg.rf.d31cb0560b46a43823d775735254591e_0.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\traffic-light-582-_jpg.rf.d31cb0560b46a43823d775735254591e_1.jpg,traffic yellow,traffic red
+D:\SeeIt\Combined_Dataset_V9\test\traffic yellow\traffic-light-851-_jpg.rf.85bc41fb66dc53f234ad1dec23a4e72e.jpg,traffic yellow,traffic yellow
+D:\SeeIt\Combined_Dataset_V9\test\truck\-3163ca687f_jpg.rf.f83c2eef8feb72543043d243a319b623.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\002998700_1416392386-SHDX_1_jpg.rf.af5bc4436dec5f3e0a043c0706389168.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\1345-2_jpg.rf.2e2500efe028a45aa3c7dcd0236ab587.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\1517432936821_jpg.rf.8bfcdd460c46c44a934efd8637e47bbd.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\16012-colt-jual-mobil-mitsubishi-can_jpg.rf.212132c94b68b91283b202004311705d.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\16482_4786988467249_jpg.rf.53629a975dc1cec9d66a01e5e3c2a81b.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\17828_5789ACS01_1-1_jpg.rf.3b5cbce61f52842d4cec4a0e289399b7.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\17828_6137AFS01_11_jpg.rf.41347efa302e5990c2e4f0eb92c7a585.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\1985_mitsubishi_canter_1612210132039_jpg.rf.7934a72f50919230711846d3f0d1440d.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\1996-Mitsubishi-Mitsubishi-Fuso-Grea_jpg.rf.95bae08773723f95eecee53ab4695ec1.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\2000-Mitsubishi-Dump-Truck-688-36322_jpg.rf.ce4cae75780d62dfb91976ec257d5b56.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\2006-mitsubishi-fuso-fe140-16-box-tr_jpg.rf.0aa9c4d97d9871baf0703476e08c27ce.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\2007-mitsubishi-fuso-fe140-16ft-box-_jpg.rf.79854693655d94b36c8662b5dab4bae9.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\2008-mitsubishi-fuso-wrecker-tow-tru_jpg.rf.c2c0ff6d98fcf0a9442e20e4324a3066.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\2013-Mitsubishi-Fuso-Canter-7C15-PBU-1_jpg.rf.a8097b552ea13f9e360c7321fea94d9f.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\21452_NT789-1_19-1_jpg.rf.4e69c0e115fdb51757ff007675256567.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\25994-colt-fe-jual-truk-engkel-fe-71_jpg.rf.bb7b788457f1f2321fe3fbcd1ffe6ff8.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\3U-571-1_jpg.rf.90b0851b21fefcbce9b19f85c675ecdb.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\4026_a15903860165ecb5d607e7b1_jpg.rf.83c8fa0bd15e20c9dd789acfed9dc5c1.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\55cc67b50cae9e2b9125-432x318_jpg.rf.8bb1164f0dd4475622ee16da295d4a6e.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\5a1e37db78f66_jpg.rf.ffc5877c1d3f1b2679313cbf9f7e5019.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\723cd80942c8d87d85c47d004764ad9a_jpg.rf.0b7be240da3648510f7117af1b5cd910.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\763afeec320ba4926e9e0c45d457586b_jpg.rf.b95e18dc7af6d1d7d82efa0df1e8595b.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\800px-FusoFighter2nd_jpg.rf.047d0aa89c3b7ed0b3ffaa5939804273.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\854534_SAM_0695_JPG5bb2899218b4c7a1a_jpg.rf.31510515bc0f12e2d75b04ed43918a4c.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\bak-2Btruk-2Bwarna-2Bkuning-2Bmerah-6_jpg.rf.3a7f287878369f5e53d3c98a7a4626d6.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Cutting-Sticker-full-Truk-Canter-Var_jpg.rf.1776fe6d4caa63ac322756169a8b60ae.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\cutting-sticker-truck-pintu-engkel-k_jpg.rf.5ac776799a5726cec89b7b7a69e242db.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Cutting-Sticker-Truk-Canter-Variasi-6_jpg.rf.3d7d453000864730186e1f0a08978b50.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\eDlfbpTS26rlRAwuSdGg_full_IMG-201804_jpg.rf.9f2444105ffbe0f17689278b0d1cb314.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\en_all_jpg.rf.62fd222eef3daa1b0357a4c51c9a9dde_0.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\en_all_jpg.rf.62fd222eef3daa1b0357a4c51c9a9dde_1.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\en_all_jpg.rf.62fd222eef3daa1b0357a4c51c9a9dde_2.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\en_all_jpg.rf.62fd222eef3daa1b0357a4c51c9a9dde_3.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\en_all_jpg.rf.62fd222eef3daa1b0357a4c51c9a9dde_4.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\en_all_jpg.rf.62fd222eef3daa1b0357a4c51c9a9dde_5.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\en_all_jpg.rf.62fd222eef3daa1b0357a4c51c9a9dde_6.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\FK417E-001_jpg.rf.944ca5034435c2f1c7ee0897b5191743.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\harga-colt-diesel-tan-truk-mitsubish_jpg.rf.a9cbcdb56753f30dbbd402cb0a14a022.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\hqdefault-4_jpg.rf.3963c03ac8538c08a5e39b393c7ffac8.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013197_jpg.rf.757efd9e94e422ee8d6cdf739feb17a5.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013211_jpg.rf.e5a9bed348e970e417a58a82f082e3cb.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013233_jpg.rf.2e68e661c8a17ea303e3b8c32299571d.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013234_jpg.rf.40f681693d59cc37591f9d758c6be426.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013239_jpg.rf.ef3becf358c15b56606ea0e821e95e67.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013254_jpg.rf.cd1eb50d8814908caec2150467f42605.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013255_jpg.rf.4540ed09f6217de98dc6ca6ac96c8a94.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013256_jpg.rf.e95b5f0223e236e1f11c5e42a159f319.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013261_jpg.rf.905e9f7795a6580361c41b83271d4107.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013275_jpg.rf.7df6d045ce50fa68ac8343509fa00a08.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013334_jpg.rf.25a93aafcadc419634e8f51602dcf708.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013335_jpg.rf.48d091eea74b73765f800d6b22a2325b.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013359_jpg.rf.f5f69a6f986b51b934f6b7f2aa7d1ca8.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013360_jpg.rf.d2f51da631334b738d9945a1f80a9e67.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013361_jpg.rf.d1918ae105008d2e3aa184fb950423c5.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013380_jpg.rf.1bbcbc26c4f65e665f8f0b6f06597ed1.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013383_jpg.rf.4193ad5a0e73a10440b78500403073f3.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013384_jpg.rf.9d4b23924ca28b129bf359454ae5f192.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013400_jpg.rf.3240a9b812e9cf8c2beb847056cbabfd.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013417_jpg.rf.796c6d4c9d473613284565dd2d92de3e.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013423_jpg.rf.2f44c9df6d0720befca1028c3558a9cb.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013433_jpg.rf.92fc3180778851372b485d740f5c1c96.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013438_jpg.rf.64e0a9b1299bb49b96e5a96f903576a0.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013439_jpg.rf.c57bc85bbb316db70bccafba5a970d47.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013443_jpg.rf.df6badd54d20e9c9f744c64bd03cb34d.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013444_jpg.rf.ab64b0e138cf0a87b567a24ffae8fccf.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013461_jpg.rf.ed1921de7c46e39fb4064a8dd1960db8.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013463_jpg.rf.8d4109e7bd4a1584d94f3cad3f153add.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013474_jpg.rf.542d274c18d49da43eab0c1bcf079345.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013498_jpg.rf.95087ef6a632458eb9f680d061bee8de.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013514_jpg.rf.e9993e7bb5b9759e56530b9c3c4e2be6.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013522_jpg.rf.ad78bf4687bdbd96d171328520fe9ac4.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013531_jpg.rf.9184242d0e51f7416994e7fd7ca95e38.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013549_jpg.rf.b9d6ebfe00d3e9ea2f324b1fe43515df.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013577_jpg.rf.68a8049782532b920f9451ffb59375b5.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013582_jpg.rf.56966fe4996645a4c40b9acd65e88fb6.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Image_013603_jpg.rf.198e119b9128eb33b280566d1829287f.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\IMG_5456_jpg.rf.15951ac92baf9d6bf2eeedff9dee9ccb.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Isuzu-2BGiga-2BFVR-2BS-2BWing-2BBox_jpg.rf.f0ea4cec0ec52b1fcd1a354d6da57277.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Landscape-Trucks-Mitsubishi-Fuso-FE1_jpg.rf.efbfa76b9ed6ba46d33a9efccf5863f4.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\mitsubishi-canter-fe-74-hd-truck-cha_jpg.rf.4ee93291ff888b97c23da5eca9ad3567.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\mitsubishi-fuso-fg-4x4-manual-low-mi_jpg.rf.344512984d6f0e131c42f51606dbf6c5.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\mitsubishi-fuso-truck-082433c278_jpg.rf.b632790e7ee2f62263bef7aa3456283f.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\mitsubishi-fuso-tv-truck-hannover-ge_jpg.rf.f114bbb9cc55c75926ebb47fc8234929.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Mitsubishi-Self-Loader-Truck-CN-FV4-2_jpg.rf.45a44586a4b6b16e17f1f15f9a17fc61.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\private-mitsubishi-fuso-dump-truck-c_jpg.rf.5dbf494c3cebe1c205f315d78429c57e.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Sejarah-Palkun-2_jpg.rf.48244017bed8c90717b6ab5b698572fb.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\thumb2_3c6f302cc1ac614c6408b3828bc73_jpg.rf.aea49ecd9c52eabec275b416988401a0_0.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\thumb2_3c6f302cc1ac614c6408b3828bc73_jpg.rf.aea49ecd9c52eabec275b416988401a0_1.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\thumb2_3c6f302cc1ac614c6408b3828bc73_jpg.rf.aea49ecd9c52eabec275b416988401a0_2.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\thumbmitsubishi-boom-truck-159340541_jpg.rf.8b7608479ad67dbfd99f1b919f34ae0a.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\Truk-2BSampah_jpg.rf.eaa1eebf2786b84ef64efe016216459d.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\truk-listrik-ecanter_jpg.rf.74d3fceaa0ea439fcead1629e92c884c.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\used-mitsubishi-fuso-tadano-fighter-_jpg.rf.9850f13568db413bfb68929ffb9cef8d.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\truck\WhatsApp-2BImage-2B2017-07-26-2Bat-2-10_jpg.rf.1a1d62d71bdce6bb808a9dc3e2bb754b.jpg,truck,truck
+D:\SeeIt\Combined_Dataset_V9\test\van\van443_jpg.rf.d04bb9463cd4f07af4786ea764f7f565.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van454_jpg.rf.e8c9e466c4efd4b54bd9662f564b46c2_0.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van454_jpg.rf.e8c9e466c4efd4b54bd9662f564b46c2_1.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van456_jpg.rf.a6c587cd45cc360bec9e20c5ddc1e8e3.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van458_jpg.rf.69d06f78c7d01a6974b6b3806297f319.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van460_jpg.rf.f16cf52056327e09bd41afc1aa695303.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van466_jpg.rf.cedf79c55c9ae8ca21a2520cf0b73c40.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van495_jpg.rf.acef5581596cf9f47e3ff2ecd994fa4a.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van517_jpg.rf.3aa1def4c64e07fda7bbb44ffd948bcd.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van518_jpg.rf.661d8448a175e47e8a607d125b8dc7be.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van520_jpg.rf.d8a7ee3fb496fd86c815dee4897c6456.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van530_jpg.rf.3921ffd385e544f1012e14292999e306.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van531_jpg.rf.536ead1cc8b29fa36664bcd4f803952a.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van535_jpg.rf.96ef6d821e43329d2605b7105d4312cf.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van540_jpg.rf.3b9c3b4a9023f9937276458cdf148902.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van616_jpg.rf.609635e6db89482e4ebe1ff958e2fb78.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van623_jpg.rf.ad42918384f7cda0f5c70193ef3ac166_0.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van623_jpg.rf.ad42918384f7cda0f5c70193ef3ac166_1.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van626_jpg.rf.d2eb0d8fbb0d67438b8fb1fdd42230ba.jpg,van,truck
+D:\SeeIt\Combined_Dataset_V9\test\van\van647_jpg.rf.e00bf50c8f3d3aed475650e74924ad8a.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van651_jpg.rf.7bd8c92bb054c63e3bbfca7130f44490.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van677_jpg.rf.e92f210db77d0242c88f423cdfc55eca_0.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van677_jpg.rf.e92f210db77d0242c88f423cdfc55eca_1.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van679_jpg.rf.827ca3367bcdcae97aa3e05b2189bfd1_0.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van679_jpg.rf.827ca3367bcdcae97aa3e05b2189bfd1_1.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van683_jpg.rf.c43a08f4b6cedfdc5ddc30554023e5e3_0.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van683_jpg.rf.c43a08f4b6cedfdc5ddc30554023e5e3_1.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van691_jpg.rf.51e0e2e89aa9fdfb11b9771328e62459_0.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van691_jpg.rf.51e0e2e89aa9fdfb11b9771328e62459_1.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van699_jpg.rf.af8742ea2e3ddfbbe071aadce0e96c9b.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van714_jpg.rf.6bd129be18b1c9272f192c40c86d6210_0.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van714_jpg.rf.6bd129be18b1c9272f192c40c86d6210_1.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van714_jpg.rf.6bd129be18b1c9272f192c40c86d6210_2.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van720_jpg.rf.8b51c23843df699955acaf70bbf5d7d0.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van725_jpg.rf.c726d5b8962709df0c17cf9d2db6bc1c_0.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van725_jpg.rf.c726d5b8962709df0c17cf9d2db6bc1c_1.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van751_jpg.rf.73159521352e1e41b1087269633a8248.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van760_jpg.rf.ff44bb7be5c6c971791aa20bda114c93.jpg,van,van
+D:\SeeIt\Combined_Dataset_V9\test\van\van771_jpg.rf.171979d2b523de537e564250d73aa1f8.jpg,van,van

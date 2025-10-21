@@ -1,0 +1,15 @@
+true,predicted,count
+car,traffic green,23
+car,crosswalk,20
+car,traffic red,13
+car,stop,3
+car,traffic yellow,3
+traffic yellow,traffic red,3
+car,cycle,1
+car,truck,1
+car,van,1
+emergency exit,car,1
+emergency exit,traffic green,1
+traffic green,emergency exit,1
+traffic yellow,emergency exit,1
+van,truck,1
