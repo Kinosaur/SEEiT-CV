@@ -7,7 +7,7 @@ const { ProtanTools } = M as {
         detectConfusableColors?: (
             uri: string,
             maxSide: number,
-            mode: 'protan',              // narrowed: protan only
+            mode: 'protan',
             minAreaFrac: number,
             minSat: number,
             minVal: number
@@ -74,9 +74,9 @@ function ensure(method?: keyof NonNullable<typeof ProtanTools>) {
 
 export async function detectConfusableColors(
     uri: string,
-    maxSide = 360,
-    mode: 'protan' = 'protan',  // narrowed
-    minAreaFrac = 0.0035,
+    maxSide = 640,
+    mode: 'protan' = 'protan',
+    minAreaFrac = 0.002,
     minSat = 0.25,
     minVal = 0.15
 ) {

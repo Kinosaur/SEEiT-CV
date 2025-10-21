@@ -31,8 +31,10 @@ type ConfRegion = {
     x: number; y: number; w: number; h: number; areaFrac: number;
 }
 
-const CF_MIN_AREA_FRAC = 0.0035;
-const CF_MIN_SAT = 0.35;
+// Tuning: allow smaller regions at higher analysis resolution
+const CF_MAX_SIDE = 640;           // was implicit 360 in call sites
+const CF_MIN_AREA_FRAC = 0.002;    // was 0.0035 (keeps more small regions)
+const CF_MIN_SAT = 0.25;
 const CF_MIN_VAL = 0.15;
 
 const MIN_LABEL_AREA_FRAC = 0.006;
@@ -130,7 +132,8 @@ export default function ColorBlindCameraScreen() {
     }, []);
 
     const runConfusions = React.useCallback(async (uri: string) => {
-        const res = await detectConfusableColors(uri, 360, 'protan', CF_MIN_AREA_FRAC, CF_MIN_SAT, CF_MIN_VAL);
+        // bump maxSide, lower minAreaFrac
+        const res = await detectConfusableColors(uri, CF_MAX_SIDE, 'protan', CF_MIN_AREA_FRAC, CF_MIN_SAT, CF_MIN_VAL);
         let filtered = (res.regions ?? []) as ConfRegion[];
 
         if (!showLowConf) {
@@ -252,13 +255,29 @@ export default function ColorBlindCameraScreen() {
     const overlayStyle = { borderColor: `${theme.text}F2`, backgroundColor: `${theme.surface}1A`, borderStyle: 'solid' as const };
     const confTag = (level?: ConfLevel) => (level ? ` (${level})` : '');
 
+    // Coarse family map to stabilize label text
+    const coarseFamily = (name: string) => {
+        const n = (name || '').toLowerCase();
+        if (['red','brown','pink','orange','magenta'].includes(n)) return 'warm';
+        if (['blue','purple'].includes(n)) return 'blueish';
+        if (['black','white','grey','gray'].includes(n)) return 'neutral';
+        if (['yellow','green','cyan'].includes(n)) return n; // keep these as-is
+        return n || '—';
+    };
+
     const buildPillLabel = (cr: ConfRegion): string => {
         const dom = cr.dominantFamily || cr.trueFamily || '';
         const sim = cr.simFamilyProtan || '';
         const conf = cr.confProtan;
-        if (!sim || conf === 'low') return dom;
+
+        // Use coarse groups to mitigate red/brown and blue/purple flips
+        const domC = coarseFamily(dom);
+        const simC = coarseFamily(sim);
+
+        if (!sim || conf === 'low') return domC || dom || '—';
+        // Keep arrow but show coarse families for stability; mark high confidence with ↑
         const mark = conf === 'high' ? ' ↑' : '';
-        return `${dom} → ${sim}${mark}`;
+        return `${domC} → ${simC}${mark}`;
     };
 
     const Line = ({ label, swatch, text }: { label: string; swatch: string; text: string }) => (
