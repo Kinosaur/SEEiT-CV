@@ -1,3 +1,7 @@
+/**
+ * ProtanTools - Native module interface for color confusion detection
+ * Provides Android native color analysis for protanopia simulation
+ */
 import { NativeModules, Platform } from 'react-native';
 
 const M = NativeModules as any;
@@ -57,9 +61,12 @@ const { ProtanTools } = M as {
     };
 };
 
+// Ensure Android platform for native module access
 function assertAndroid() {
     if (Platform.OS !== 'android') throw new Error('Android-only feature. Build/run on Android.');
 }
+
+// Validate native module availability and method existence
 function ensure(method?: keyof NonNullable<typeof ProtanTools>) {
     assertAndroid();
     if (!ProtanTools) {
@@ -72,6 +79,16 @@ function ensure(method?: keyof NonNullable<typeof ProtanTools>) {
     }
 }
 
+/**
+ * Detect color confusion regions in an image for protanopia
+ * @param uri - Image file URI to analyze
+ * @param maxSide - Maximum image dimension for processing (default: 640)
+ * @param mode - Color blindness type (currently only 'protan')
+ * @param minAreaFrac - Minimum region area fraction (default: 0.002)
+ * @param minSat - Minimum saturation threshold (default: 0.25)
+ * @param minVal - Minimum value/brightness threshold (default: 0.15)
+ * @returns Analysis results with detected confusion regions
+ */
 export async function detectConfusableColors(
     uri: string,
     maxSide = 640,

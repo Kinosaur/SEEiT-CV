@@ -1,3 +1,7 @@
+/**
+ * Camera format hook for consistent 1080p@30fps capture
+ * Falls back to auto-selection if target format unsupported
+ */
 import { useCameraDevice, useCameraFormat } from 'react-native-vision-camera';
 
 /**
@@ -9,6 +13,7 @@ import { useCameraDevice, useCameraFormat } from 'react-native-vision-camera';
  * Documented trade-off: unpredictable resolution across devices if 1080p unsupported.
  */
 export function useSimpleFormat(position: 'front' | 'back') {
+    // Target camera specifications
     const TARGET_WIDTH = 1920;
     const TARGET_HEIGHT = 1080;
     const TARGET_FPS = 30;
@@ -19,6 +24,7 @@ export function useSimpleFormat(position: 'front' | 'back') {
         { fps: TARGET_FPS },
     ]);
 
+    // Validate FPS compatibility with selected format
     let fps: number | undefined = undefined;
     if (
         format &&

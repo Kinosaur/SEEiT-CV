@@ -1,3 +1,7 @@
+/**
+ * Feedback Screen - User feedback collection interface
+ * Allows users to submit feedback with text and optional image attachments
+ */
 import Buttons from '@/components/Buttons';
 import { ThemedText } from '@/components/ThemedText';
 import { Colors } from '@/constants/Colors';
@@ -18,18 +22,25 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+/**
+ * Feedback Component - Collects user feedback with optional image attachment
+ * Validates input and handles image selection from device gallery
+ */
 export default function Feedback() {
     const colorScheme = useColorScheme() ?? 'light';
     const theme = Colors[colorScheme];
     const navigation = useNavigation();
 
+    // Form state
     const [title, setTitle] = React.useState('');
     const [desc, setDesc] = React.useState('');
     const [imgUri, setImgUri] = React.useState<string | null>(null);
     const [busy, setBusy] = React.useState(false);
 
+    // Form validation
     const valid = title.trim().length >= 4 && desc.trim().length >= 10;
 
+    // Handle image selection from gallery
     const pickImage = React.useCallback(async () => {
         try {
             setBusy(true);

@@ -1,3 +1,7 @@
+/**
+ * Speech Channel Hook - Manages speech synthesis and detection notifications
+ * Coordinates TTS output with detection results and speech prioritization
+ */
 import {
     MIN_MAJOR_INTERVAL_MS,
     MIN_MINOR_INTERVAL_MS,
@@ -17,11 +21,16 @@ type UseSpeechChannelOptions = {
     notifyDetections: NotifyFn;
 };
 
+/**
+ * Hook for managing speech synthesis and object detection notifications
+ * Handles TTS coordination, speech prioritization, and detection announcements
+ */
 export function useSpeechChannel(opts: UseSpeechChannelOptions) {
     const { active, speakAggregateViaNotifier = false, notifyDetections } = opts;
 
     const speechSupervisorRef = React.useRef<SpeechSupervisor | null>(null);
 
+    // Initialize speech supervisor with TTS integration
     if (!speechSupervisorRef.current) {
         speechSupervisorRef.current = new SpeechSupervisor({
             estimateMs: estimateSpeechDurationMs,

@@ -1,3 +1,7 @@
+/**
+ * Color Blindness Selection Screen - Feature selection interface
+ * Allows users to choose from available color vision assistance features
+ */
 import Buttons from '@/components/Buttons';
 import { ThemedText } from '@/components/ThemedText';
 import { Colors } from '@/constants/Colors';
@@ -13,6 +17,7 @@ type FeatureItem = {
     description: string;
 };
 
+// Available color vision assistance features
 const FEATURES: FeatureItem[] = [
     {
         key: 'color_finder',
@@ -36,6 +41,7 @@ interface ItemProps {
     isLast: boolean;
 }
 
+// Individual feature selection row component
 function RadioRow({
     keyVal, name, description, selected, onPress,
     themeText, themeTextSecondary, themeAccent, themeSurface, themeDivider, isFirst, isLast,
@@ -69,14 +75,21 @@ function RadioRow({
     );
 }
 
-export default function FeatureSelectScreen() {
+/**
+ * Main Color Blindness Selection Component
+ * Provides interface for selecting color vision assistance features
+ */
+export default function ColorBlindnessSelectScreen() {
     const colorScheme = useColorScheme() ?? 'light';
     const theme = Colors[colorScheme];
     const navigation = useNavigation();
+    
+    // Selection and loading state
     const [pending, setPending] = useState(FEATURES[0]?.key ?? '');
     const [saving, setSaving] = useState(false);
     const [loading] = useState(false); // no setter to avoid unused var warning
 
+    // Handle feature selection confirmation
     const onConfirm = async () => {
         if (!pending) return;
         setSaving(true);

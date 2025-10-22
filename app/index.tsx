@@ -1,3 +1,7 @@
+/**
+ * Main Camera Screen - Real-time object detection with live speech feedback
+ * Primary interface for the SEEiT-CV accessibility application
+ */
 import Buttons from '@/components/Buttons';
 import { DetectionOverlay } from '@/components/DetectionOverlay';
 import { ThemedText } from '@/components/ThemedText';
@@ -31,6 +35,7 @@ import { useSpeechChannel } from '@/hooks/useSpeechChannel';
 
 const SPEAK_AGGREGATE_VIA_NOTIFIER = false;
 
+// Component for handling missing camera permissions
 const PermissionsPage = () => (
     <ThemedView style={styles.center} accessible accessibilityRole="alert" accessibilityLabel="Camera permission required">
         <ThemedText style={styles.permissionText}>Camera permission is required.</ThemedText>
@@ -43,6 +48,7 @@ const PermissionsPage = () => (
     </ThemedView>
 );
 
+// Component for handling missing camera device
 const NoCameraDeviceError = () => {
     React.useEffect(() => {
         AccessibilityInfo.announceForAccessibility('No camera device found.');
@@ -54,7 +60,12 @@ const NoCameraDeviceError = () => {
     );
 };
 
+/**
+ * Main Index Component - Primary camera interface with real-time object detection
+ * Provides live speech feedback for detected objects and visual overlays
+ */
 export default function Index() {
+    // Initialize TTS service on component mount
     React.useEffect(() => {
         let cleanup: undefined | (() => void);
         initTTS()
@@ -69,6 +80,7 @@ export default function Index() {
         };
     }, []);
 
+    // Camera and UI state
     const [cameraPosition, setCameraPosition] = React.useState<'front' | 'back'>('back');
     const [torch, setTorch] = React.useState<'off' | 'on'>('off');
     const [speechOn, setSpeechOn] = React.useState(DEFAULT_SPEECH_ON);

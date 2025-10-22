@@ -1,3 +1,7 @@
+/**
+ * Direction Smoothing Hook - Stabilizes directional descriptions for detected objects
+ * Prevents jittery direction changes by requiring stability over multiple frames
+ */
 import { DIR_CACHE_TTL_MS, DIR_NULL_GRACE, DIR_STABLE_FRAMES } from '@/constants/detection';
 import React from 'react';
 
@@ -11,9 +15,14 @@ type DirCache = {
     lastSeen: number;
 };
 
+/**
+ * Hook for smoothing directional descriptions of detected objects
+ * Requires consistent direction over multiple frames before updating
+ */
 export function useDirectionSmoothing() {
     const cacheRef = React.useRef<Map<number, DirCache>>(new Map());
 
+    // Smooth direction changes for stable object tracking
     const smoothDirection = React.useCallback((id: number, rawDir: StableDirection, now: number): StableDirection => {
         if (id < 0) return rawDir;
         const cache = cacheRef.current;
@@ -42,6 +51,7 @@ export function useDirectionSmoothing() {
         return entry.stable ?? rawDir;
     }, []);
 
+    // Clean up old cache entries to prevent memory leaks
     const purgeDirCache = React.useCallback((now: number) => {
         const cache = cacheRef.current;
         for (const [id, v] of Array.from(cache.entries())) {

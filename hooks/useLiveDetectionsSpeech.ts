@@ -1,3 +1,7 @@
+/**
+ * Live Detections Speech Hook - Converts object detection results to spoken announcements
+ * Provides intelligent speech synthesis for real-time object detection with smoothing and prioritization
+ */
 import {
     CRITICAL_LABELS,
     DIRECTION_ORDER,
@@ -23,8 +27,13 @@ import React from 'react';
 type Obj = any;
 type RequestSpeak = (phrase: string, priority: SpeechPriority) => void;
 
+// Objects that are acceptable at medium distance
 const MED_OK_LABELS = new Set(['car', 'truck', 'van', 'bicycle', 'motorcycle']);
 
+/**
+ * Hook for converting live object detections to spoken announcements
+ * Handles smoothing, prioritization, and natural language generation
+ */
 export function useLiveDetectionsSpeech(params: {
     enabled: boolean;
     objects: Obj[];
@@ -32,6 +41,7 @@ export function useLiveDetectionsSpeech(params: {
 }) {
     const { enabled, objects, requestSpeak } = params;
 
+    // Smoothing hooks for stable direction and distance reporting
     const { smoothDirection, purgeDirCache } = useDirectionSmoothing();
     const { smoothMeters, purgeDistCache } = useDistanceMetersSmoothing();
     const lastSigRef = React.useRef<Signature | null>(null);
@@ -40,6 +50,7 @@ export function useLiveDetectionsSpeech(params: {
         if (!enabled) return;
         const rawList = (objects ?? []) as Obj[];
         const now = Date.now();
+        // Clean up old smoothing data
         purgeDirCache(now);
         purgeDistCache(now);
         if (!rawList.length) return;
