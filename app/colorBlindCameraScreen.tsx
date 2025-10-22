@@ -41,6 +41,33 @@ const MIN_LABEL_AREA_FRAC = 0.006;
 const MIN_LABEL_PX_W = 56;
 const MIN_LABEL_PX_H = 24;
 
+/* Debug helpers for color logging */
+function toHex(n: number) {
+  const v = Math.max(0, Math.min(255, Math.round(n)));
+  return v.toString(16).padStart(2, '0').toUpperCase();
+}
+function rgbToHex(r: number, g: number, b: number) {
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
+// sRGB(0-255) -> HSV with H in degrees [0..360), S,V in [0..1]
+function srgb255ToHsv(r: number, g: number, b: number) {
+  const rs = r / 255, gs = g / 255, bs = b / 255;
+  const max = Math.max(rs, gs, bs), min = Math.min(rs, gs, bs);
+  const d = max - min;
+  const v = max;
+  const s = max === 0 ? 0 : d / max;
+  let h = 0;
+  if (d !== 0) {
+    switch (max) {
+      case rs: h = ((gs - bs) / d + (gs < bs ? 6 : 0)); break;
+      case gs: h = ((bs - rs) / d + 2); break;
+      default:  h = ((rs - gs) / d + 4); break;
+    }
+    h *= 60;
+  }
+  return { h, s, v };
+}
+
 export default function ColorBlindCameraScreen() {
     const [cameraPosition] = React.useState<'back' | 'front'>('back');
     const { device, format, fps } = useSimpleFormat(cameraPosition);
@@ -54,6 +81,7 @@ export default function ColorBlindCameraScreen() {
 
     const dynamicStyles = React.useMemo(() => createDynamicStyles(theme), [theme]);
 
+    // Keep only ONE declaration of photoUri
     const [photoUri, setPhotoUri] = React.useState<string | null>(null);
     const [imgW, setImgW] = React.useState(0);
     const [imgH, setImgH] = React.useState(0);
@@ -131,8 +159,24 @@ export default function ColorBlindCameraScreen() {
         }
     }, []);
 
+    const logRegions = React.useCallback((regions: ConfRegion[]) => {
+        if (!__DEV__) return;
+        console.groupCollapsed(`[ColorFinder] ${regions.length} regions (sorted)`);
+        regions.forEach((r, idx) => {
+            const hexTrue = rgbToHex(r.meanR, r.meanG, r.meanB);
+            const hexProtan = rgbToHex(r.meanProtanR, r.meanProtanG, r.meanProtanB);
+            const hsv = srgb255ToHsv(r.meanR, r.meanG, r.meanB);
+            console.log(
+                `[${idx + 1}] conf=${r.confProtan} area=${(r.areaFrac * 100).toFixed(2)}%` +
+                ` | True RGB=(${r.meanR},${r.meanG},${r.meanB}) ${hexTrue} HSV=(${hsv.h.toFixed(1)}°,${(hsv.s*100).toFixed(0)}%,${(hsv.v*100).toFixed(0)}%)` +
+                ` name="${r.dominantFamily || r.trueFamily}"` +
+                ` | Protan RGB=(${r.meanProtanR},${r.meanProtanG},${r.meanProtanB}) ${hexProtan} name="${r.simFamilyProtan}"`
+            );
+        });
+        console.groupEnd();
+    }, []);
+
     const runConfusions = React.useCallback(async (uri: string) => {
-        // bump maxSide, lower minAreaFrac
         const res = await detectConfusableColors(uri, CF_MAX_SIDE, 'protan', CF_MIN_AREA_FRAC, CF_MIN_SAT, CF_MIN_VAL);
         let filtered = (res.regions ?? []) as ConfRegion[];
 
@@ -146,6 +190,9 @@ export default function ColorBlindCameraScreen() {
         setImgW(res.width || 0);
         setImgH(res.height || 0);
 
+        // Debug: print numeric colors and names to console
+        logRegions(filtered);
+
         AccessibilityInfo.announceForAccessibility?.(
             filtered.length === 0
                 ? 'No high-confidence regions detected.'
@@ -153,7 +200,7 @@ export default function ColorBlindCameraScreen() {
         );
 
         return res;
-    }, [showLowConf]);
+    }, [showLowConf, logRegions]);
 
     const rerunIfPossible = React.useCallback(async () => {
         if (photoUri) {
@@ -201,7 +248,7 @@ export default function ColorBlindCameraScreen() {
         } finally {
             setProcessing(false);
         }
-    }, [requestMediaPermission, pickOneImage, ensureFileUri, runConfusions]);
+    }, [requestMediaPermission, pickOneImage, ensureFileUri, runConfusions, setPhotoUri]);
 
     const captureAndAnalyze = React.useCallback(async () => {
         if (!cameraRef.current) return;
@@ -225,7 +272,7 @@ export default function ColorBlindCameraScreen() {
         } finally {
             setAnalyzing(false);
         }
-    }, [cameraRef, runConfusions]);
+    }, [cameraRef, runConfusions, setPhotoUri]);
 
     if (!hasPermission) {
         return (
@@ -268,7 +315,7 @@ export default function ColorBlindCameraScreen() {
     const buildPillLabel = (cr: ConfRegion): string => {
         const dom = cr.dominantFamily || cr.trueFamily || '';
         const sim = cr.simFamilyProtan || '';
-        const conf = cr.confProtan;
+               const conf = cr.confProtan;
 
         // Use coarse groups to mitigate red/brown and blue/purple flips
         const domC = coarseFamily(dom);
@@ -309,7 +356,7 @@ export default function ColorBlindCameraScreen() {
                     ref={cameraRef}
                     style={{ flex: 1 }}
                     device={device}
-                    isActive={true}
+                    isActive={!photoUri} // pause while modal open
                     resizeMode="cover"
                     photo={true}
                     androidPreviewViewType="texture-view"
@@ -436,7 +483,21 @@ export default function ColorBlindCameraScreen() {
                                 const protSw = `rgb(${cr.meanProtanR},${cr.meanProtanG},${cr.meanProtanB})`;
 
                                 return (
-                                    <View key={`legend-${idx}`} style={[styles.legendCard, { borderColor: theme.divider }]}>
+                                    <TouchableOpacity
+                                        key={`legend-${idx}`}
+                                        activeOpacity={0.7}
+                                        onPress={() => {
+                                            const hexTrue = rgbToHex(cr.meanR, cr.meanG, cr.meanB);
+                                            const hsv = srgb255ToHsv(cr.meanR, cr.meanG, cr.meanB);
+                                            const hexProtan = rgbToHex(cr.meanProtanR, cr.meanProtanG, cr.meanProtanB);
+                                            console.log(
+                                              `[ColorFinder:tap] #${idx + 1} conf=${cr.confProtan} area=${(cr.areaFrac*100).toFixed(2)}%` +
+                                              ` | True RGB=(${cr.meanR},${cr.meanG},${cr.meanB}) ${hexTrue} HSV=(${hsv.h.toFixed(1)}°,${(hsv.s*100).toFixed(0)}%,${(hsv.v*100).toFixed(0)}%) name="${cr.dominantFamily || cr.trueFamily}"` +
+                                              ` | Protan RGB=(${cr.meanProtanR},${cr.meanProtanG},${cr.meanProtanB}) ${hexProtan} name="${cr.simFamilyProtan}"`
+                                            );
+                                        }}
+                                        style={[styles.legendCard, { borderColor: theme.divider }]}
+                                    >
                                         <View style={styles.cardHeader}>
                                             <View style={dynamicStyles.indexBadge}><ThemedText style={dynamicStyles.indexBadgeText}>{idx + 1}</ThemedText></View>
                                             <ThemedText style={styles.cardTitle}>Region {idx + 1}</ThemedText>
@@ -444,7 +505,7 @@ export default function ColorBlindCameraScreen() {
 
                                         <Line label="True" swatch={trueSw} text={(cr.dominantFamily || cr.trueFamily || '—')} />
                                         <Line label="Protan" swatch={protSw} text={`${cr.simFamilyProtan || '—'}${confTag(cr.confProtan)}`} />
-                                    </View>
+                                    </TouchableOpacity>
                                 );
                             })}
 

@@ -4,7 +4,6 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { useDetectionsNotifier } from '@/hooks/useDetectionsNotifier';
 import { mlkitObjectDetect } from '@/hooks/useMlkitObject';
 import { useSimpleFormat } from '@/hooks/useSimpleFormat';
 import { initTTS } from '@/services/tts';
@@ -31,7 +30,6 @@ import { useLiveDetectionsSpeech } from '@/hooks/useLiveDetectionsSpeech';
 import { useSpeechChannel } from '@/hooks/useSpeechChannel';
 
 const SPEAK_AGGREGATE_VIA_NOTIFIER = false;
-const DUP_A11Y_SUPPRESS_MS = 900;
 
 const PermissionsPage = () => (
     <ThemedView style={styles.center} accessible accessibilityRole="alert" accessibilityLabel="Camera permission required">
@@ -74,7 +72,9 @@ export default function Index() {
     const [cameraPosition, setCameraPosition] = React.useState<'front' | 'back'>('back');
     const [torch, setTorch] = React.useState<'off' | 'on'>('off');
     const [speechOn, setSpeechOn] = React.useState(DEFAULT_SPEECH_ON);
-    const [isActive, setIsActive] = React.useState(true);
+
+    // Start paused on app open
+    const [isActive, setIsActive] = React.useState(false);
 
     const [objects, setObjects] = React.useState<any[]>([]);
     const [frameDims, setFrameDims] = React.useState<{ width: number; height: number }>({ width: 0, height: 0 });
@@ -150,32 +150,13 @@ export default function Index() {
         if (speechOn) AccessibilityInfo.announceForAccessibility(msg);
     };
 
-    const notifyDetections = useDetectionsNotifier({
-        enabled: speechOn && isActive && detectionStatus === 'ok',
-        useTTS: false,
-        stableFrames: 3,
-        minConfidence: 0.5,
-        perObjectCooldownMs: 5000,
-        globalCooldownMs: 400,
-        includeConfidenceInMessage: false,
-        summarizeMultiple: false,
-        allowUnlabeled: false,
-        numbering: false,
-        numberFormat: 'words',
-        numberingResetMs: 6000,
-        labelHoldMs: 2500,
-        minScoreDeltaToSwitch: 0.12,
-        iouThresholdForCluster: 0.2,
-        labelMap: {},
-        speakTTS: () => Promise.resolve(),
-        announceA11y: (msg: string) => AccessibilityInfo.announceForAccessibility(msg),
-    });
+    // No-op notifier; full notifier hookup removed as it was unused
+    const noopNotify = React.useCallback(() => { }, []);
 
     const { requestSpeak } = useSpeechChannel({
         active: speechOn && isActive && detectionStatus === 'ok',
         speakAggregateViaNotifier: SPEAK_AGGREGATE_VIA_NOTIFIER,
-        dupA11ySuppressMs: DUP_A11Y_SUPPRESS_MS,
-        notifyDetections,
+        notifyDetections: noopNotify,
     });
 
     useLiveDetectionsSpeech({
